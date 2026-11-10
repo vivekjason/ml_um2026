@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-234273d1456647dabc34a594ac50e507.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.7.32">
+
+  <meta name="author" content="Vivek Jason Jayaraj · Centre for Population Health, Universiti Malaya">
+  <meta name="dcterms.date" content="2026-11-12">
+  <title>Predictive Intelligence in R – Neural networks</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+      }
+    pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+    div.sourceCode
+      { color: #24292e;  }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #24292e; } /* Normal */
+    code span.al { color: #ff5555; font-weight: bold; } /* Alert */
+    code span.an { color: #6a737d; } /* Annotation */
+    code span.at { color: #d73a49; } /* Attribute */
+    code span.bn { color: #005cc5; } /* BaseN */
+    code span.bu { color: #d73a49; } /* BuiltIn */
+    code span.cf { color: #d73a49; } /* ControlFlow */
+    code span.ch { color: #032f62; } /* Char */
+    code span.cn { color: #005cc5; } /* Constant */
+    code span.co { color: #6a737d; } /* Comment */
+    code span.cv { color: #6a737d; } /* CommentVar */
+    code span.do { color: #6a737d; } /* Documentation */
+    code span.dt { color: #d73a49; } /* DataType */
+    code span.dv { color: #005cc5; } /* DecVal */
+    code span.er { color: #ff5555; text-decoration: underline; } /* Error */
+    code span.ex { color: #d73a49; font-weight: bold; } /* Extension */
+    code span.fl { color: #005cc5; } /* Float */
+    code span.fu { color: #6f42c1; } /* Function */
+    code span.im { color: #032f62; } /* Import */
+    code span.in { color: #6a737d; } /* Information */
+    code span.kw { color: #d73a49; } /* Keyword */
+    code span.op { color: #24292e; } /* Operator */
+    code span.ot { color: #6f42c1; } /* Other */
+    code span.pp { color: #d73a49; } /* Preprocessor */
+    code span.re { color: #6a737d; } /* RegionMarker */
+    code span.sc { color: #005cc5; } /* SpecialChar */
+    code span.ss { color: #032f62; } /* SpecialString */
+    code span.st { color: #032f62; } /* String */
+    code span.va { color: #e36209; } /* Variable */
+    code span.vs { color: #032f62; } /* VerbatimString */
+    code span.wa { color: #ff5555; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/theme/quarto-8f45bb93117f14508dc9979574253b4d.css">
+  <link href="../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+  <link href="../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+
+  <script src="../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" data-background-gradient="linear-gradient(135deg, #0b2545 0%, #0f4c6e 55%, #13838f 100%)" class="quarto-title-block center">
+  <h1 class="title">Neural networks</h1>
+  <p class="subtitle">08 · Predictive Intelligence in R · Day 2, 14.00–16.40 · Tutorial 7</p>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Vivek Jason Jayaraj · Centre for Population Health, Universiti Malaya 
+</div>
+</div>
+</div>
+
+  <p class="date">2026-11-12</p>
+</section>
+<section id="this-afternoon" class="slide level2">
+<h2>This afternoon</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><strong>1</strong></td>
+<td>What a network <strong>is</strong></td>
+<td>from the logistic regression you own to a hidden layer</td>
+</tr>
+<tr class="even">
+<td><strong>2</strong></td>
+<td>How it <strong>learns</strong></td>
+<td>loss → gradient descent → backpropagation, <strong>worked by hand with real numbers</strong></td>
+</tr>
+<tr class="odd">
+<td><strong>3</strong></td>
+<td>How to keep it <strong>honest</strong></td>
+<td>capacity, weight decay, dropout, early stopping, scaling</td>
+</tr>
+<tr class="even">
+<td><strong>4</strong></td>
+<td>How to <strong>fit one in R</strong></td>
+<td><code>mlp()</code> + <code>nnet</code>; <code>brulee</code> + torch; tuning; SHAP</td>
+</tr>
+<tr class="odd">
+<td><strong>5</strong></td>
+<td>When it is the <strong>wrong tool</strong></td>
+<td>the evidence on tabular data</td>
+</tr>
+<tr class="even">
+<td><strong>6</strong></td>
+<td>What <strong>deep learning</strong> adds</td>
+<td>CNNs, RNNs, transformers; how they fail in health</td>
+</tr>
+</tbody>
+</table>
+<div class="say">
+<p>By 16.40 you will have trained, tuned and explained a network with the same six verbs as every other model — and you will know exactly which numbers changed when it “learned”.</p>
+</div>
+</section>
+<section id="seventy-years-in-one-slide" class="slide level2">
+<h2>Seventy years in one slide</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td>1958</td>
+<td><strong>Perceptron</strong> (Rosenblatt)</td>
+<td>one neuron; can only draw a line</td>
+</tr>
+<tr class="even">
+<td>1969</td>
+<td>Minsky &amp; Papert</td>
+<td>“it can’t do XOR” — first AI winter</td>
+</tr>
+<tr class="odd">
+<td>1986</td>
+<td><strong>Backpropagation</strong> popularised (Rumelhart, Hinton &amp; Williams)</td>
+<td>hidden layers become trainable</td>
+</tr>
+<tr class="even">
+<td>1989–91</td>
+<td>Universal approximation (Cybenko; Hornik)</td>
+<td>one wide hidden layer can fit any continuous function</td>
+</tr>
+<tr class="odd">
+<td>1998</td>
+<td>LeNet reads cheques (LeCun)</td>
+<td>convolution works; compute and data are scarce</td>
+</tr>
+<tr class="even">
+<td>2012</td>
+<td><strong>AlexNet</strong> wins ImageNet by a mile</td>
+<td>GPUs + big data + ReLU + dropout: “deep learning”</td>
+</tr>
+<tr class="odd">
+<td>2016</td>
+<td>Diabetic retinopathy at specialist level (Gulshan et al., JAMA)</td>
+<td>medicine notices</td>
+</tr>
+<tr class="even">
+<td>2017</td>
+<td><strong>Transformers</strong> (Vaswani et al.)</td>
+<td>sequences, text, then everything</td>
+</tr>
+<tr class="odd">
+<td>2020s</td>
+<td>Foundation models, LLMs, multimodal medical models</td>
+<td>the current wave</td>
+</tr>
+</tbody>
+</table>
+<p>For <strong>tabular</strong> health data the story is quieter: trees still win most contests. We will see why, and we will see it in our own data.</p>
+</section>
+<section>
+<section id="what-a-network-is" class="title-slide slide level1 section-slide center" data-background-color="#0b2545" data-background-gradient="linear-gradient(135deg, #0b2545 0%, #0f4c6e 55%, #13838f 100%)">
+<h1>1 · What a network is</h1>
+
+</section>
+<section id="you-already-own-a-neural-network" class="slide level2">
+<h2>You already own a neural network</h2>
+<div class="columns">
+<div class="column" style="width:45%;">
+<p><img data-src="../images/gen/logistic_neuron.png"></p>
+</div><div class="column" style="width:55%;">
+<p>Logistic regression:</p>
+<p><span class="math display">\[p = \sigma(w_1 x_1 + \dots + w_p x_p + b), \qquad \sigma(z)=\frac{1}{1+e^{-z}}\]</span></p>
+<p>A <strong>neuron</strong> (unit): weighted sum → bias → non-linear <strong>activation</strong>. <span class="math inline">\(w\)</span> = weights, <span class="math inline">\(b\)</span> = bias.</p>
+<p>That is the whole building block. Everything else is wiring.</p>
+<p>Its limit is geometric: <span class="math inline">\(p \ge 0.5 \iff z \ge 0\)</span>, and <span class="math inline">\(z = 0\)</span> is a <strong>straight line</strong> (a hyperplane). One neuron draws one straight boundary.</p>
+</div></div>
+</section>
+<section id="why-one-neuron-is-not-enough" class="slide level2">
+<h2>Why one neuron is not enough</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="../images/gen/nn_boundary_evolution.png" class="quarto-figure quarto-figure-center" height="300"></p>
+</figure>
+</div>
+<ul>
+<li><strong>XOR</strong> and the <strong>two rings</strong>: no <span class="math inline">\(w_1, w_2, b\)</span> separate them. Logistic regression scores 55 %.</li>
+<li>Minsky &amp; Papert (1969) made this point and the field stalled for fifteen years.</li>
+<li>The fix was obvious and un-trainable until backpropagation: let several neurons each draw a soft line, then let one more neuron <strong>combine</strong> the lines.</li>
+</ul>
+</section>
+<section id="the-multilayer-perceptron" class="slide level2">
+<h2>The multilayer perceptron</h2>
+<div class="columns">
+<div class="column" style="width:48%;">
+<p><img data-src="../images/gen/mlp_2_8_1.png"></p>
+</div><div class="column" style="width:52%;">
+<p>One hidden layer of <span class="math inline">\(H\)</span> units, one output, one person <span class="math inline">\(\mathbf{x}\in\mathbb{R}^p\)</span>:</p>
+<p><span class="math display">\[\begin{aligned}
+\mathbf{z}^{(1)} &amp;= \mathbf{W}^{(1)\top}\mathbf{x} + \mathbf{b}^{(1)} \\
+\mathbf{a}^{(1)} &amp;= g(\mathbf{z}^{(1)}) \\
+z^{(2)} &amp;= \mathbf{W}^{(2)\top}\mathbf{a}^{(1)} + b^{(2)} \\
+p &amp;= \sigma(z^{(2)})
+\end{aligned}\]</span></p>
+<p><span class="math inline">\(\mathbf{W}^{(1)}\)</span>: <span class="math inline">\(p\times H\)</span>; <span class="math inline">\(\mathbf{W}^{(2)}\)</span>: <span class="math inline">\(H\)</span> numbers. For <span class="math inline">\(n\)</span> people, stack <span class="math inline">\(\mathbf{x}\)</span> as rows of <span class="math inline">\(\mathbf{X}\)</span> and it is all matrix multiplication → GPUs → five lines of R.</p>
+<p><strong>Parameters:</strong> <span class="math inline">\(pH + 2H + 1\)</span>. For us (<span class="math inline">\(p\approx45\)</span>, <span class="math inline">\(H=30\)</span>): <strong>1,411</strong>.</p>
+</div></div>
+</section>
+<section id="deep-just-means-more-of-the-same" class="slide level2">
+<h2>“Deep” just means more of the same</h2>
+<p><span class="math display">\[\mathbf{a}^{(2)} = g\!\left(\mathbf{W}^{(2)\top}\mathbf{a}^{(1)} + \mathbf{b}^{(2)}\right), \qquad
+\mathbf{a}^{(3)} = g\!\left(\mathbf{W}^{(3)\top}\mathbf{a}^{(2)} + \mathbf{b}^{(3)}\right), \ \dots\]</span></p>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="../images/gen/mlp_deep.png" class="quarto-figure quarto-figure-center" height="330"></p>
+</figure>
+</div>
+<p>Each layer re-describes the previous one’s output. Depth lets a network <strong>compose</strong> simple features into complex ones with far fewer units than one very wide layer would need (edges → textures → parts → objects).</p>
+</section>
+<section id="a-worked-forward-pass-keep-these-numbers" class="slide level2">
+<h2>A worked forward pass — keep these numbers</h2>
+<p>2 inputs → 2 tanh units → 1 sigmoid output. One person, <span class="math inline">\(\mathbf{x} = (1.0,\ 0.5)\)</span>, truly a case (<span class="math inline">\(y = 1\)</span>).</p>
+<p><span class="math display">\[\mathbf{W}^{(1)} = \begin{pmatrix} 0.5 &amp; -0.3 \\ 0.2 &amp; 0.8 \end{pmatrix},\quad
+\mathbf{b}^{(1)} = (0.1,\ 0.1),\quad \mathbf{W}^{(2)} = (0.7,\ -0.4),\quad b^{(2)} = 0.05\]</span></p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Step</th>
+<th>Computation</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>hidden pre-activations</td>
+<td><span class="math inline">\(1.0(0.5)+0.5(0.2)+0.1\)</span>; <span class="math inline">\(\ 1.0(-0.3)+0.5(0.8)+0.1\)</span></td>
+<td><span class="math inline">\((0.70,\ 0.20)\)</span></td>
+</tr>
+<tr class="even">
+<td>hidden activations</td>
+<td><span class="math inline">\(\tanh(0.70),\ \tanh(0.20)\)</span></td>
+<td><span class="math inline">\((0.6044,\ 0.1974)\)</span></td>
+</tr>
+<tr class="odd">
+<td>output pre-activation</td>
+<td><span class="math inline">\(0.7(0.6044)-0.4(0.1974)+0.05\)</span></td>
+<td><span class="math inline">\(0.3941\)</span></td>
+</tr>
+<tr class="even">
+<td>prediction</td>
+<td><span class="math inline">\(\sigma(0.3941)\)</span></td>
+<td><span class="math inline">\(\mathbf{p = 0.5973}\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>The network says 60 % for someone who is a case. It should say more. <strong>Training is how it learns to.</strong></p>
+</section>
+<section id="activation-functions-the-non-linearity-is-the-point" class="slide level2">
+<h2>Activation functions: the non-linearity is the point</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="../images/gen/activations.png" class="quarto-figure quarto-figure-center" height="270"></p>
+</figure>
+</div>
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Formula</th>
+<th>Derivative</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>sigmoid</td>
+<td><span class="math inline">\(1/(1+e^{-z})\)</span></td>
+<td><span class="math inline">\(\sigma(1-\sigma)\)</span></td>
+<td>binary output; <code>nnet</code> hidden units</td>
+</tr>
+<tr class="even">
+<td>tanh</td>
+<td>—</td>
+<td><span class="math inline">\(1-\tanh^2 z\)</span></td>
+<td>zero-centred; our from-scratch net</td>
+</tr>
+<tr class="odd">
+<td><strong>ReLU</strong></td>
+<td><span class="math inline">\(\max(0,z)\)</span></td>
+<td>1 if <span class="math inline">\(z&gt;0\)</span> else 0</td>
+<td>default hidden unit in deep nets</td>
+</tr>
+<tr class="even">
+<td>softmax</td>
+<td><span class="math inline">\(e^{z_k}/\sum_j e^{z_j}\)</span></td>
+<td>—</td>
+<td>multi-class output</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Without a non-linear <span class="math inline">\(g\)</span>, layers collapse</strong>: a product of matrices is a matrix → one linear model. The squash is what lets eight neurons make a ring.</p>
+<p><strong>Saturation</strong>: where sigmoid/tanh are flat, the derivative ≈ 0, so earlier layers stop learning — the <em>vanishing gradient</em>. ReLU’s derivative is exactly 1 on the positive side; that is most of why 2012 happened.</p>
+</section></section>
+<section>
+<section id="how-it-learns" class="title-slide slide level1 section-slide center" data-background-color="#0b2545" data-background-gradient="linear-gradient(135deg, #0b2545 0%, #0f4c6e 55%, #13838f 100%)">
+<h1>2 · How it learns</h1>
+
+</section>
+<section id="the-loss-what-wrong-means" class="slide level2">
+<h2>The loss: what “wrong” means</h2>
+<p><span class="math display">\[L = -\frac{1}{n}\sum_{i}\Big[y_i\log p_i + (1-y_i)\log(1-p_i)\Big]\]</span></p>
+<ul>
+<li><strong>Binary cross-entropy</strong> = the negative log-likelihood logistic regression maximises. Nothing new.</li>
+<li>Punishes confident wrong answers brutally: <span class="math inline">\(p=0.99\)</span> when <span class="math inline">\(y=0\)</span> costs 4.6; <span class="math inline">\(p=0.6\)</span> costs 0.9.</li>
+<li>Smooth → has a gradient everywhere. <em>Accuracy</em> has no useful gradient, so nothing is trained on it directly.</li>
+<li>Regression: MSE. Multi-class: categorical cross-entropy. Survival/ordinal/custom: write your own.</li>
+</ul>
+<p>For the worked example: <span class="math inline">\(L = -\log(0.5973) = 0.5154\)</span>.</p>
+</section>
+<section id="gradient-descent-walk-downhill" class="slide level2">
+<h2>Gradient descent: walk downhill</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="../images/gen/gradient_descent_lr.png" class="quarto-figure quarto-figure-center" height="280"></p>
+</figure>
+</div>
+<p><span class="math display">\[\theta \leftarrow \theta - \eta\,\frac{\partial L}{\partial\theta} \qquad \text{for every weight and bias}\]</span></p>
+<ol type="1">
+<li>Start with small random weights. 2. Compute the loss and its <strong>gradient</strong> (direction of steepest increase).</li>
+<li>Step <strong>against</strong> it, by the <strong>learning rate</strong> η. 4. Repeat for many <strong>epochs</strong>.</li>
+</ol>
+<p>Same knob, same trade-off as XGBoost’s <code>learn_rate</code> this morning.</p>
+</section>
+<section id="batches-momentum-adam" class="slide level2">
+<h2>Batches, momentum, Adam</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variant</th>
+<th>Gradient from</th>
+<th>Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>batch GD</td>
+<td>all <span class="math inline">\(n\)</span> rows</td>
+<td>exact; slow for large <span class="math inline">\(n\)</span> (Tutorial 7 Part B; <code>nnet</code> via BFGS)</td>
+</tr>
+<tr class="even">
+<td>stochastic (SGD)</td>
+<td>one row</td>
+<td>noisy; the noise helps escape poor regions</td>
+</tr>
+<tr class="odd">
+<td><strong>mini-batch</strong></td>
+<td>32–512 rows</td>
+<td>the standard; 1 epoch = all batches once (<code>brulee</code>, <code>torch</code>, <code>keras</code>)</td>
+</tr>
+<tr class="even">
+<td>momentum</td>
+<td>running average of past gradients</td>
+<td>rolls through flat regions, damps zig-zag</td>
+</tr>
+<tr class="odd">
+<td><strong>Adam / AdamW</strong></td>
+<td>per-weight adaptive step + momentum</td>
+<td>default optimiser in most of deep learning</td>
+</tr>
+<tr class="even">
+<td>L-BFGS</td>
+<td>uses curvature</td>
+<td>excellent for small nets; <code>nnet</code> and <code>brulee</code>’s default</td>
+</tr>
+</tbody>
+</table>
+<p>A <strong>learning-rate schedule</strong> (decay, cyclic) often matters more than which optimiser.</p>
+</section>
+<section id="backpropagation-is-the-chain-rule-step-1-the-output" class="slide level2">
+<h2>Backpropagation is the chain rule — step 1: the output</h2>
+<p>We need <span class="math inline">\(\partial L/\partial\theta\)</span> for every weight. One backward sweep, reusing each layer’s result.</p>
+<p><strong>Output layer.</strong> Sigmoid + cross-entropy gives a small miracle: <span class="math display">\[\delta^{(2)} \equiv \frac{\partial L}{\partial z^{(2)}} = p - y\]</span> <em>How wrong, with a sign.</em> Example: <span class="math inline">\(\delta^{(2)} = 0.5973 - 1 = \mathbf{-0.4027}\)</span>.</p>
+<p>Then, since <span class="math inline">\(z^{(2)} = \sum_h W^{(2)}_h a^{(1)}_h + b^{(2)}\)</span>: <span class="math display">\[\frac{\partial L}{\partial W^{(2)}_h} = \delta^{(2)} a^{(1)}_h, \qquad \frac{\partial L}{\partial b^{(2)}} = \delta^{(2)}\]</span></p>
+<p>Example: <span class="math inline">\(\partial L/\partial\mathbf{W}^{(2)} = -0.4027\times(0.6044,\ 0.1974) = (-0.2434,\ -0.0795)\)</span>.</p>
+</section>
+<section id="step-2-pass-the-blame-back-through-the-hidden-layer" class="slide level2">
+<h2>Step 2: pass the blame back through the hidden layer</h2>
+<p>How much did each hidden activation contribute to the error? <span class="math display">\[\frac{\partial L}{\partial a^{(1)}_h} = \delta^{(2)}\,W^{(2)}_h \;\Rightarrow\; (-0.4027)(0.7,\ -0.4) = (-0.2819,\ 0.1611)\]</span></p>
+<p>Through the activation (<span class="math inline">\(a = \tanh z\)</span>, so multiply by <span class="math inline">\(1 - a^2\)</span>): <span class="math display">\[\delta^{(1)}_h = \frac{\partial L}{\partial a^{(1)}_h}\,(1-(a^{(1)}_h)^2) \;\Rightarrow\; (-0.2819)(0.6347),\ (0.1611)(0.9610) = (-0.1789,\ 0.1548)\]</span></p>
+<p>Input weights (<span class="math inline">\(z^{(1)}_h = \sum_j W^{(1)}_{jh}x_j + b^{(1)}_h\)</span>): <span class="math display">\[\frac{\partial L}{\partial W^{(1)}_{jh}} = \delta^{(1)}_h\,x_j \;\Rightarrow\;
+\begin{pmatrix}1.0\\0.5\end{pmatrix}(-0.1789,\ 0.1548) = \begin{pmatrix}-0.1789 &amp; 0.1548\\ -0.0895 &amp; 0.0774\end{pmatrix}\]</span></p>
+</section>
+<section id="step-3-one-gradient-descent-step-η-0.5" class="slide level2">
+<h2>Step 3: one gradient-descent step, η = 0.5</h2>
+<p><span class="math display">\[\mathbf{W}^{(1)} \to \begin{pmatrix}0.5895 &amp; -0.3774\\ 0.2447 &amp; 0.7613\end{pmatrix},\quad
+\mathbf{b}^{(1)} \to (0.1895,\ 0.0226),\quad
+\mathbf{W}^{(2)} \to (0.8217,\ -0.3603),\quad b^{(2)} \to 0.2514\]</span></p>
+<p>Forward pass again with the new weights: <span class="math inline">\(\mathbf{p = 0.6966}\)</span>, loss <span class="math inline">\(0.3615\)</span> (was 0.5154).</p>
+<div class="key">
+<p>The network moved toward the right answer for this person. Average the gradients over all <span class="math inline">\(n\)</span> people, repeat a few thousand times, and it has <em>learned</em>. <strong>That is all learning means here: the numbers in <span class="math inline">\(\mathbf{W}\)</span> changed.</strong></p>
+</div>
+<p>Frameworks (torch, TensorFlow, JAX) derive the backward pass for <em>any</em> architecture automatically — <em>automatic differentiation</em>. You write the forward pass. The maths does not change.</p>
+</section>
+<section id="the-same-thing-in-matrix-form-tutorial-7-part-b" class="slide level2">
+<h2>The same thing, in matrix form (Tutorial 7 Part B)</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a aria-hidden="true" tabindex="-1"></a>fw  <span class="ot">&lt;-</span> <span class="fu">forward</span>(X, W1, b1, W2, b2); P <span class="ot">&lt;-</span> fw<span class="sc">$</span>P; A1 <span class="ot">&lt;-</span> fw<span class="sc">$</span>A1</span>
+<span id="cb1-2"><a aria-hidden="true" tabindex="-1"></a>dZ2 <span class="ot">&lt;-</span> (P <span class="sc">-</span> y) <span class="sc">/</span> n                   <span class="co"># delta at the output          (n x 1)</span></span>
+<span id="cb1-3"><a aria-hidden="true" tabindex="-1"></a>dW2 <span class="ot">&lt;-</span> <span class="fu">t</span>(A1) <span class="sc">%*%</span> dZ2                 <span class="co"># blame for hidden-&gt;output weights   (H x 1)</span></span>
+<span id="cb1-4"><a aria-hidden="true" tabindex="-1"></a>dA1 <span class="ot">&lt;-</span> dZ2 <span class="sc">%*%</span> <span class="fu">t</span>(W2)                 <span class="co"># pass the blame back through W2     (n x H)</span></span>
+<span id="cb1-5"><a aria-hidden="true" tabindex="-1"></a>dZ1 <span class="ot">&lt;-</span> dA1 <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> A1<span class="sc">^</span><span class="dv">2</span>)              <span class="co"># through the tanh                   (n x H)</span></span>
+<span id="cb1-6"><a aria-hidden="true" tabindex="-1"></a>dW1 <span class="ot">&lt;-</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> dZ1                  <span class="co"># blame for input-&gt;hidden weights    (p x H)</span></span>
+<span id="cb1-7"><a aria-hidden="true" tabindex="-1"></a>W1 <span class="ot">&lt;-</span> W1 <span class="sc">-</span> lr <span class="sc">*</span> dW1;  b1 <span class="ot">&lt;-</span> b1 <span class="sc">-</span> lr <span class="sc">*</span> <span class="fu">colSums</span>(dZ1)</span>
+<span id="cb1-8"><a aria-hidden="true" tabindex="-1"></a>W2 <span class="ot">&lt;-</span> W2 <span class="sc">-</span> lr <span class="sc">*</span> dW2;  b2 <span class="ot">&lt;-</span> b2 <span class="sc">-</span> lr <span class="sc">*</span> <span class="fu">sum</span>(dZ2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Five lines of backpropagation, two of gradient descent. Run 500 times → the ring.</p>
+</section>
+<section id="making-training-work" class="slide level2">
+<h2>Making training work</h2>
+<ul>
+<li><strong>Initialisation</strong>: small random weights, never all zero (identical units would get identical gradients and never differentiate). Xavier/Glorot (tanh) and He (ReLU) scale the randomness to the fan-in. Different seeds → slightly different networks; report it.</li>
+<li><strong>Vanishing / exploding gradients</strong>: each backward step multiplies by a weight and an activation derivative; products of many small numbers → 0, of large ones → ∞. Fixes: ReLU, good init, <strong>gradient clipping</strong>, <strong>batch normalisation</strong>, <strong>residual connections</strong>.</li>
+<li><strong>Scale the inputs</strong>: gradient descent on <code>hh_income</code> in ringgit and <code>age</code> in years spends all its steps on income. <code>step_normalize()</code> — not optional.</li>
+</ul>
+</section></section>
+<section>
+<section id="keeping-it-honest" class="title-slide slide level1 section-slide center" data-background-color="#0b2545" data-background-gradient="linear-gradient(135deg, #0b2545 0%, #0f4c6e 55%, #13838f 100%)">
+<h1>3 · Keeping it honest</h1>
+
+</section>
+<section id="networks-overfit-by-default" class="slide level2">
+<h2>Networks overfit by default</h2>
+<p>1,411 weights on ~3,200 people per fold — about 2 people per parameter; a classical statistician wants 10–20 <em>events</em> per parameter. Left alone, training loss → 0, validation AUC falls, probabilities pile up at 0 and 1.</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Brake</th>
+<th>Mechanism</th>
+<th>parsnip / brulee</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>weight decay (L2)</strong></td>
+<td>add <span class="math inline">\(\lambda\sum\theta^2\)</span> to the loss → every step also shrinks the weights; the network’s ridge regression</td>
+<td><code>penalty</code></td>
+</tr>
+<tr class="even">
+<td><strong>dropout</strong></td>
+<td>silence a random fraction of units on each training step; forces redundancy; ≈ an ensemble</td>
+<td><code>dropout</code> (brulee)</td>
+</tr>
+<tr class="odd">
+<td><strong>early stopping</strong></td>
+<td>stop when a validation slice stops improving</td>
+<td><code>stop_iter</code>, <code>validation</code></td>
+</tr>
+<tr class="even">
+<td>smaller architecture</td>
+<td>fewer units / layers</td>
+<td><code>hidden_units</code></td>
+</tr>
+<tr class="odd">
+<td>batch normalisation</td>
+<td>stabilises, mildly regularises</td>
+<td>brulee option</td>
+</tr>
+<tr class="even">
+<td>data augmentation</td>
+<td>more (perturbed) examples</td>
+<td>images, audio</td>
+</tr>
+</tbody>
+</table>
+<div class="key">
+<p>Always early-stop when you can. Weight decay <strong>or</strong> dropout, not both (brulee). Tune width and decay together.</p>
+</div>
+</section>
+<section id="architecture-choices-for-tabular-data" class="slide level2">
+<h2>Architecture choices for tabular data</h2>
+<ul>
+<li><strong>Width</strong>: 8–64 units for a few thousand rows. <strong>Depth</strong>: one hidden layer is usually enough; two (32 → 16) occasionally helps; more rarely does.</li>
+<li><strong>Activation</strong>: ReLU for depth; tanh/sigmoid fine for one small layer.</li>
+<li><strong>Output</strong>: parsnip sets it from <code>set_mode()</code> — sigmoid/softmax/identity.</li>
+<li><strong>What to tune, in order</strong>: learning rate (if not L-BFGS) → width → decay/dropout → epochs (early stopping) → batch size → depth.</li>
+</ul>
+<p><strong>Universal approximation</strong> says a wide-enough single layer <em>can</em> represent any continuous function. It does not say gradient descent will <em>find</em> it, or that 3,200 people will <em>identify</em> it. Depth gets there with far fewer parameters.</p>
+</section></section>
+<section>
+<section id="in-r" class="title-slide slide level1 section-slide center" data-background-color="#0b2545" data-background-gradient="linear-gradient(135deg, #0b2545 0%, #0f4c6e 55%, #13838f 100%)">
+<h1>4 · In R</h1>
+
+</section>
+<section id="the-engines" class="slide level2">
+<h2>The engines</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Engine</th>
+<th>Layers</th>
+<th>Backend</th>
+<th>Install</th>
+<th>Use for</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong><code>nnet</code></strong></td>
+<td>1 hidden</td>
+<td>base R, BFGS</td>
+<td>ships with R</td>
+<td>today’s hands-on; small tabular nets; always works</td>
+</tr>
+<tr class="even">
+<td><strong><code>brulee</code></strong></td>
+<td>many</td>
+<td><strong>torch</strong> (libtorch, no Python)</td>
+<td><code>torch::install_torch()</code>, ~250 MB once</td>
+<td>multi-layer MLPs inside tidymodels; dropout, early stopping, schedules</td>
+</tr>
+<tr class="odd">
+<td><code>torch</code> directly</td>
+<td>anything</td>
+<td>torch</td>
+<td>as above</td>
+<td>custom architectures, CNNs, RNNs in R</td>
+</tr>
+<tr class="even">
+<td><code>keras3</code></td>
+<td>anything</td>
+<td>TensorFlow / JAX / PyTorch via Python</td>
+<td>Python env</td>
+<td>largest ecosystem; most tutorials</td>
+</tr>
+<tr class="odd">
+<td><code>h2o</code></td>
+<td>MLP</td>
+<td>Java</td>
+<td>Java</td>
+<td>big-data clusters</td>
+</tr>
+</tbody>
+</table>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mlp</span>(<span class="at">hidden_units =</span> <span class="dv">8</span>, <span class="at">penalty =</span> <span class="fl">0.01</span>, <span class="at">epochs =</span> <span class="dv">200</span>) <span class="sc">|&gt;</span> <span class="fu">set_engine</span>(<span class="st">"nnet"</span>, <span class="at">MaxNWts =</span> <span class="dv">10000</span>) <span class="sc">|&gt;</span> <span class="fu">set_mode</span>(<span class="st">"classification"</span>)</span>
+<span id="cb2-2"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mlp</span>(<span class="at">hidden_units =</span> <span class="fu">c</span>(<span class="dv">32</span>L, <span class="dv">16</span>L), <span class="at">epochs =</span> <span class="dv">150</span>, <span class="at">learn_rate =</span> <span class="fl">0.005</span>, <span class="at">dropout =</span> <span class="fl">0.2</span>, <span class="at">penalty =</span> <span class="dv">0</span>, <span class="at">activation =</span> <span class="st">"relu"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"brulee"</span>, <span class="at">optimizer =</span> <span class="st">"SGD"</span>, <span class="at">batch_size =</span> <span class="dv">256</span>, <span class="at">momentum =</span> <span class="fl">0.9</span>, <span class="at">stop_iter =</span> <span class="dv">15</span>, <span class="at">validation =</span> <span class="fl">0.1</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"classification"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="mlp-arguments-across-engines" class="slide level2">
+<h2><code>mlp()</code> arguments across engines</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>parsnip</th>
+<th>nnet</th>
+<th>brulee</th>
+<th>meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>hidden_units</code></td>
+<td><code>size</code> (one layer)</td>
+<td>integer or <strong>vector</strong> (one per layer)</td>
+<td>width (and depth)</td>
+</tr>
+<tr class="even">
+<td><code>penalty</code></td>
+<td><code>decay</code></td>
+<td><code>penalty</code></td>
+<td>weight decay (L2)</td>
+</tr>
+<tr class="odd">
+<td><code>epochs</code></td>
+<td><code>maxit</code></td>
+<td><code>epochs</code></td>
+<td>optimiser iterations / passes</td>
+</tr>
+<tr class="even">
+<td><code>dropout</code></td>
+<td>—</td>
+<td><code>dropout</code></td>
+<td>fraction silenced per step</td>
+</tr>
+<tr class="odd">
+<td><code>activation</code></td>
+<td>sigmoid (fixed)</td>
+<td><code>"relu"</code>, <code>"elu"</code>, <code>"tanh"</code>, …</td>
+<td>hidden non-linearity</td>
+</tr>
+<tr class="even">
+<td><code>learn_rate</code></td>
+<td>—</td>
+<td><code>learn_rate</code></td>
+<td>step size</td>
+</tr>
+<tr class="odd">
+<td>engine extras</td>
+<td><code>MaxNWts</code> (raise it!)</td>
+<td><code>optimizer</code>, <code>batch_size</code>, <code>momentum</code>, <code>stop_iter</code>, <code>validation</code>, <code>class_weights</code>, <code>rate_schedule</code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="tuning-a-network-is-tuning" class="slide level2">
+<h2>Tuning a network is tuning</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a aria-hidden="true" tabindex="-1"></a>nn_tune_wf <span class="ot">&lt;-</span> <span class="fu">workflow</span>(dm_rec, <span class="fu">mlp</span>(<span class="at">hidden_units =</span> <span class="fu">tune</span>(), <span class="at">penalty =</span> <span class="fu">tune</span>(), <span class="at">epochs =</span> <span class="dv">200</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-2"><a aria-hidden="true" tabindex="-1"></a>                         <span class="fu">set_engine</span>(<span class="st">"nnet"</span>, <span class="at">MaxNWts =</span> <span class="dv">10000</span>) <span class="sc">|&gt;</span> <span class="fu">set_mode</span>(<span class="st">"classification"</span>))</span>
+<span id="cb3-3"><a aria-hidden="true" tabindex="-1"></a>nn_params <span class="ot">&lt;-</span> <span class="fu">extract_parameter_set_dials</span>(nn_tune_wf) <span class="sc">|&gt;</span></span>
+<span id="cb3-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">update</span>(<span class="at">hidden_units =</span> <span class="fu">hidden_units</span>(<span class="at">range =</span> <span class="fu">c</span>(<span class="dv">2</span>L, <span class="dv">24</span>L)), <span class="at">penalty =</span> <span class="fu">penalty</span>(<span class="at">range =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">4</span>, <span class="sc">-</span><span class="fl">0.5</span>)))</span>
+<span id="cb3-5"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a aria-hidden="true" tabindex="-1"></a>nn_race <span class="ot">&lt;-</span> <span class="fu">tune_race_anova</span>(nn_tune_wf, dm_folds, <span class="at">param_info =</span> nn_params, <span class="at">grid =</span> <span class="dv">16</span>, <span class="at">metrics =</span> <span class="fu">metric_set</span>(roc_auc, brier_class))</span>
+<span id="cb3-7"><a aria-hidden="true" tabindex="-1"></a>nn_last <span class="ot">&lt;-</span> <span class="fu">last_fit</span>(<span class="fu">finalize_workflow</span>(nn_tune_wf, <span class="fu">select_best</span>(nn_race, <span class="at">metric =</span> <span class="st">"roc_auc"</span>)), dm_split)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li>Width and weight decay are the two that matter for one layer; learning rate and epochs join for deeper ones.</li>
+<li>Expect <strong>more run-to-run variability</strong> than trees (random initialisation). Repeated CV earns its keep.</li>
+<li>Explain it with <code>kernelshap()</code> (no TreeSHAP for a network) and this morning’s <code>shapviz</code> plots. If network and trees agree on the structure, both are more believable.</li>
+</ul>
+</section></section>
+<section>
+<section id="when-not-to-use-one" class="title-slide slide level1 section-slide center" data-background-color="#0b2545" data-background-gradient="linear-gradient(135deg, #0b2545 0%, #0f4c6e 55%, #13838f 100%)">
+<h1>5 · When not to use one</h1>
+
+</section>
+<section id="the-evidence-on-tabular-data" class="slide level2">
+<h2>The evidence on tabular data</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Study</th>
+<th>Finding</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Shwartz-Ziv &amp; Armon 2022, <em>Information Fusion</em></td>
+<td>XGBoost beat the deep tabular models on the very datasets those models were published with</td>
+</tr>
+<tr class="even">
+<td>Grinsztajn, Oyallon &amp; Varoquaux 2022, NeurIPS</td>
+<td>45 datasets: tuned GBMs win on medium-sized tabular data; nets struggle with uninformative features and non-smooth targets</td>
+</tr>
+<tr class="odd">
+<td>McElfresh et al.&nbsp;2023, NeurIPS</td>
+<td>176 datasets: for most, the gap is smaller than the gain from tuning; nets win on some large, smooth problems</td>
+</tr>
+<tr class="even">
+<td>Christodoulou et al.&nbsp;2019, <em>J Clin Epidemiol</em></td>
+<td>no benefit of ML over logistic regression across 71 clinical prediction studies, after bias</td>
+</tr>
+</tbody>
+</table>
+<div class="key">
+<p>On a 5,000-row survey a well-regularised network <strong>ties</strong> boosted trees and logistic regression — and costs more compute, more tuning, more variance and less interpretability. Tutorial 7 shows exactly that. It is a <em>finding</em>, not a failure.</p>
+</div>
+</section>
+<section id="where-neural-networks-earn-their-keep" class="slide level2">
+<h2>Where neural networks earn their keep</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Data</th>
+<th>Architecture</th>
+<th>Health examples</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Images</strong></td>
+<td>CNNs, vision transformers</td>
+<td>retinopathy, chest X-ray, pathology, dermatology, radiology triage</td>
+</tr>
+<tr class="even">
+<td><strong>Signals / waveforms</strong></td>
+<td>1-D CNN, RNN/LSTM, transformers</td>
+<td>ECG, EEG, PPG, continuous monitoring</td>
+</tr>
+<tr class="odd">
+<td><strong>Text</strong></td>
+<td>transformers (BERT, GPT family)</td>
+<td>clinical notes, coding, referral triage, literature</td>
+</tr>
+<tr class="even">
+<td><strong>Event sequences</strong></td>
+<td>RNN, transformers</td>
+<td>EHR trajectories, next-visit prediction</td>
+</tr>
+<tr class="odd">
+<td><strong>Very large tabular</strong> (10⁶+ rows)</td>
+<td>MLP, TabNet, FT-Transformer</td>
+<td>claims, national registries — sometimes</td>
+</tr>
+<tr class="even">
+<td><strong>Multimodal</strong></td>
+<td>fused encoders</td>
+<td>image + report + labs</td>
+</tr>
+</tbody>
+</table>
+<p>Common thread: inputs are <strong>raw and high-dimensional</strong>; the useful features (an edge, a QRS complex, a phrase) must be <em>learned</em>. Tabular data arrives already feature-engineered — which is why trees do fine.</p>
+</section>
+<section id="convolution-recurrence-attention-one-slide-each" class="slide level2">
+<h2>Convolution, recurrence, attention — one slide each</h2>
+<div class="columns">
+<div class="column" style="width:33%;">
+<p><strong>CNN</strong> — a 3×3 <strong>filter</strong> slides across the image and fires where it matches a pattern; layers of filters build edges → textures → parts → objects; <strong>pooling</strong> shrinks and adds translation invariance. <strong>Transfer learning</strong>: start from a net trained on millions of natural images, retrain the last layers on your 2,000 fundus photos.</p>
+</div><div class="column" style="width:33%;">
+<p><strong>RNN / LSTM</strong> — process a sequence step by step, carrying a hidden state (memory); LSTM gates decide what to keep and forget. ECG, vital-sign streams, early EHR-sequence models. Largely superseded by …</p>
+</div><div class="column" style="width:33%;">
+<p><strong>Transformer</strong> — every position looks at every other and learns <em>where to look</em> (<strong>attention</strong>); no recurrence, massively parallel. The basis of BERT/GPT, modern vision models, and the medical foundation models now arriving.</p>
+</div></div>
+</section>
+<section id="how-deep-learning-fails-in-health" class="slide level2">
+<h2>How deep learning fails in health</h2>
+<ul>
+<li><strong>Shortcut learning</strong>: pneumonia classifiers that read the portable-X-ray marker; skin-cancer models that detect the dermatologist’s ruler; COVID CXR models that learned the hospital (DeGrave et al.&nbsp;2021).</li>
+<li><strong>Dataset shift</strong>: a new scanner, population or protocol — performance collapses silently.</li>
+<li><strong>Over-confidence</strong>: badly calibrated out of the box (Guo et al.&nbsp;2017) → temperature scaling / Platt before deployment.</li>
+<li><strong>Data and label hunger</strong>; label noise propagates.</li>
+<li><strong>Reproducibility</strong>: seeds, GPU non-determinism, undocumented pre-processing.</li>
+<li><strong>Equity</strong>: under-performance on under-represented groups unless measured.</li>
+</ul>
+<p>Same medicine as the rest of the workshop: leak-free splits <strong>by patient</strong>, honest resampling, calibration, subgroup checks, explanations used as audits.</p>
+</section>
+<section id="going-further" class="slide level2">
+<h2>Going further</h2>
+<ul>
+<li><strong>Books</strong>: <em>Deep Learning with R</em> (Chollet, Kalinowski &amp; Allaire, 2e); <em>Deep Learning and Scientific Computing with R torch</em> (Keydana); <em>Dive into Deep Learning</em> (free, d2l.ai)</li>
+<li><strong>Videos</strong>: StatQuest’s <em>Neural Networks</em> playlist (the watch-list in <code>instructor/</code>); 3Blue1Brown’s <em>Neural networks</em></li>
+<li><strong>Docs</strong>: brulee.tidymodels.org · torch.mlverse.org · keras3.posit.co</li>
+<li><strong>Before using a network on tabular data</strong>: Grinsztajn 2022; McElfresh 2023; Christodoulou 2019</li>
+<li><strong>Clinical ML</strong>: TRIPOD+AI (BMJ 2024); DECIDE-AI; Wiens et al.&nbsp;2019 <em>Nat Med</em> “Do no harm”</li>
+</ul>
+</section>
+<section id="tutorial-7-tutorials07_neural_networks.qmd" class="slide level2">
+<h2>→ Tutorial 7 (<code>tutorials/07_neural_networks.qmd</code>)</h2>
+<p><strong>Part B (now, 35 min):</strong> the 40-line network — forward, loss, backprop, gradient descent, the boundary bending.</p>
+<p><strong>Part C (15.50, 25 min):</strong> <code>mlp()</code> + <code>nnet</code>; under- vs over-regularised; tune with racing; <code>brulee</code> two-layer net; SHAP with this morning’s code; <strong>the verdict: four families on one test set.</strong></p>
+<p><strong>Your turn (25 min):</strong> count the parameters and watch them overfit; does the network see the same world as the trees; stretch with torch.</p>
+<div class="say">
+<p>16.40: verdict, the reveal, where next.</p>
+</div>
+
+
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+<p>Predictive Intelligence in R · CePH Series 5 · Nov 2026</p>
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'fade',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'fast',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1280,
+
+        height: 720,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 7.0e-2,
+
+        math: {
+          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+            const codeEl = trigger.previousElementSibling.cloneNode(true);
+            for (const childEl of codeEl.children) {
+              if (isCodeAnnotation(childEl)) {
+                childEl.remove();
+              }
+            }
+            return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

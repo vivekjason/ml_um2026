@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Agenda – Predictive Intelligence in R</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-eea96c9f5ba284fd003ee86039991193.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="floating nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Predictive Intelligence in R</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./agenda.html" aria-current="page"> 
+<span class="menu-text">Agenda</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./setup.html"> 
+<span class="menu-text">Setup</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li>
+    <a class="dropdown-item" href="./tutorials/01_pipeline.html">
+ <span class="dropdown-text">T1 · The pipeline: split, recipe, workflow, baseline</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./tutorials/02_random_forests.html">
+ <span class="dropdown-text">T2 · Decision trees and random forests</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./tutorials/03_svm.html">
+ <span class="dropdown-text">T3 · Support vector machines</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./tutorials/04_xgboost.html">
+ <span class="dropdown-text">T4 · Gradient boosting with XGBoost (+ the bake-off)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./tutorials/05_tuning.html">
+ <span class="dropdown-text">T5 · Resampling and tuning</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./tutorials/06_evaluation.html">
+ <span class="dropdown-text">T6 · Evaluation, calibration and explanation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./tutorials/07_neural_networks.html">
+ <span class="dropdown-text">T7 · Neural networks</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-slides" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Slides</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-slides">    
+        <li>
+    <a class="dropdown-item" href="./slides/01_ml_foundations.html">
+ <span class="dropdown-text">01 · Learning how machines learn</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./slides/02_pipeline.html">
+ <span class="dropdown-text">02 · The tidymodels pipeline</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./slides/03_random_forests.html">
+ <span class="dropdown-text">03 · Decision trees and random forests</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./slides/04_svm.html">
+ <span class="dropdown-text">04 · Support vector machines</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./slides/05_xgboost.html">
+ <span class="dropdown-text">05 · Gradient boosting and XGBoost</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./slides/06_resampling_tuning.html">
+ <span class="dropdown-text">06 · Resampling and tuning</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./slides/07_evaluation_explainability.html">
+ <span class="dropdown-text">07 · Evaluation and explainability</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./slides/08_neural_networks.html">
+ <span class="dropdown-text">08 · Neural networks</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./slides/09_wrapup.html">
+ <span class="dropdown-text">09 · Verdict and where next</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/vivekjason"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#day-1-wednesday-11-november-build" id="toc-day-1-wednesday-11-november-build" class="nav-link active" data-scroll-target="#day-1-wednesday-11-november-build">Day 1 — Wednesday 11 November · <em>Build</em></a></li>
+  <li><a href="#day-2-thursday-12-november-trust-then-go-deeper" id="toc-day-2-thursday-12-november-trust-then-go-deeper" class="nav-link" data-scroll-target="#day-2-thursday-12-november-trust-then-go-deeper">Day 2 — Thursday 12 November · <em>Trust, then go deeper</em></a></li>
+  <li><a href="#learning-outcomes" id="toc-learning-outcomes" class="nav-link" data-scroll-target="#learning-outcomes">Learning outcomes</a></li>
+  </ul>
+</nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Agenda</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+<p class="subtitle lead">Predictive Intelligence · CePH R Workshop Series 5 · 11–12 November 2026 · 9.00 am – 5.00 pm</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+How the two days are built
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Eight sessions. Each one is <strong>a short lecture → live coding → “your turn”</strong>, and each has its own self-guided <strong>tutorial</strong> (menu above) that contains everything we typed, the outputs, the exercises and their solutions — so you can redo the session at home, or catch up if you fall behind in the room.</p>
+<p>Four model families carry the workshop: <strong>random forests, support vector machines, XGBoost and neural networks</strong>. Logistic regression appears only as the baseline you already know. Day 1 builds the pipeline and the first two families; Day 2 adds the third, teaches you to validate, tune, evaluate and explain, and ends with neural networks.</p>
+</div>
+</div>
+<p><strong>Dataset for both days:</strong> <code>data/nhms_synthetic.csv</code> — 5,000 simulated Malaysian adults, NHMS-style variables. <strong>The question for both days:</strong> <em>who has undiagnosed type 2 diabetes?</em> (A take-home challenge on undiagnosed hypertension closes Tutorial 7.)</p>
+<section id="day-1-wednesday-11-november-build" class="level2">
+<h2 class="anchored" data-anchor-id="day-1-wednesday-11-november-build">Day 1 — Wednesday 11 November · <em>Build</em></h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 22%">
+<col style="width: 35%">
+<col style="width: 27%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Time</th>
+<th>Session</th>
+<th>What happens</th>
+<th>Materials</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>08.30–09.00</td>
+<td>Setup clinic</td>
+<td>Helpers check <code>setup/check_setup.R</code> passes on every laptop</td>
+<td><code>setup/</code></td>
+</tr>
+<tr class="even">
+<td>09.00–09.20</td>
+<td>Welcome</td>
+<td>Who is in the room · objectives · how the days work · the data</td>
+<td>Slides 01 (first section)</td>
+</tr>
+<tr class="odd">
+<td>09.20–10.30</td>
+<td><strong>S1 · Learning how the machine learns</strong></td>
+<td>Prediction vs explanation · the supervised-learning contract · lifecycle · bias–variance · the tidymodels map</td>
+<td>Slides 01</td>
+</tr>
+<tr class="even">
+<td>10.30–10.50</td>
+<td><em>Tea</em></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>10.50–12.00</td>
+<td><strong>S2 · The pipeline</strong></td>
+<td>Lecture (20 min): codes → meaning, splitting, recipes, workflows, <strong>target leakage</strong> · Live coding (50 min): Tutorial 1 §1–7</td>
+<td>Slides 02 · Tutorial 1</td>
+</tr>
+<tr class="even">
+<td>12.00–13.00</td>
+<td>S2 · Your turn</td>
+<td>Tutorial 1 exercises in pairs (45 min) · debrief (15 min)</td>
+<td>Tutorial 1</td>
+</tr>
+<tr class="odd">
+<td>13.00–14.00</td>
+<td><em>Lunch</em></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>14.00–15.30</td>
+<td><strong>S3 · Decision trees and random forests</strong></td>
+<td>Lecture (35 min): splits, impurity, overfitting, bagging, random subspaces, OOB · Live coding (30 min): Tutorial 2 · Your turn (25 min)</td>
+<td>Slides 03 · Tutorial 2</td>
+</tr>
+<tr class="odd">
+<td>15.30–15.50</td>
+<td><em>Tea</em></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>15.50–17.00</td>
+<td><strong>S4 · Support vector machines</strong></td>
+<td>Lecture (25 min): margins, soft margins, kernels · Live coding (25 min): Tutorial 3 · Your turn (15 min) · Day 1 wrap (5 min)</td>
+<td>Slides 04 · Tutorial 3</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="day-2-thursday-12-november-trust-then-go-deeper" class="level2">
+<h2 class="anchored" data-anchor-id="day-2-thursday-12-november-trust-then-go-deeper">Day 2 — Thursday 12 November · <em>Trust, then go deeper</em></h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 22%">
+<col style="width: 35%">
+<col style="width: 27%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Time</th>
+<th>Session</th>
+<th>What happens</th>
+<th>Materials</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>09.00–09.15</td>
+<td>Recap</td>
+<td>Three things from Day 1 · questions from the tutorials</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>09.15–10.30</td>
+<td><strong>S5 · Gradient boosting and XGBoost</strong></td>
+<td>Lecture (30 min): boosting, gradient descent, XGBoost’s engineering, the seven knobs · Live coding (30 min): Tutorial 4 · Your turn (15 min): <strong>the bake-off</strong> — logistic vs RF vs SVM vs XGBoost on the same folds</td>
+<td>Slides 05 · Tutorial 4</td>
+</tr>
+<tr class="odd">
+<td>10.30–10.50</td>
+<td><em>Tea</em></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>10.50–11.50</td>
+<td><strong>S6 · Resampling and tuning</strong></td>
+<td>Lecture (25 min): why one split lies, k-fold, grids, racing, one-SE rule · Live coding (25 min): Tutorial 5 · Your turn (10 min)</td>
+<td>Slides 06 · Tutorial 5</td>
+</tr>
+<tr class="odd">
+<td>11.50–13.00</td>
+<td><strong>S7 · Evaluation, calibration and explanation</strong></td>
+<td>Lecture (30 min): confusion matrix at <em>this</em> prevalence, ROC vs PR, Brier, calibration, thresholds, imbalance, importance/PDP/SHAP, TRIPOD+AI · Live coding (30 min): Tutorial 6 · Your turn (10 min)</td>
+<td>Slides 07 · Tutorial 6</td>
+</tr>
+<tr class="even">
+<td>13.00–14.00</td>
+<td><em>Lunch</em></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>14.00–15.30</td>
+<td><strong>S8 · Neural networks (part 1)</strong></td>
+<td>Lecture (55 min): from logistic regression to the perceptron, hidden layers, activations, loss, gradient descent, <strong>backpropagation worked by hand</strong>, regularisation, architectures, when networks win · Live coding (35 min): Tutorial 7 part B — a network from scratch in base R</td>
+<td>Slides 08 · Tutorial 7</td>
+</tr>
+<tr class="even">
+<td>15.30–15.50</td>
+<td><em>Tea</em></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>15.50–16.40</td>
+<td><strong>S8 · Neural networks (part 2)</strong></td>
+<td>Live coding (25 min): <code>mlp()</code> with nnet, tuning, brulee/torch, SHAP on the network · Your turn (25 min)</td>
+<td>Tutorial 7</td>
+</tr>
+<tr class="even">
+<td>16.40–17.00</td>
+<td><strong>Verdict and where next</strong></td>
+<td>Four families on one test set · the reveal (what the simulator planted) · deployment, monitoring, reporting · the take-home challenge · feedback</td>
+<td>Slides 09</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+If you are running late
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Every “Your turn” block is self-contained in its tutorial and can be finished at home. Protect the live coding and, on Day 2, protect the neural-network theory block — it is the content people came for and the hardest to self-teach.</p>
+</div>
+</div>
+</section>
+<section id="learning-outcomes" class="level2">
+<h2 class="anchored" data-anchor-id="learning-outcomes">Learning outcomes</h2>
+<p>By the end of the two days participants can:</p>
+<ol type="1">
+<li>Distinguish a predictive from an explanatory model and choose the right validation design for a prediction question.</li>
+<li>Build a leak-free <code>tidymodels</code> pipeline: stratified split, recipe, workflow, resampling.</li>
+<li>Fit, compare and tune <strong>random forests, support vector machines, gradient-boosted trees and multilayer perceptrons</strong>, and explain in plain language how each one learns.</li>
+<li>Evaluate a classifier the way a clinician needs it evaluated — sensitivity, specificity and PPV at the real prevalence, ROC and PR curves, calibration, Brier score — and choose a defensible decision threshold.</li>
+<li>Explain a model globally (importance, partial dependence) and locally (SHAP), and state what those explanations do and do not mean.</li>
+<li>Describe what a neural network computes, how backpropagation trains it, and when it is the wrong tool.</li>
+<li>Report a model in line with TRIPOD+AI.</li>
+</ol>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb1" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Agenda"</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Predictive Intelligence · CePH R Workshop Series 5 · 11–12 November 2026 · 9.00 am – 5.00 pm"</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">## How the two days are built</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>Eight sessions. Each one is **a short lecture → live coding → "your turn"**, and each has its own self-guided</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>**tutorial** (menu above) that contains everything we typed, the outputs, the exercises and their solutions — so you</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>can redo the session at home, or catch up if you fall behind in the room.</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>Four model families carry the workshop: **random forests, support vector machines, XGBoost and neural networks**.</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>Logistic regression appears only as the baseline you already know. Day 1 builds the pipeline and the first two</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>families; Day 2 adds the third, teaches you to validate, tune, evaluate and explain, and ends with neural networks.</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>**Dataset for both days:** <span class="in">`data/nhms_synthetic.csv`</span> — 5,000 simulated Malaysian adults, NHMS-style variables.</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>**The question for both days:** *who has undiagnosed type 2 diabetes?* (A take-home challenge on undiagnosed</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>hypertension closes Tutorial 7.)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="fu">## Day 1 — Wednesday 11 November · *Build*</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Time <span class="pp">|</span> Session <span class="pp">|</span> What happens <span class="pp">|</span> Materials <span class="pp">|</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="pp">|------|---------|--------------|-----------|</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 08.30–09.00 <span class="pp">|</span> Setup clinic <span class="pp">|</span> Helpers check <span class="in">`setup/check_setup.R`</span> passes on every laptop <span class="pp">|</span> <span class="in">`setup/`</span> <span class="pp">|</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 09.00–09.20 <span class="pp">|</span> Welcome <span class="pp">|</span> Who is in the room · objectives · how the days work · the data <span class="pp">|</span> Slides 01 (first section) <span class="pp">|</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 09.20–10.30 <span class="pp">|</span> **S1 · Learning how the machine learns** <span class="pp">|</span> Prediction vs explanation · the supervised-learning contract · lifecycle · bias–variance · the tidymodels map <span class="pp">|</span> Slides 01 <span class="pp">|</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 10.30–10.50 <span class="pp">|</span> *Tea* <span class="pp">|</span> <span class="pp">|</span> <span class="pp">|</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 10.50–12.00 <span class="pp">|</span> **S2 · The pipeline** | Lecture (20 min): codes → meaning, splitting, recipes, workflows, **target leakage** · Live coding (50 min): Tutorial 1 §1–7 <span class="pp">|</span> Slides 02 · Tutorial 1 <span class="pp">|</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 12.00–13.00 <span class="pp">|</span> S2 · Your turn <span class="pp">|</span> Tutorial 1 exercises in pairs (45 min) · debrief (15 min) <span class="pp">|</span> Tutorial 1 <span class="pp">|</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 13.00–14.00 <span class="pp">|</span> *Lunch* <span class="pp">|</span> <span class="pp">|</span> <span class="pp">|</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 14.00–15.30 <span class="pp">|</span> **S3 · Decision trees and random forests** <span class="pp">|</span> Lecture (35 min): splits, impurity, overfitting, bagging, random subspaces, OOB · Live coding (30 min): Tutorial 2 · Your turn (25 min) <span class="pp">|</span> Slides 03 · Tutorial 2 <span class="pp">|</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 15.30–15.50 <span class="pp">|</span> *Tea* <span class="pp">|</span> <span class="pp">|</span> <span class="pp">|</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 15.50–17.00 <span class="pp">|</span> **S4 · Support vector machines** <span class="pp">|</span> Lecture (25 min): margins, soft margins, kernels · Live coding (25 min): Tutorial 3 · Your turn (15 min) · Day 1 wrap (5 min) <span class="pp">|</span> Slides 04 · Tutorial 3 <span class="pp">|</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="fu">## Day 2 — Thursday 12 November · *Trust, then go deeper*</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Time <span class="pp">|</span> Session <span class="pp">|</span> What happens <span class="pp">|</span> Materials <span class="pp">|</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="pp">|------|---------|--------------|-----------|</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 09.00–09.15 <span class="pp">|</span> Recap <span class="pp">|</span> Three things from Day 1 · questions from the tutorials <span class="pp">|</span> — <span class="pp">|</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 09.15–10.30 <span class="pp">|</span> **S5 · Gradient boosting and XGBoost** | Lecture (30 min): boosting, gradient descent, XGBoost's engineering, the seven knobs · Live coding (30 min): Tutorial 4 · Your turn (15 min): **the bake-off** — logistic vs RF vs SVM vs XGBoost on the same folds <span class="pp">|</span> Slides 05 · Tutorial 4 <span class="pp">|</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 10.30–10.50 <span class="pp">|</span> *Tea* <span class="pp">|</span> <span class="pp">|</span> <span class="pp">|</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 10.50–11.50 <span class="pp">|</span> **S6 · Resampling and tuning** <span class="pp">|</span> Lecture (25 min): why one split lies, k-fold, grids, racing, one-SE rule · Live coding (25 min): Tutorial 5 · Your turn (10 min) <span class="pp">|</span> Slides 06 · Tutorial 5 <span class="pp">|</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 11.50–13.00 <span class="pp">|</span> **S7 · Evaluation, calibration and explanation** <span class="pp">|</span> Lecture (30 min): confusion matrix at *this* prevalence, ROC vs PR, Brier, calibration, thresholds, imbalance, importance/PDP/SHAP, TRIPOD+AI · Live coding (30 min): Tutorial 6 · Your turn (10 min) <span class="pp">|</span> Slides 07 · Tutorial 6 <span class="pp">|</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 13.00–14.00 <span class="pp">|</span> *Lunch* <span class="pp">|</span> <span class="pp">|</span> <span class="pp">|</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 14.00–15.30 <span class="pp">|</span> **S8 · Neural networks (part 1)** | Lecture (55 min): from logistic regression to the perceptron, hidden layers, activations, loss, gradient descent, **backpropagation worked by hand**, regularisation, architectures, when networks win · Live coding (35 min): Tutorial 7 part B — a network from scratch in base R <span class="pp">|</span> Slides 08 · Tutorial 7 <span class="pp">|</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 15.30–15.50 <span class="pp">|</span> *Tea* <span class="pp">|</span> <span class="pp">|</span> <span class="pp">|</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 15.50–16.40 <span class="pp">|</span> **S8 · Neural networks (part 2)** <span class="pp">|</span> Live coding (25 min): <span class="in">`mlp()`</span> with nnet, tuning, brulee/torch, SHAP on the network · Your turn (25 min) <span class="pp">|</span> Tutorial 7 <span class="pp">|</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 16.40–17.00 <span class="pp">|</span> **Verdict and where next** <span class="pp">|</span> Four families on one test set · the reveal (what the simulator planted) · deployment, monitoring, reporting · the take-home challenge · feedback <span class="pp">|</span> Slides 09 <span class="pp">|</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip}</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a><span class="fu">## If you are running late</span></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>Every "Your turn" block is self-contained in its tutorial and can be finished at home. Protect the live coding and,</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>on Day 2, protect the neural-network theory block — it is the content people came for and the hardest to self-teach.</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a><span class="fu">## Learning outcomes</span></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>By the end of the two days participants can:</span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Distinguish a predictive from an explanatory model and choose the right validation design for a prediction question.</span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Build a leak-free <span class="in">`tidymodels`</span> pipeline: stratified split, recipe, workflow, resampling.</span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Fit, compare and tune **random forests, support vector machines, gradient-boosted trees and multilayer perceptrons**, and explain in plain language how each one learns.</span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Evaluate a classifier the way a clinician needs it evaluated — sensitivity, specificity and PPV at the real prevalence, ROC and PR curves, calibration, Brier score — and choose a defensible decision threshold.</span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Explain a model globally (importance, partial dependence) and locally (SHAP), and state what those explanations do and do not mean.</span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Describe what a neural network computes, how backpropagation trains it, and when it is the wrong tool.</span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Report a model in line with TRIPOD+AI.</span></code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Vivek Jason Jayaraj · Centre for Population Health (CePH), Universiti Malaya · Materials for workshop use</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

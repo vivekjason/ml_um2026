@@ -3,22 +3,22 @@
 .RData
 .Ruserdata
 /.quarto/
-/_freeze/
-/docs/
 /outputs/
 /data-raw/_truth_for_validation.csv
 *_files/
-# offline prep videos and the downloader binaries (never push these)
-/videos/statquest/
-/videos/alternatives/
-/videos/flight/
-/videos/downloaded_flight.txt
-/videos/*.exe
-/videos/*.zip
-/videos/downloaded.txt
 
-# participant archives built by instructor/make_participant_zip.R
+# NOTE: docs/ and _freeze/ ARE committed - GitHub Pages serves the site from /docs,
+# and _freeze/ lets `quarto render` reuse the executed tutorial results.
+
+# offline prep videos, the downloader, and the url lists - never push these
+/videos/
+
+# the "Claude outputs" folder (delivered zips) and participant archives - never push
+/Claude outputs/
 /*.zip
+
+# the 2023 project sits alongside for reference - not part of this site
+/machine_learning_sbdr2023/
 
 # full tutorial code extracted for instructor testing (regenerate with data-raw/purl_demos.py)
 /instructor/tutorial_code/
@@ -27,6 +27,7 @@
 # (reveals what the simulator planted) OUT of the public GitHub repo
 /instructor/
 /data-raw/
+
 # temp files created by instructor/publish_site.R
 /commit_msg.txt
 /pages.json

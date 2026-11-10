@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Tutorial 4 · Gradient boosting with XGBoost — and the bake-off – Predictive Intelligence in R</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-eea96c9f5ba284fd003ee86039991193.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link href="../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+
+<script src="../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+
+
+
+</head>
+
+<body class="floating nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Predictive Intelligence in R</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../agenda.html"> 
+<span class="menu-text">Agenda</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../setup.html"> 
+<span class="menu-text">Setup</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li>
+    <a class="dropdown-item" href="../tutorials/01_pipeline.html">
+ <span class="dropdown-text">T1 · The pipeline: split, recipe, workflow, baseline</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../tutorials/02_random_forests.html">
+ <span class="dropdown-text">T2 · Decision trees and random forests</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../tutorials/03_svm.html">
+ <span class="dropdown-text">T3 · Support vector machines</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../tutorials/04_xgboost.html">
+ <span class="dropdown-text">T4 · Gradient boosting with XGBoost (+ the bake-off)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../tutorials/05_tuning.html">
+ <span class="dropdown-text">T5 · Resampling and tuning</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../tutorials/06_evaluation.html">
+ <span class="dropdown-text">T6 · Evaluation, calibration and explanation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../tutorials/07_neural_networks.html">
+ <span class="dropdown-text">T7 · Neural networks</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-slides" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Slides</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-slides">    
+        <li>
+    <a class="dropdown-item" href="../slides/01_ml_foundations.html">
+ <span class="dropdown-text">01 · Learning how machines learn</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../slides/02_pipeline.html">
+ <span class="dropdown-text">02 · The tidymodels pipeline</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../slides/03_random_forests.html">
+ <span class="dropdown-text">03 · Decision trees and random forests</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../slides/04_svm.html">
+ <span class="dropdown-text">04 · Support vector machines</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../slides/05_xgboost.html">
+ <span class="dropdown-text">05 · Gradient boosting and XGBoost</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../slides/06_resampling_tuning.html">
+ <span class="dropdown-text">06 · Resampling and tuning</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../slides/07_evaluation_explainability.html">
+ <span class="dropdown-text">07 · Evaluation and explainability</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../slides/08_neural_networks.html">
+ <span class="dropdown-text">08 · Neural networks</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../slides/09_wrapup.html">
+ <span class="dropdown-text">09 · Verdict and where next</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/vivekjason"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#start" id="toc-start" class="nav-link active" data-scroll-target="#start">0 · Start</a></li>
+  <li><a href="#boosting-in-one-paragraph" id="toc-boosting-in-one-paragraph" class="nav-link" data-scroll-target="#boosting-in-one-paragraph">1 · Boosting in one paragraph</a></li>
+  <li><a href="#just-use-the-defaults-vs-a-gentle-setting" id="toc-just-use-the-defaults-vs-a-gentle-setting" class="nav-link" data-scroll-target="#just-use-the-defaults-vs-a-gentle-setting">2 · “Just use the defaults” vs a gentle setting</a></li>
+  <li><a href="#learning-rate-and-number-of-trees-trade-off-early-stopping" id="toc-learning-rate-and-number-of-trees-trade-off-early-stopping" class="nav-link" data-scroll-target="#learning-rate-and-number-of-trees-trade-off-early-stopping">3 · Learning rate and number of trees trade off: early stopping</a></li>
+  <li><a href="#xgboost-handles-missing-values-itself" id="toc-xgboost-handles-missing-values-itself" class="nav-link" data-scroll-target="#xgboost-handles-missing-values-itself">4 · XGBoost handles missing values itself</a></li>
+  <li><a href="#the-bake-off-four-families-same-folds-one-object" id="toc-the-bake-off-four-families-same-folds-one-object" class="nav-link" data-scroll-target="#the-bake-off-four-families-same-folds-one-object">5 · The bake-off: four families, same folds, one object</a></li>
+  <li><a href="#your-turn-15-min" id="toc-your-turn-15-min" class="nav-link" data-scroll-target="#your-turn-15-min">Your turn (15 min)</a></li>
+  <li><a href="#what-to-remember" id="toc-what-to-remember" class="nav-link" data-scroll-target="#what-to-remember">What to remember</a></li>
+  </ul>
+</nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Tutorial 4 · Gradient boosting with XGBoost — and the bake-off</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+<p class="subtitle lead">Session 5 · Day 2, 09.15–10.30 · Slides 05</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What you will do
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Fit gradient-boosted trees with XGBoost through the same workflow, watch the learning rate and the number of trees trade off with early stopping, see that XGBoost can skip imputation, and then run the <strong>bake-off</strong>: logistic regression, random forest, SVM and XGBoost on the same five folds, in one object, ranked with error bars.</p>
+<p><strong>Time:</strong> 30 min live coding + 15 min <em>Your turn</em>.</p>
+</div>
+</div>
+<section id="start" class="level2">
+<h2 class="anchored" data-anchor-id="start">0 · Start</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># WHERE WE ARE ---------------------------------------------------------------------------------------------</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># T1 pipeline + baseline (R/prep_nhms.R), T2 random forest, T3 SVM - all scored on the same folds with the same</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># metrics, so they are comparable. NEW TODAY: the third family, gradient boosting with XGBoost, and then the</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># BAKE-OFF: logistic vs RF vs SVM vs XGBoost in one workflow_set() on dm_folds, saved to outputs/ for later.</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"R/prep_nhms.R"</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(future)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(multisession, <span class="at">workers =</span> <span class="fu">max</span>(<span class="dv">1</span>, parallel<span class="sc">::</span><span class="fu">detectCores</span>() <span class="sc">-</span> <span class="dv">1</span>))</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">"outputs"</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="boosting-in-one-paragraph" class="level2">
+<h2 class="anchored" data-anchor-id="boosting-in-one-paragraph">1 · Boosting in one paragraph</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A random forest grows deep trees <strong>in parallel</strong> and averages them. Boosting grows shallow trees <strong>in sequence</strong>, each one fitted to what the ensemble so far gets <strong>wrong</strong>. Start with a trivial prediction (the log-odds of the prevalence). Compute, for every person, how wrong and in which direction — for classification that is the <strong>gradient</strong> of the log-loss, which for each person is simply <em>observed − predicted probability</em>. Fit a small tree to those residuals. Add it to the ensemble, shrunk by a <strong>learning rate</strong>. Repeat for hundreds of rounds. Each new tree is a step downhill on the loss function — <em>gradient descent in the space of trees</em> — which is the same idea that trains neural networks this afternoon. <strong>XGBoost</strong> is gradient boosting with serious engineering: a regularised objective (λ on leaf weights, γ to prune splits that do not pay for themselves), split finding on quantile sketches, a learned default direction for missing values, row and column subsampling, and multithreading.</p>
+</div>
+</div>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><code>boost_tree()</code></th>
+<th>xgboost</th>
+<th>Meaning</th>
+<th>Start here</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>trees</code></td>
+<td>nrounds</td>
+<td>boosting rounds</td>
+<td>500 with early stopping, or tune</td>
+</tr>
+<tr class="even">
+<td><code>learn_rate</code></td>
+<td>eta</td>
+<td>step size</td>
+<td>0.01–0.1</td>
+</tr>
+<tr class="odd">
+<td><code>tree_depth</code></td>
+<td>max_depth</td>
+<td>depth of each weak learner</td>
+<td>3–6</td>
+</tr>
+<tr class="even">
+<td><code>min_n</code></td>
+<td>min_child_weight</td>
+<td>minimum (weighted) people per leaf</td>
+<td>10–30</td>
+</tr>
+<tr class="odd">
+<td><code>loss_reduction</code></td>
+<td>gamma</td>
+<td>minimum gain to make a split</td>
+<td>0–1</td>
+</tr>
+<tr class="even">
+<td><code>sample_size</code></td>
+<td>subsample</td>
+<td>row fraction per tree</td>
+<td>0.7–1</td>
+</tr>
+<tr class="odd">
+<td><code>mtry</code></td>
+<td>colsample_bynode</td>
+<td>columns per split (<code>counts = FALSE</code> → a proportion)</td>
+<td>0.5–1</td>
+</tr>
+</tbody>
+</table>
+<p>XGBoost needs <strong>numeric</strong> predictors, so the recipe must dummy-code the factors (<code>dm_rec</code> does). Scaling is irrelevant to trees but harmless, so one recipe serves all four families.</p>
+</section>
+<section id="just-use-the-defaults-vs-a-gentle-setting" class="level2">
+<h2 class="anchored" data-anchor-id="just-use-the-defaults-vs-a-gentle-setting">2 · “Just use the defaults” vs a gentle setting</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>xgb_default <span class="ot">&lt;-</span> <span class="fu">boost_tree</span>(<span class="at">trees =</span> <span class="dv">500</span>, <span class="at">learn_rate =</span> <span class="fl">0.3</span>, <span class="at">tree_depth =</span> <span class="dv">6</span>) <span class="sc">|&gt;</span>      <span class="co"># xgboost's own defaults</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"xgboost"</span>) <span class="sc">|&gt;</span> <span class="fu">set_mode</span>(<span class="st">"classification"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>xgb_gentle <span class="ot">&lt;-</span> <span class="fu">boost_tree</span>(<span class="at">trees =</span> <span class="dv">500</span>, <span class="at">learn_rate =</span> <span class="fl">0.03</span>, <span class="at">tree_depth =</span> <span class="dv">3</span>, <span class="at">min_n =</span> <span class="dv">20</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                         <span class="at">sample_size =</span> <span class="fl">0.8</span>, <span class="at">mtry =</span> <span class="fl">0.7</span>, <span class="at">loss_reduction =</span> <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"xgboost"</span>, <span class="at">counts =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span> <span class="fu">set_mode</span>(<span class="st">"classification"</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>xgb_two <span class="ot">&lt;-</span> <span class="fu">workflow_set</span>(<span class="at">preproc =</span> <span class="fu">list</span>(<span class="at">base =</span> dm_rec), <span class="at">models =</span> <span class="fu">list</span>(<span class="at">default =</span> xgb_default, <span class="at">gentle =</span> xgb_gentle)) <span class="sc">|&gt;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow_map</span>(<span class="st">"fit_resamples"</span>, <span class="at">resamples =</span> dm_folds, <span class="at">metrics =</span> cls_metrics, <span class="at">seed =</span> <span class="dv">2026</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_metrics</span>(xgb_two) <span class="sc">|&gt;</span> <span class="fu">filter</span>(.metric <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"roc_auc"</span>, <span class="st">"brier_class"</span>)) <span class="sc">|&gt;</span> <span class="fu">select</span>(wflow_id, .metric, mean, std_err)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["wflow_id"],"name":[1],"type":["chr"],"align":["left"]},{"label":[".metric"],"name":[2],"type":["chr"],"align":["left"]},{"label":["mean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["std_err"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"base_default","2":"brier_class","3":"0.08702886","4":"0.001885658"},{"1":"base_default","2":"roc_auc","3":"0.81978105","4":"0.012577523"},{"1":"base_gentle","2":"brier_class","3":"0.07445517","4":"0.001445002"},{"1":"base_gentle","2":"roc_auc","3":"0.85056459","4":"0.010917913"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Same algorithm, same data, a visible AUC gap — purely from the settings. Boosting is <strong>far</strong> more sensitive to its hyperparameters than a forest. “Which setting is best?” is an empirical question; Tutorial 5 lets the computer search instead of guessing.</p>
+</section>
+<section id="learning-rate-and-number-of-trees-trade-off-early-stopping" class="level2">
+<h2 class="anchored" data-anchor-id="learning-rate-and-number-of-trees-trade-off-early-stopping">3 · Learning rate and number of trees trade off: early stopping</h2>
+<p>Hold out 20 % of each training set as a validation slice, let XGBoost watch the validation log-loss after every tree, and stop when it has not improved for 25 rounds.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fit_with_stop <span class="ot">&lt;-</span> <span class="cf">function</span>(lr) {</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  spec <span class="ot">&lt;-</span> <span class="fu">boost_tree</span>(<span class="at">trees =</span> <span class="dv">2000</span>, <span class="at">learn_rate =</span> lr, <span class="at">tree_depth =</span> <span class="dv">3</span>, <span class="at">min_n =</span> <span class="dv">20</span>, <span class="at">stop_iter =</span> <span class="dv">25</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">set_engine</span>(<span class="st">"xgboost"</span>, <span class="at">validation =</span> <span class="fl">0.2</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">set_mode</span>(<span class="st">"classification"</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow</span>(dm_rec, spec) <span class="sc">|&gt;</span> <span class="fu">fit</span>(dm_train) <span class="sc">|&gt;</span> <span class="fu">extract_fit_engine</span>()</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># the evaluation log lives in different places in xgboost 1.x and &gt;= 2.x; this reads both</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>eval_log <span class="ot">&lt;-</span> <span class="cf">function</span>(booster) {</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  log <span class="ot">&lt;-</span> <span class="fu">attributes</span>(booster)<span class="sc">$</span>evaluation_log</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(log)) log <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(booster<span class="sc">$</span>evaluation_log, <span class="at">error =</span> <span class="cf">function</span>(e) <span class="cn">NULL</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>(log)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>curves <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map_dfr</span>(<span class="fu">c</span>(<span class="fl">0.3</span>, <span class="fl">0.05</span>, <span class="fl">0.01</span>), \(lr) <span class="fu">fit_with_stop</span>(lr) <span class="sc">|&gt;</span> <span class="fu">eval_log</span>() <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">learn_rate =</span> lr))</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>curves <span class="sc">|&gt;</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(iter, validation_logloss, <span class="at">colour =</span> <span class="fu">factor</span>(learn_rate))) <span class="sc">+</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"number of trees"</span>, <span class="at">y =</span> <span class="st">"validation log-loss"</span>, <span class="at">colour =</span> <span class="st">"learn_rate"</span>,</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Early stopping: where each learning rate stops improving"</span>) <span class="sc">+</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="04_xgboost_files/figure-html/early-stopping-1.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>curves <span class="sc">|&gt;</span> <span class="fu">group_by</span>(learn_rate) <span class="sc">|&gt;</span> <span class="fu">summarise</span>(<span class="at">best_iter =</span> iter[<span class="fu">which.min</span>(validation_logloss)], <span class="at">best_logloss =</span> <span class="fu">min</span>(validation_logloss))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["learn_rate"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["best_iter"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["best_logloss"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"0.01","2":"550","3":"0.2746555"},{"1":"0.05","2":"150","3":"0.2733692"},{"1":"0.30","2":"32","3":"0.2766989"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>A high learning rate reaches its minimum in a few dozen trees and then overfits; a small one takes hundreds of trees to get there and ends lower. <strong>Rule:</strong> fix a learning rate in 0.01–0.1, then let early stopping or cross-validation choose the number of trees — do not tune both freely.</p>
+</section>
+<section id="xgboost-handles-missing-values-itself" class="level2">
+<h2 class="anchored" data-anchor-id="xgboost-handles-missing-values-itself">4 · XGBoost handles missing values itself</h2>
+<p>Every split learns a <em>default direction</em> for rows where the splitting variable is <code>NA</code>. So XGBoost can take the data <strong>without imputation</strong> — occasionally a better choice, because “missing” is then free to carry information (people who skipped the weight question may differ from those who did not).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>rec_native_na <span class="ot">&lt;-</span> <span class="fu">recipe</span>(undx_dm <span class="sc">~</span> ., <span class="at">data =</span> dm_train) <span class="sc">|&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">|&gt;</span>    <span class="co"># NA in a factor becomes NA in every dummy column - xgboost copes</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_zv</span>(<span class="fu">all_predictors</span>())</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>xgb_na <span class="ot">&lt;-</span> <span class="fu">workflow_set</span>(<span class="at">preproc =</span> <span class="fu">list</span>(<span class="at">imputed =</span> dm_rec, <span class="at">native_na =</span> rec_native_na), <span class="at">models =</span> <span class="fu">list</span>(<span class="at">xgb =</span> xgb_gentle)) <span class="sc">|&gt;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow_map</span>(<span class="st">"fit_resamples"</span>, <span class="at">resamples =</span> dm_folds, <span class="at">metrics =</span> cls_metrics, <span class="at">seed =</span> <span class="dv">2026</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_metrics</span>(xgb_na) <span class="sc">|&gt;</span> <span class="fu">filter</span>(.metric <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"roc_auc"</span>, <span class="st">"brier_class"</span>)) <span class="sc">|&gt;</span> <span class="fu">select</span>(wflow_id, .metric, mean, std_err)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["wflow_id"],"name":[1],"type":["chr"],"align":["left"]},{"label":[".metric"],"name":[2],"type":["chr"],"align":["left"]},{"label":["mean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["std_err"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"imputed_xgb","2":"brier_class","3":"0.07445517","4":"0.001445002"},{"1":"imputed_xgb","2":"roc_auc","3":"0.85056459","4":"0.010917913"},{"1":"native_na_xgb","2":"brier_class","3":"0.07415391","4":"0.001632595"},{"1":"native_na_xgb","2":"roc_auc","3":"0.85389759","4":"0.012218733"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Within noise here (7 % MAR missingness). Keep imputation when the same recipe must also serve a GLM, an SVM or a network — they cannot cope with <code>NA</code>.</p>
+</section>
+<section id="the-bake-off-four-families-same-folds-one-object" class="level2">
+<h2 class="anchored" data-anchor-id="the-bake-off-four-families-same-folds-one-object">5 · The bake-off: four families, same folds, one object</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>model_zoo <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">logistic =</span> <span class="fu">logistic_reg</span>() <span class="sc">|&gt;</span> <span class="fu">set_engine</span>(<span class="st">"glm"</span>),</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">rf       =</span> <span class="fu">rand_forest</span>(<span class="at">trees =</span> <span class="dv">500</span>, <span class="at">mtry =</span> <span class="dv">6</span>, <span class="at">min_n =</span> <span class="dv">10</span>) <span class="sc">|&gt;</span> <span class="fu">set_engine</span>(<span class="st">"ranger"</span>) <span class="sc">|&gt;</span> <span class="fu">set_mode</span>(<span class="st">"classification"</span>),</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">svm_rbf  =</span> <span class="fu">svm_rbf</span>(<span class="at">cost =</span> <span class="dv">1</span>, <span class="at">rbf_sigma =</span> <span class="fl">0.005</span>) <span class="sc">|&gt;</span> <span class="fu">set_engine</span>(<span class="st">"kernlab"</span>) <span class="sc">|&gt;</span> <span class="fu">set_mode</span>(<span class="st">"classification"</span>),</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">xgb      =</span> xgb_gentle</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>bakeoff <span class="ot">&lt;-</span> <span class="fu">workflow_set</span>(<span class="at">preproc =</span> <span class="fu">list</span>(<span class="at">base =</span> dm_rec), <span class="at">models =</span> model_zoo)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>bakeoff</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["wflow_id"],"name":[1],"type":["chr"],"align":["left"]},{"label":["info"],"name":[2],"type":["list"],"align":["right"]},{"label":["option"],"name":[3],"type":["list"],"align":["right"]},{"label":["result"],"name":[4],"type":["list"],"align":["right"]}],"data":[{"1":"base_logistic","2":"<tibble[,4]>","3":"<wrkflw__>","4":"<list [0]>"},{"1":"base_rf","2":"<tibble[,4]>","3":"<wrkflw__>","4":"<list [0]>"},{"1":"base_svm_rbf","2":"<tibble[,4]>","3":"<wrkflw__>","4":"<list [0]>"},{"1":"base_xgb","2":"<tibble[,4]>","3":"<wrkflw__>","4":"<list [0]>"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>bakeoff_res <span class="ot">&lt;-</span> bakeoff <span class="sc">|&gt;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow_map</span>(<span class="st">"fit_resamples"</span>, <span class="at">resamples =</span> dm_folds, <span class="at">metrics =</span> cls_metrics, <span class="at">seed =</span> <span class="dv">2026</span>, <span class="at">verbose =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">control =</span> <span class="fu">control_resamples</span>(<span class="at">save_pred =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">rank_results</span>(bakeoff_res, <span class="at">rank_metric =</span> <span class="st">"roc_auc"</span>, <span class="at">select_best =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"roc_auc"</span>, <span class="st">"pr_auc"</span>, <span class="st">"brier_class"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(wflow_id, .metric, mean, std_err, rank)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["wflow_id"],"name":[1],"type":["chr"],"align":["left"]},{"label":[".metric"],"name":[2],"type":["chr"],"align":["left"]},{"label":["mean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["std_err"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["rank"],"name":[5],"type":["int"],"align":["right"]}],"data":[{"1":"base_xgb","2":"brier_class","3":"0.07445517","4":"0.001445002","5":"1"},{"1":"base_xgb","2":"pr_auc","3":"0.52303203","4":"0.013250780","5":"1"},{"1":"base_xgb","2":"roc_auc","3":"0.85056459","4":"0.010917913","5":"1"},{"1":"base_logistic","2":"brier_class","3":"0.07759938","4":"0.001802439","5":"2"},{"1":"base_logistic","2":"pr_auc","3":"0.50418721","4":"0.020132458","5":"2"},{"1":"base_logistic","2":"roc_auc","3":"0.84143041","4":"0.011365709","5":"2"},{"1":"base_rf","2":"brier_class","3":"0.07884150","4":"0.001359632","5":"3"},{"1":"base_rf","2":"pr_auc","3":"0.49474324","4":"0.018063411","5":"3"},{"1":"base_rf","2":"roc_auc","3":"0.83686188","4":"0.012194669","5":"3"},{"1":"base_svm_rbf","2":"brier_class","3":"0.08004944","4":"0.001962183","5":"4"},{"1":"base_svm_rbf","2":"pr_auc","3":"0.47551731","4":"0.024537119","5":"4"},{"1":"base_svm_rbf","2":"roc_auc","3":"0.82388082","4":"0.006216521","5":"4"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(bakeoff_res, <span class="at">metric =</span> <span class="fu">c</span>(<span class="st">"roc_auc"</span>, <span class="st">"brier_class"</span>)) <span class="sc">+</span> <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="04_xgboost_files/figure-html/bakeoff-1.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This plot is the honest answer to “which model should I use?” — and the honest answer on this data is “three of them are within one standard error of each other”. When that happens, choose on everything <em>except</em> AUC:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Criterion</th>
+<th>Logistic</th>
+<th>Random forest</th>
+<th>XGBoost</th>
+<th>SVM</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Discrimination (tabular)</td>
+<td>good</td>
+<td>very good</td>
+<td><strong>best, tuned</strong></td>
+<td>good</td>
+</tr>
+<tr class="even">
+<td>Calibration out of the box</td>
+<td><strong>good</strong></td>
+<td>fair (shrinks to the middle)</td>
+<td>fair</td>
+<td>poor (Platt)</td>
+</tr>
+<tr class="odd">
+<td>Interpretability</td>
+<td><strong>coefficients</strong></td>
+<td>importance</td>
+<td>importance</td>
+<td>none</td>
+</tr>
+<tr class="even">
+<td>Training / prediction speed</td>
+<td><strong>instant</strong></td>
+<td>fast / slower</td>
+<td>fast / fast</td>
+<td>slow (n²) / fast</td>
+</tr>
+<tr class="odd">
+<td>Handles missing natively</td>
+<td>no</td>
+<td>no (ranger)</td>
+<td><strong>yes</strong></td>
+<td>no</td>
+</tr>
+<tr class="even">
+<td>Tuning sensitivity</td>
+<td>low</td>
+<td><strong>low</strong></td>
+<td>high</td>
+<td>high</td>
+</tr>
+<tr class="odd">
+<td>Deployable as a paper score</td>
+<td><strong>yes</strong></td>
+<td>no</td>
+<td>no</td>
+<td>no</td>
+</tr>
+</tbody>
+</table>
+<p>One ROC curve per model, from the out-of-fold predictions:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_predictions</span>(bakeoff_res) <span class="sc">|&gt;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(wflow_id) <span class="sc">|&gt;</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">roc_curve</span>(undx_dm, .pred_Yes) <span class="sc">|&gt;</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">autoplot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="04_xgboost_files/figure-html/roc-all-1.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(bakeoff_res, <span class="st">"outputs/t04_bakeoff_res.rds"</span>)     <span class="co"># kept so you can reload it without re-running (nothing later requires it)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="your-turn-15-min" class="level2">
+<h2 class="anchored" data-anchor-id="your-turn-15-min">Your turn (15 min)</h2>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Task A · The five-minute XGBoost
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Three settings of your own against <code>xgb_gentle</code>, on the folds (never on the test set). Think about learning rate × trees first.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>boosters <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">gentle  =</span> xgb_gentle,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">model_1 =</span> <span class="fu">boost_tree</span>(<span class="at">trees =</span> ___, <span class="at">learn_rate =</span> ___, <span class="at">tree_depth =</span> ___, <span class="at">min_n =</span> ___) <span class="sc">|&gt;</span> <span class="fu">set_engine</span>(<span class="st">"xgboost"</span>) <span class="sc">|&gt;</span> <span class="fu">set_mode</span>(<span class="st">"classification"</span>),</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">model_2 =</span> <span class="fu">boost_tree</span>(<span class="at">trees =</span> ___, <span class="at">learn_rate =</span> ___, <span class="at">tree_depth =</span> ___, <span class="at">min_n =</span> ___) <span class="sc">|&gt;</span> <span class="fu">set_engine</span>(<span class="st">"xgboost"</span>) <span class="sc">|&gt;</span> <span class="fu">set_mode</span>(<span class="st">"classification"</span>),</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">model_3 =</span> <span class="fu">boost_tree</span>(<span class="at">trees =</span> ___, <span class="at">learn_rate =</span> ___, <span class="at">tree_depth =</span> ___, <span class="at">min_n =</span> ___) <span class="sc">|&gt;</span> <span class="fu">set_engine</span>(<span class="st">"xgboost"</span>) <span class="sc">|&gt;</span> <span class="fu">set_mode</span>(<span class="st">"classification"</span>)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>boost_res <span class="ot">&lt;-</span> <span class="fu">workflow_set</span>(<span class="at">preproc =</span> <span class="fu">list</span>(<span class="at">base =</span> dm_rec), <span class="at">models =</span> boosters) <span class="sc">|&gt;</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow_map</span>(<span class="st">"fit_resamples"</span>, <span class="at">resamples =</span> dm_folds, <span class="at">metrics =</span> cls_metrics, <span class="at">seed =</span> <span class="dv">2026</span>, <span class="at">verbose =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="fu">rank_results</span>(boost_res, <span class="at">rank_metric =</span> <span class="st">"roc_auc"</span>, <span class="at">select_best =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"roc_auc"</span>, <span class="st">"brier_class"</span>)) <span class="sc">|&gt;</span> <span class="fu">select</span>(wflow_id, .metric, mean, std_err)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>A1.</strong> Did anyone beat <code>gentle</code> by more than one SE? <strong>A2.</strong> Did the deepest / fastest-learning setting win or lose?</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Solution A
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>boosters <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">gentle   =</span> xgb_gentle,</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">slow_deep =</span> <span class="fu">boost_tree</span>(<span class="at">trees =</span> <span class="dv">1000</span>, <span class="at">learn_rate =</span> <span class="fl">0.01</span>, <span class="at">tree_depth =</span> <span class="dv">6</span>, <span class="at">min_n =</span> <span class="dv">10</span>) <span class="sc">|&gt;</span> <span class="fu">set_engine</span>(<span class="st">"xgboost"</span>) <span class="sc">|&gt;</span> <span class="fu">set_mode</span>(<span class="st">"classification"</span>),</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">stumps    =</span> <span class="fu">boost_tree</span>(<span class="at">trees =</span> <span class="dv">1000</span>, <span class="at">learn_rate =</span> <span class="fl">0.05</span>, <span class="at">tree_depth =</span> <span class="dv">1</span>, <span class="at">min_n =</span> <span class="dv">20</span>) <span class="sc">|&gt;</span> <span class="fu">set_engine</span>(<span class="st">"xgboost"</span>) <span class="sc">|&gt;</span> <span class="fu">set_mode</span>(<span class="st">"classification"</span>),</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">fast      =</span> <span class="fu">boost_tree</span>(<span class="at">trees =</span> <span class="dv">200</span>,  <span class="at">learn_rate =</span> <span class="fl">0.3</span>,  <span class="at">tree_depth =</span> <span class="dv">3</span>, <span class="at">min_n =</span> <span class="dv">20</span>) <span class="sc">|&gt;</span> <span class="fu">set_engine</span>(<span class="st">"xgboost"</span>) <span class="sc">|&gt;</span> <span class="fu">set_mode</span>(<span class="st">"classification"</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>boost_res <span class="ot">&lt;-</span> <span class="fu">workflow_set</span>(<span class="at">preproc =</span> <span class="fu">list</span>(<span class="at">base =</span> dm_rec), <span class="at">models =</span> boosters) <span class="sc">|&gt;</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow_map</span>(<span class="st">"fit_resamples"</span>, <span class="at">resamples =</span> dm_folds, <span class="at">metrics =</span> cls_metrics, <span class="at">seed =</span> <span class="dv">2026</span>)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="fu">rank_results</span>(boost_res, <span class="at">rank_metric =</span> <span class="st">"roc_auc"</span>, <span class="at">select_best =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"roc_auc"</span>, <span class="st">"brier_class"</span>)) <span class="sc">|&gt;</span> <span class="fu">select</span>(wflow_id, .metric, mean, std_err)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["wflow_id"],"name":[1],"type":["chr"],"align":["left"]},{"label":[".metric"],"name":[2],"type":["chr"],"align":["left"]},{"label":["mean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["std_err"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"base_gentle","2":"brier_class","3":"0.07445517","4":"0.001445002"},{"1":"base_gentle","2":"roc_auc","3":"0.85056459","4":"0.010917913"},{"1":"base_stumps","2":"brier_class","3":"0.07510104","4":"0.001446817"},{"1":"base_stumps","2":"roc_auc","3":"0.84877796","4":"0.011107861"},{"1":"base_slow_deep","2":"brier_class","3":"0.07663645","4":"0.001489199"},{"1":"base_slow_deep","2":"roc_auc","3":"0.84317895","4":"0.010207502"},{"1":"base_fast","2":"brier_class","3":"0.07949379","4":"0.001289629"},{"1":"base_fast","2":"roc_auc","3":"0.82717596","4":"0.009877350"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p><code>stumps</code> (depth-1 trees = an additive model) usually does surprisingly well — most of the signal is additive — but loses a little to depth 2–3, which can express the family-history × BMI interaction. <code>fast</code> overfits. Slow and deep is not better than gentle and costs four times the time.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Task B · Monotone constraints (stretch)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Biology says risk should never <em>decrease</em> with age in this range. Force it: <code>set_engine("xgboost", monotone_constraints = ...)</code> needs a vector with one entry per predictor column <em>after the recipe</em> (1 = increasing, 0 = free). Build it from <code>dm_rec |&gt; prep() |&gt; bake(new_data = NULL)</code> column names, resample, and compare. (The warning about the sign being relative to the event level is expected — read it.)</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Solution B
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>pred_names <span class="ot">&lt;-</span> dm_rec <span class="sc">|&gt;</span> <span class="fu">prep</span>() <span class="sc">|&gt;</span> <span class="fu">bake</span>(<span class="at">new_data =</span> <span class="cn">NULL</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span>undx_dm) <span class="sc">|&gt;</span> <span class="fu">names</span>()</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>mono <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(pred_names <span class="sc">==</span> <span class="st">"age"</span>)      <span class="co"># one entry per predictor column, in recipe order: +1 for age, 0 for the rest</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># NB: splice the vector in with !!mono. Resampling runs on parallel workers, and they do not have `mono`</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># in scope - set_engine() would otherwise just store the *name* `mono` and each worker fails with</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co"># "object 'mono' not found". !!mono embeds the actual integer vector in the spec.</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>xgb_mono <span class="ot">&lt;-</span> <span class="fu">boost_tree</span>(<span class="at">trees =</span> <span class="dv">500</span>, <span class="at">learn_rate =</span> <span class="fl">0.03</span>, <span class="at">tree_depth =</span> <span class="dv">3</span>, <span class="at">min_n =</span> <span class="dv">20</span>) <span class="sc">|&gt;</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"xgboost"</span>, <span class="at">monotone_constraints =</span> <span class="sc">!!</span>mono) <span class="sc">|&gt;</span> <span class="fu">set_mode</span>(<span class="st">"classification"</span>)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>mono_res <span class="ot">&lt;-</span> <span class="fu">fit_resamples</span>(<span class="fu">workflow</span>(dm_rec, xgb_mono), dm_folds, <span class="at">metrics =</span> cls_metrics)</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_metrics</span>(mono_res) <span class="sc">|&gt;</span> <span class="fu">filter</span>(.metric <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"roc_auc"</span>, <span class="st">"brier_class"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":[".metric"],"name":[1],"type":["chr"],"align":["left"]},{"label":[".estimator"],"name":[2],"type":["chr"],"align":["left"]},{"label":["mean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["n"],"name":[4],"type":["int"],"align":["right"]},{"label":["std_err"],"name":[5],"type":["dbl"],"align":["right"]},{"label":[".config"],"name":[6],"type":["chr"],"align":["left"]}],"data":[{"1":"brier_class","2":"binary","3":"0.07484071","4":"5","5":"0.001643453","6":"pre0_mod0_post0"},{"1":"roc_auc","2":"binary","3":"0.84640854","4":"5","5":"0.012654600","6":"pre0_mod0_post0"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Performance is essentially unchanged (the data already obey the constraint except at the very oldest ages, where the simulated risk falls slightly — survivorship), but the model is now <em>guaranteed</em> to behave sensibly on extrapolation, which is worth a lot when a clinician looks at a partial-dependence plot.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="what-to-remember" class="level2">
+<h2 class="anchored" data-anchor-id="what-to-remember">What to remember</h2>
+<ol type="1">
+<li>Boosting = sequential error-correction; XGBoost = boosting plus regularisation and engineering.</li>
+<li>Learning rate and number of trees trade off; fix one, let early stopping or CV choose the other.</li>
+<li>Much more sensitive to settings than a forest — the reason Tutorial 5 exists.</li>
+<li><code>workflow_set()</code> + <code>workflow_map()</code> is how you compare families without copy-paste and without cheating.</li>
+<li>When models tie within one SE, choose on calibration, interpretability, speed and deployability.</li>
+</ol>
+<p><strong>Next:</strong> Tutorial 5 — resampling and tuning (Session 6, 10.50).</p>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb14" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Tutorial 4 · Gradient boosting with XGBoost — and the bake-off"</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Session 5 · Day 2, 09.15–10.30 · Slides 05"</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>::: {.callout-note icon=false}</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="fu">## What you will do</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>Fit gradient-boosted trees with XGBoost through the same workflow, watch the learning rate and the number of trees</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>trade off with early stopping, see that XGBoost can skip imputation, and then run the **bake-off**: logistic</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>regression, random forest, SVM and XGBoost on the same five folds, in one object, ranked with error bars.</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>**Time:** 30 min live coding + 15 min *Your turn*.</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="fu">## 0 · Start</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a><span class="co"># WHERE WE ARE ---------------------------------------------------------------------------------------------</span></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a><span class="co"># T1 pipeline + baseline (R/prep_nhms.R), T2 random forest, T3 SVM - all scored on the same folds with the same</span></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a><span class="co"># metrics, so they are comparable. NEW TODAY: the third family, gradient boosting with XGBoost, and then the</span></span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a><span class="co"># BAKE-OFF: logistic vs RF vs SVM vs XGBoost in one workflow_set() on dm_folds, saved to outputs/ for later.</span></span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"R/prep_nhms.R"</span>)</span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(future)</span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(multisession, <span class="at">workers =</span> <span class="fu">max</span>(<span class="dv">1</span>, parallel<span class="sc">::</span><span class="fu">detectCores</span>() <span class="sc">-</span> <span class="dv">1</span>))</span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">"outputs"</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a><span class="fu">## 1 · Boosting in one paragraph</span></span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>A random forest grows deep trees **in parallel** and averages them. Boosting grows shallow trees **in sequence**,</span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a>each one fitted to what the ensemble so far gets **wrong**. Start with a trivial prediction (the log-odds of the</span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a>prevalence). Compute, for every person, how wrong and in which direction — for classification that is the</span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a>**gradient** of the log-loss, which for each person is simply *observed − predicted probability*. Fit a small tree</span>
+<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a>to those residuals. Add it to the ensemble, shrunk by a **learning rate**. Repeat for hundreds of rounds. Each new</span>
+<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a>tree is a step downhill on the loss function — *gradient descent in the space of trees* — which is the same idea</span>
+<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a>that trains neural networks this afternoon. **XGBoost** is gradient boosting with serious engineering: a</span>
+<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a>regularised objective (λ on leaf weights, γ to prune splits that do not pay for themselves), split finding on</span>
+<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a>quantile sketches, a learned default direction for missing values, row and column subsampling, and multithreading.</span>
+<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`boost_tree()`</span> <span class="pp">|</span> xgboost <span class="pp">|</span> Meaning <span class="pp">|</span> Start here <span class="pp">|</span></span>
+<span id="cb14-47"><a href="#cb14-47" aria-hidden="true" tabindex="-1"></a><span class="pp">|---|---|---|---|</span></span>
+<span id="cb14-48"><a href="#cb14-48" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`trees`</span> <span class="pp">|</span> nrounds <span class="pp">|</span> boosting rounds <span class="pp">|</span> 500 with early stopping, or tune <span class="pp">|</span></span>
+<span id="cb14-49"><a href="#cb14-49" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`learn_rate`</span> <span class="pp">|</span> eta <span class="pp">|</span> step size <span class="pp">|</span> 0.01–0.1 <span class="pp">|</span></span>
+<span id="cb14-50"><a href="#cb14-50" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`tree_depth`</span> <span class="pp">|</span> max_depth <span class="pp">|</span> depth of each weak learner <span class="pp">|</span> 3–6 <span class="pp">|</span></span>
+<span id="cb14-51"><a href="#cb14-51" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`min_n`</span> <span class="pp">|</span> min_child_weight <span class="pp">|</span> minimum (weighted) people per leaf <span class="pp">|</span> 10–30 <span class="pp">|</span></span>
+<span id="cb14-52"><a href="#cb14-52" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`loss_reduction`</span> <span class="pp">|</span> gamma <span class="pp">|</span> minimum gain to make a split <span class="pp">|</span> 0–1 <span class="pp">|</span></span>
+<span id="cb14-53"><a href="#cb14-53" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`sample_size`</span> <span class="pp">|</span> subsample <span class="pp">|</span> row fraction per tree <span class="pp">|</span> 0.7–1 <span class="pp">|</span></span>
+<span id="cb14-54"><a href="#cb14-54" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`mtry`</span> <span class="pp">|</span> colsample_bynode <span class="pp">|</span> columns per split (<span class="in">`counts = FALSE`</span> → a proportion) <span class="pp">|</span> 0.5–1 <span class="pp">|</span></span>
+<span id="cb14-55"><a href="#cb14-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-56"><a href="#cb14-56" aria-hidden="true" tabindex="-1"></a>XGBoost needs **numeric** predictors, so the recipe must dummy-code the factors (<span class="in">`dm_rec`</span> does). Scaling is</span>
+<span id="cb14-57"><a href="#cb14-57" aria-hidden="true" tabindex="-1"></a>irrelevant to trees but harmless, so one recipe serves all four families.</span>
+<span id="cb14-58"><a href="#cb14-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-59"><a href="#cb14-59" aria-hidden="true" tabindex="-1"></a><span class="fu">## 2 · "Just use the defaults" vs a gentle setting</span></span>
+<span id="cb14-60"><a href="#cb14-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-63"><a href="#cb14-63" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb14-64"><a href="#cb14-64" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: default-vs-gentle</span></span>
+<span id="cb14-65"><a href="#cb14-65" aria-hidden="true" tabindex="-1"></a>xgb_default <span class="ot">&lt;-</span> <span class="fu">boost_tree</span>(<span class="at">trees =</span> <span class="dv">500</span>, <span class="at">learn_rate =</span> <span class="fl">0.3</span>, <span class="at">tree_depth =</span> <span class="dv">6</span>) <span class="sc">|&gt;</span>      <span class="co"># xgboost's own defaults</span></span>
+<span id="cb14-66"><a href="#cb14-66" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"xgboost"</span>) <span class="sc">|&gt;</span> <span class="fu">set_mode</span>(<span class="st">"classification"</span>)</span>
+<span id="cb14-67"><a href="#cb14-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-68"><a href="#cb14-68" aria-hidden="true" tabindex="-1"></a>xgb_gentle <span class="ot">&lt;-</span> <span class="fu">boost_tree</span>(<span class="at">trees =</span> <span class="dv">500</span>, <span class="at">learn_rate =</span> <span class="fl">0.03</span>, <span class="at">tree_depth =</span> <span class="dv">3</span>, <span class="at">min_n =</span> <span class="dv">20</span>,</span>
+<span id="cb14-69"><a href="#cb14-69" aria-hidden="true" tabindex="-1"></a>                         <span class="at">sample_size =</span> <span class="fl">0.8</span>, <span class="at">mtry =</span> <span class="fl">0.7</span>, <span class="at">loss_reduction =</span> <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
+<span id="cb14-70"><a href="#cb14-70" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"xgboost"</span>, <span class="at">counts =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span> <span class="fu">set_mode</span>(<span class="st">"classification"</span>)</span>
+<span id="cb14-71"><a href="#cb14-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-72"><a href="#cb14-72" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb14-73"><a href="#cb14-73" aria-hidden="true" tabindex="-1"></a>xgb_two <span class="ot">&lt;-</span> <span class="fu">workflow_set</span>(<span class="at">preproc =</span> <span class="fu">list</span>(<span class="at">base =</span> dm_rec), <span class="at">models =</span> <span class="fu">list</span>(<span class="at">default =</span> xgb_default, <span class="at">gentle =</span> xgb_gentle)) <span class="sc">|&gt;</span></span>
+<span id="cb14-74"><a href="#cb14-74" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow_map</span>(<span class="st">"fit_resamples"</span>, <span class="at">resamples =</span> dm_folds, <span class="at">metrics =</span> cls_metrics, <span class="at">seed =</span> <span class="dv">2026</span>)</span>
+<span id="cb14-75"><a href="#cb14-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-76"><a href="#cb14-76" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_metrics</span>(xgb_two) <span class="sc">|&gt;</span> <span class="fu">filter</span>(.metric <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"roc_auc"</span>, <span class="st">"brier_class"</span>)) <span class="sc">|&gt;</span> <span class="fu">select</span>(wflow_id, .metric, mean, std_err)</span>
+<span id="cb14-77"><a href="#cb14-77" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-78"><a href="#cb14-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-79"><a href="#cb14-79" aria-hidden="true" tabindex="-1"></a>Same algorithm, same data, a visible AUC gap — purely from the settings. Boosting is **far** more sensitive to its</span>
+<span id="cb14-80"><a href="#cb14-80" aria-hidden="true" tabindex="-1"></a>hyperparameters than a forest. "Which setting is best?" is an empirical question; Tutorial 5 lets the computer</span>
+<span id="cb14-81"><a href="#cb14-81" aria-hidden="true" tabindex="-1"></a>search instead of guessing.</span>
+<span id="cb14-82"><a href="#cb14-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-83"><a href="#cb14-83" aria-hidden="true" tabindex="-1"></a><span class="fu">## 3 · Learning rate and number of trees trade off: early stopping</span></span>
+<span id="cb14-84"><a href="#cb14-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-85"><a href="#cb14-85" aria-hidden="true" tabindex="-1"></a>Hold out 20 % of each training set as a validation slice, let XGBoost watch the validation log-loss after every</span>
+<span id="cb14-86"><a href="#cb14-86" aria-hidden="true" tabindex="-1"></a>tree, and stop when it has not improved for 25 rounds.</span>
+<span id="cb14-87"><a href="#cb14-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-90"><a href="#cb14-90" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb14-91"><a href="#cb14-91" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: early-stopping</span></span>
+<span id="cb14-92"><a href="#cb14-92" aria-hidden="true" tabindex="-1"></a>fit_with_stop <span class="ot">&lt;-</span> <span class="cf">function</span>(lr) {</span>
+<span id="cb14-93"><a href="#cb14-93" aria-hidden="true" tabindex="-1"></a>  spec <span class="ot">&lt;-</span> <span class="fu">boost_tree</span>(<span class="at">trees =</span> <span class="dv">2000</span>, <span class="at">learn_rate =</span> lr, <span class="at">tree_depth =</span> <span class="dv">3</span>, <span class="at">min_n =</span> <span class="dv">20</span>, <span class="at">stop_iter =</span> <span class="dv">25</span>) <span class="sc">|&gt;</span></span>
+<span id="cb14-94"><a href="#cb14-94" aria-hidden="true" tabindex="-1"></a>    <span class="fu">set_engine</span>(<span class="st">"xgboost"</span>, <span class="at">validation =</span> <span class="fl">0.2</span>) <span class="sc">|&gt;</span></span>
+<span id="cb14-95"><a href="#cb14-95" aria-hidden="true" tabindex="-1"></a>    <span class="fu">set_mode</span>(<span class="st">"classification"</span>)</span>
+<span id="cb14-96"><a href="#cb14-96" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb14-97"><a href="#cb14-97" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow</span>(dm_rec, spec) <span class="sc">|&gt;</span> <span class="fu">fit</span>(dm_train) <span class="sc">|&gt;</span> <span class="fu">extract_fit_engine</span>()</span>
+<span id="cb14-98"><a href="#cb14-98" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb14-99"><a href="#cb14-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-100"><a href="#cb14-100" aria-hidden="true" tabindex="-1"></a><span class="co"># the evaluation log lives in different places in xgboost 1.x and &gt;= 2.x; this reads both</span></span>
+<span id="cb14-101"><a href="#cb14-101" aria-hidden="true" tabindex="-1"></a>eval_log <span class="ot">&lt;-</span> <span class="cf">function</span>(booster) {</span>
+<span id="cb14-102"><a href="#cb14-102" aria-hidden="true" tabindex="-1"></a>  log <span class="ot">&lt;-</span> <span class="fu">attributes</span>(booster)<span class="sc">$</span>evaluation_log</span>
+<span id="cb14-103"><a href="#cb14-103" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(log)) log <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(booster<span class="sc">$</span>evaluation_log, <span class="at">error =</span> <span class="cf">function</span>(e) <span class="cn">NULL</span>)</span>
+<span id="cb14-104"><a href="#cb14-104" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>(log)</span>
+<span id="cb14-105"><a href="#cb14-105" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb14-106"><a href="#cb14-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-107"><a href="#cb14-107" aria-hidden="true" tabindex="-1"></a>curves <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map_dfr</span>(<span class="fu">c</span>(<span class="fl">0.3</span>, <span class="fl">0.05</span>, <span class="fl">0.01</span>), \(lr) <span class="fu">fit_with_stop</span>(lr) <span class="sc">|&gt;</span> <span class="fu">eval_log</span>() <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">learn_rate =</span> lr))</span>
+<span id="cb14-108"><a href="#cb14-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-109"><a href="#cb14-109" aria-hidden="true" tabindex="-1"></a>curves <span class="sc">|&gt;</span></span>
+<span id="cb14-110"><a href="#cb14-110" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(iter, validation_logloss, <span class="at">colour =</span> <span class="fu">factor</span>(learn_rate))) <span class="sc">+</span></span>
+<span id="cb14-111"><a href="#cb14-111" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb14-112"><a href="#cb14-112" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"number of trees"</span>, <span class="at">y =</span> <span class="st">"validation log-loss"</span>, <span class="at">colour =</span> <span class="st">"learn_rate"</span>,</span>
+<span id="cb14-113"><a href="#cb14-113" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Early stopping: where each learning rate stops improving"</span>) <span class="sc">+</span></span>
+<span id="cb14-114"><a href="#cb14-114" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb14-115"><a href="#cb14-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-116"><a href="#cb14-116" aria-hidden="true" tabindex="-1"></a>curves <span class="sc">|&gt;</span> <span class="fu">group_by</span>(learn_rate) <span class="sc">|&gt;</span> <span class="fu">summarise</span>(<span class="at">best_iter =</span> iter[<span class="fu">which.min</span>(validation_logloss)], <span class="at">best_logloss =</span> <span class="fu">min</span>(validation_logloss))</span>
+<span id="cb14-117"><a href="#cb14-117" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-118"><a href="#cb14-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-119"><a href="#cb14-119" aria-hidden="true" tabindex="-1"></a>A high learning rate reaches its minimum in a few dozen trees and then overfits; a small one takes hundreds of</span>
+<span id="cb14-120"><a href="#cb14-120" aria-hidden="true" tabindex="-1"></a>trees to get there and ends lower. **Rule:** fix a learning rate in 0.01–0.1, then let early stopping or</span>
+<span id="cb14-121"><a href="#cb14-121" aria-hidden="true" tabindex="-1"></a>cross-validation choose the number of trees — do not tune both freely.</span>
+<span id="cb14-122"><a href="#cb14-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-123"><a href="#cb14-123" aria-hidden="true" tabindex="-1"></a><span class="fu">## 4 · XGBoost handles missing values itself</span></span>
+<span id="cb14-124"><a href="#cb14-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-125"><a href="#cb14-125" aria-hidden="true" tabindex="-1"></a>Every split learns a *default direction* for rows where the splitting variable is <span class="in">`NA`</span>. So XGBoost can take the</span>
+<span id="cb14-126"><a href="#cb14-126" aria-hidden="true" tabindex="-1"></a>data **without imputation** — occasionally a better choice, because "missing" is then free to carry information</span>
+<span id="cb14-127"><a href="#cb14-127" aria-hidden="true" tabindex="-1"></a>(people who skipped the weight question may differ from those who did not).</span>
+<span id="cb14-128"><a href="#cb14-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-131"><a href="#cb14-131" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb14-132"><a href="#cb14-132" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: native-na</span></span>
+<span id="cb14-133"><a href="#cb14-133" aria-hidden="true" tabindex="-1"></a>rec_native_na <span class="ot">&lt;-</span> <span class="fu">recipe</span>(undx_dm <span class="sc">~</span> ., <span class="at">data =</span> dm_train) <span class="sc">|&gt;</span></span>
+<span id="cb14-134"><a href="#cb14-134" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">|&gt;</span>    <span class="co"># NA in a factor becomes NA in every dummy column - xgboost copes</span></span>
+<span id="cb14-135"><a href="#cb14-135" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_zv</span>(<span class="fu">all_predictors</span>())</span>
+<span id="cb14-136"><a href="#cb14-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-137"><a href="#cb14-137" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb14-138"><a href="#cb14-138" aria-hidden="true" tabindex="-1"></a>xgb_na <span class="ot">&lt;-</span> <span class="fu">workflow_set</span>(<span class="at">preproc =</span> <span class="fu">list</span>(<span class="at">imputed =</span> dm_rec, <span class="at">native_na =</span> rec_native_na), <span class="at">models =</span> <span class="fu">list</span>(<span class="at">xgb =</span> xgb_gentle)) <span class="sc">|&gt;</span></span>
+<span id="cb14-139"><a href="#cb14-139" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow_map</span>(<span class="st">"fit_resamples"</span>, <span class="at">resamples =</span> dm_folds, <span class="at">metrics =</span> cls_metrics, <span class="at">seed =</span> <span class="dv">2026</span>)</span>
+<span id="cb14-140"><a href="#cb14-140" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_metrics</span>(xgb_na) <span class="sc">|&gt;</span> <span class="fu">filter</span>(.metric <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"roc_auc"</span>, <span class="st">"brier_class"</span>)) <span class="sc">|&gt;</span> <span class="fu">select</span>(wflow_id, .metric, mean, std_err)</span>
+<span id="cb14-141"><a href="#cb14-141" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-142"><a href="#cb14-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-143"><a href="#cb14-143" aria-hidden="true" tabindex="-1"></a>Within noise here (7 % MAR missingness). Keep imputation when the same recipe must also serve a GLM, an SVM or a</span>
+<span id="cb14-144"><a href="#cb14-144" aria-hidden="true" tabindex="-1"></a>network — they cannot cope with <span class="in">`NA`</span>.</span>
+<span id="cb14-145"><a href="#cb14-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-146"><a href="#cb14-146" aria-hidden="true" tabindex="-1"></a><span class="fu">## 5 · The bake-off: four families, same folds, one object</span></span>
+<span id="cb14-147"><a href="#cb14-147" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-150"><a href="#cb14-150" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb14-151"><a href="#cb14-151" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: bakeoff</span></span>
+<span id="cb14-152"><a href="#cb14-152" aria-hidden="true" tabindex="-1"></a>model_zoo <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb14-153"><a href="#cb14-153" aria-hidden="true" tabindex="-1"></a>  <span class="at">logistic =</span> <span class="fu">logistic_reg</span>() <span class="sc">|&gt;</span> <span class="fu">set_engine</span>(<span class="st">"glm"</span>),</span>
+<span id="cb14-154"><a href="#cb14-154" aria-hidden="true" tabindex="-1"></a>  <span class="at">rf       =</span> <span class="fu">rand_forest</span>(<span class="at">trees =</span> <span class="dv">500</span>, <span class="at">mtry =</span> <span class="dv">6</span>, <span class="at">min_n =</span> <span class="dv">10</span>) <span class="sc">|&gt;</span> <span class="fu">set_engine</span>(<span class="st">"ranger"</span>) <span class="sc">|&gt;</span> <span class="fu">set_mode</span>(<span class="st">"classification"</span>),</span>
+<span id="cb14-155"><a href="#cb14-155" aria-hidden="true" tabindex="-1"></a>  <span class="at">svm_rbf  =</span> <span class="fu">svm_rbf</span>(<span class="at">cost =</span> <span class="dv">1</span>, <span class="at">rbf_sigma =</span> <span class="fl">0.005</span>) <span class="sc">|&gt;</span> <span class="fu">set_engine</span>(<span class="st">"kernlab"</span>) <span class="sc">|&gt;</span> <span class="fu">set_mode</span>(<span class="st">"classification"</span>),</span>
+<span id="cb14-156"><a href="#cb14-156" aria-hidden="true" tabindex="-1"></a>  <span class="at">xgb      =</span> xgb_gentle</span>
+<span id="cb14-157"><a href="#cb14-157" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-158"><a href="#cb14-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-159"><a href="#cb14-159" aria-hidden="true" tabindex="-1"></a>bakeoff <span class="ot">&lt;-</span> <span class="fu">workflow_set</span>(<span class="at">preproc =</span> <span class="fu">list</span>(<span class="at">base =</span> dm_rec), <span class="at">models =</span> model_zoo)</span>
+<span id="cb14-160"><a href="#cb14-160" aria-hidden="true" tabindex="-1"></a>bakeoff</span>
+<span id="cb14-161"><a href="#cb14-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-162"><a href="#cb14-162" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb14-163"><a href="#cb14-163" aria-hidden="true" tabindex="-1"></a>bakeoff_res <span class="ot">&lt;-</span> bakeoff <span class="sc">|&gt;</span></span>
+<span id="cb14-164"><a href="#cb14-164" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow_map</span>(<span class="st">"fit_resamples"</span>, <span class="at">resamples =</span> dm_folds, <span class="at">metrics =</span> cls_metrics, <span class="at">seed =</span> <span class="dv">2026</span>, <span class="at">verbose =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb14-165"><a href="#cb14-165" aria-hidden="true" tabindex="-1"></a>               <span class="at">control =</span> <span class="fu">control_resamples</span>(<span class="at">save_pred =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb14-166"><a href="#cb14-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-167"><a href="#cb14-167" aria-hidden="true" tabindex="-1"></a><span class="fu">rank_results</span>(bakeoff_res, <span class="at">rank_metric =</span> <span class="st">"roc_auc"</span>, <span class="at">select_best =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb14-168"><a href="#cb14-168" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"roc_auc"</span>, <span class="st">"pr_auc"</span>, <span class="st">"brier_class"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb14-169"><a href="#cb14-169" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(wflow_id, .metric, mean, std_err, rank)</span>
+<span id="cb14-170"><a href="#cb14-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-171"><a href="#cb14-171" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(bakeoff_res, <span class="at">metric =</span> <span class="fu">c</span>(<span class="st">"roc_auc"</span>, <span class="st">"brier_class"</span>)) <span class="sc">+</span> <span class="fu">theme_minimal</span>()</span>
+<span id="cb14-172"><a href="#cb14-172" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-173"><a href="#cb14-173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-174"><a href="#cb14-174" aria-hidden="true" tabindex="-1"></a>This plot is the honest answer to "which model should I use?" — and the honest answer on this data is "three of</span>
+<span id="cb14-175"><a href="#cb14-175" aria-hidden="true" tabindex="-1"></a>them are within one standard error of each other". When that happens, choose on everything *except* AUC:</span>
+<span id="cb14-176"><a href="#cb14-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-177"><a href="#cb14-177" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Criterion <span class="pp">|</span> Logistic <span class="pp">|</span> Random forest <span class="pp">|</span> XGBoost <span class="pp">|</span> SVM <span class="pp">|</span></span>
+<span id="cb14-178"><a href="#cb14-178" aria-hidden="true" tabindex="-1"></a><span class="pp">|---|---|---|---|---|</span></span>
+<span id="cb14-179"><a href="#cb14-179" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Discrimination (tabular) <span class="pp">|</span> good <span class="pp">|</span> very good <span class="pp">|</span> **best, tuned** <span class="pp">|</span> good <span class="pp">|</span></span>
+<span id="cb14-180"><a href="#cb14-180" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Calibration out of the box <span class="pp">|</span> **good** <span class="pp">|</span> fair (shrinks to the middle) <span class="pp">|</span> fair <span class="pp">|</span> poor (Platt) <span class="pp">|</span></span>
+<span id="cb14-181"><a href="#cb14-181" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Interpretability <span class="pp">|</span> **coefficients** <span class="pp">|</span> importance <span class="pp">|</span> importance <span class="pp">|</span> none <span class="pp">|</span></span>
+<span id="cb14-182"><a href="#cb14-182" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Training / prediction speed <span class="pp">|</span> **instant** <span class="pp">|</span> fast / slower <span class="pp">|</span> fast / fast <span class="pp">|</span> slow (n²) / fast <span class="pp">|</span></span>
+<span id="cb14-183"><a href="#cb14-183" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Handles missing natively <span class="pp">|</span> no <span class="pp">|</span> no (ranger) <span class="pp">|</span> **yes** <span class="pp">|</span> no <span class="pp">|</span></span>
+<span id="cb14-184"><a href="#cb14-184" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Tuning sensitivity <span class="pp">|</span> low <span class="pp">|</span> **low** <span class="pp">|</span> high <span class="pp">|</span> high <span class="pp">|</span></span>
+<span id="cb14-185"><a href="#cb14-185" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Deployable as a paper score <span class="pp">|</span> **yes** <span class="pp">|</span> no <span class="pp">|</span> no <span class="pp">|</span> no <span class="pp">|</span></span>
+<span id="cb14-186"><a href="#cb14-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-187"><a href="#cb14-187" aria-hidden="true" tabindex="-1"></a>One ROC curve per model, from the out-of-fold predictions:</span>
+<span id="cb14-188"><a href="#cb14-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-191"><a href="#cb14-191" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb14-192"><a href="#cb14-192" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: roc-all</span></span>
+<span id="cb14-193"><a href="#cb14-193" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_predictions</span>(bakeoff_res) <span class="sc">|&gt;</span></span>
+<span id="cb14-194"><a href="#cb14-194" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(wflow_id) <span class="sc">|&gt;</span></span>
+<span id="cb14-195"><a href="#cb14-195" aria-hidden="true" tabindex="-1"></a>  <span class="fu">roc_curve</span>(undx_dm, .pred_Yes) <span class="sc">|&gt;</span></span>
+<span id="cb14-196"><a href="#cb14-196" aria-hidden="true" tabindex="-1"></a>  <span class="fu">autoplot</span>()</span>
+<span id="cb14-197"><a href="#cb14-197" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-198"><a href="#cb14-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-201"><a href="#cb14-201" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb14-202"><a href="#cb14-202" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: save</span></span>
+<span id="cb14-203"><a href="#cb14-203" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(bakeoff_res, <span class="st">"outputs/t04_bakeoff_res.rds"</span>)     <span class="co"># kept so you can reload it without re-running (nothing later requires it)</span></span>
+<span id="cb14-204"><a href="#cb14-204" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-205"><a href="#cb14-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-206"><a href="#cb14-206" aria-hidden="true" tabindex="-1"></a><span class="fu">## Your turn (15 min)</span></span>
+<span id="cb14-207"><a href="#cb14-207" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-208"><a href="#cb14-208" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip icon=false}</span>
+<span id="cb14-209"><a href="#cb14-209" aria-hidden="true" tabindex="-1"></a><span class="fu">## Task A · The five-minute XGBoost</span></span>
+<span id="cb14-210"><a href="#cb14-210" aria-hidden="true" tabindex="-1"></a>Three settings of your own against <span class="in">`xgb_gentle`</span>, on the folds (never on the test set). Think about learning rate × trees first.</span>
+<span id="cb14-211"><a href="#cb14-211" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-214"><a href="#cb14-214" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb14-215"><a href="#cb14-215" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: taskA</span></span>
+<span id="cb14-216"><a href="#cb14-216" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb14-217"><a href="#cb14-217" aria-hidden="true" tabindex="-1"></a>boosters <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb14-218"><a href="#cb14-218" aria-hidden="true" tabindex="-1"></a>  <span class="at">gentle  =</span> xgb_gentle,</span>
+<span id="cb14-219"><a href="#cb14-219" aria-hidden="true" tabindex="-1"></a>  <span class="at">model_1 =</span> <span class="fu">boost_tree</span>(<span class="at">trees =</span> ___, <span class="at">learn_rate =</span> ___, <span class="at">tree_depth =</span> ___, <span class="at">min_n =</span> ___) <span class="sc">|&gt;</span> <span class="fu">set_engine</span>(<span class="st">"xgboost"</span>) <span class="sc">|&gt;</span> <span class="fu">set_mode</span>(<span class="st">"classification"</span>),</span>
+<span id="cb14-220"><a href="#cb14-220" aria-hidden="true" tabindex="-1"></a>  <span class="at">model_2 =</span> <span class="fu">boost_tree</span>(<span class="at">trees =</span> ___, <span class="at">learn_rate =</span> ___, <span class="at">tree_depth =</span> ___, <span class="at">min_n =</span> ___) <span class="sc">|&gt;</span> <span class="fu">set_engine</span>(<span class="st">"xgboost"</span>) <span class="sc">|&gt;</span> <span class="fu">set_mode</span>(<span class="st">"classification"</span>),</span>
+<span id="cb14-221"><a href="#cb14-221" aria-hidden="true" tabindex="-1"></a>  <span class="at">model_3 =</span> <span class="fu">boost_tree</span>(<span class="at">trees =</span> ___, <span class="at">learn_rate =</span> ___, <span class="at">tree_depth =</span> ___, <span class="at">min_n =</span> ___) <span class="sc">|&gt;</span> <span class="fu">set_engine</span>(<span class="st">"xgboost"</span>) <span class="sc">|&gt;</span> <span class="fu">set_mode</span>(<span class="st">"classification"</span>)</span>
+<span id="cb14-222"><a href="#cb14-222" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-223"><a href="#cb14-223" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb14-224"><a href="#cb14-224" aria-hidden="true" tabindex="-1"></a>boost_res <span class="ot">&lt;-</span> <span class="fu">workflow_set</span>(<span class="at">preproc =</span> <span class="fu">list</span>(<span class="at">base =</span> dm_rec), <span class="at">models =</span> boosters) <span class="sc">|&gt;</span></span>
+<span id="cb14-225"><a href="#cb14-225" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow_map</span>(<span class="st">"fit_resamples"</span>, <span class="at">resamples =</span> dm_folds, <span class="at">metrics =</span> cls_metrics, <span class="at">seed =</span> <span class="dv">2026</span>, <span class="at">verbose =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb14-226"><a href="#cb14-226" aria-hidden="true" tabindex="-1"></a><span class="fu">rank_results</span>(boost_res, <span class="at">rank_metric =</span> <span class="st">"roc_auc"</span>, <span class="at">select_best =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb14-227"><a href="#cb14-227" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"roc_auc"</span>, <span class="st">"brier_class"</span>)) <span class="sc">|&gt;</span> <span class="fu">select</span>(wflow_id, .metric, mean, std_err)</span>
+<span id="cb14-228"><a href="#cb14-228" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-229"><a href="#cb14-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-230"><a href="#cb14-230" aria-hidden="true" tabindex="-1"></a>**A1.** Did anyone beat `gentle` by more than one SE? **A2.** Did the deepest / fastest-learning setting win or lose?</span>
+<span id="cb14-231"><a href="#cb14-231" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb14-232"><a href="#cb14-232" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-233"><a href="#cb14-233" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb14-234"><a href="#cb14-234" aria-hidden="true" tabindex="-1"></a><span class="fu">## Solution A</span></span>
+<span id="cb14-235"><a href="#cb14-235" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-238"><a href="#cb14-238" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb14-239"><a href="#cb14-239" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: solA</span></span>
+<span id="cb14-240"><a href="#cb14-240" aria-hidden="true" tabindex="-1"></a>boosters <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb14-241"><a href="#cb14-241" aria-hidden="true" tabindex="-1"></a>  <span class="at">gentle   =</span> xgb_gentle,</span>
+<span id="cb14-242"><a href="#cb14-242" aria-hidden="true" tabindex="-1"></a>  <span class="at">slow_deep =</span> <span class="fu">boost_tree</span>(<span class="at">trees =</span> <span class="dv">1000</span>, <span class="at">learn_rate =</span> <span class="fl">0.01</span>, <span class="at">tree_depth =</span> <span class="dv">6</span>, <span class="at">min_n =</span> <span class="dv">10</span>) <span class="sc">|&gt;</span> <span class="fu">set_engine</span>(<span class="st">"xgboost"</span>) <span class="sc">|&gt;</span> <span class="fu">set_mode</span>(<span class="st">"classification"</span>),</span>
+<span id="cb14-243"><a href="#cb14-243" aria-hidden="true" tabindex="-1"></a>  <span class="at">stumps    =</span> <span class="fu">boost_tree</span>(<span class="at">trees =</span> <span class="dv">1000</span>, <span class="at">learn_rate =</span> <span class="fl">0.05</span>, <span class="at">tree_depth =</span> <span class="dv">1</span>, <span class="at">min_n =</span> <span class="dv">20</span>) <span class="sc">|&gt;</span> <span class="fu">set_engine</span>(<span class="st">"xgboost"</span>) <span class="sc">|&gt;</span> <span class="fu">set_mode</span>(<span class="st">"classification"</span>),</span>
+<span id="cb14-244"><a href="#cb14-244" aria-hidden="true" tabindex="-1"></a>  <span class="at">fast      =</span> <span class="fu">boost_tree</span>(<span class="at">trees =</span> <span class="dv">200</span>,  <span class="at">learn_rate =</span> <span class="fl">0.3</span>,  <span class="at">tree_depth =</span> <span class="dv">3</span>, <span class="at">min_n =</span> <span class="dv">20</span>) <span class="sc">|&gt;</span> <span class="fu">set_engine</span>(<span class="st">"xgboost"</span>) <span class="sc">|&gt;</span> <span class="fu">set_mode</span>(<span class="st">"classification"</span>)</span>
+<span id="cb14-245"><a href="#cb14-245" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-246"><a href="#cb14-246" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb14-247"><a href="#cb14-247" aria-hidden="true" tabindex="-1"></a>boost_res <span class="ot">&lt;-</span> <span class="fu">workflow_set</span>(<span class="at">preproc =</span> <span class="fu">list</span>(<span class="at">base =</span> dm_rec), <span class="at">models =</span> boosters) <span class="sc">|&gt;</span></span>
+<span id="cb14-248"><a href="#cb14-248" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow_map</span>(<span class="st">"fit_resamples"</span>, <span class="at">resamples =</span> dm_folds, <span class="at">metrics =</span> cls_metrics, <span class="at">seed =</span> <span class="dv">2026</span>)</span>
+<span id="cb14-249"><a href="#cb14-249" aria-hidden="true" tabindex="-1"></a><span class="fu">rank_results</span>(boost_res, <span class="at">rank_metric =</span> <span class="st">"roc_auc"</span>, <span class="at">select_best =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb14-250"><a href="#cb14-250" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"roc_auc"</span>, <span class="st">"brier_class"</span>)) <span class="sc">|&gt;</span> <span class="fu">select</span>(wflow_id, .metric, mean, std_err)</span>
+<span id="cb14-251"><a href="#cb14-251" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-252"><a href="#cb14-252" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-253"><a href="#cb14-253" aria-hidden="true" tabindex="-1"></a><span class="in">`stumps`</span> (depth-1 trees = an additive model) usually does surprisingly well — most of the signal is additive —</span>
+<span id="cb14-254"><a href="#cb14-254" aria-hidden="true" tabindex="-1"></a>but loses a little to depth 2–3, which can express the family-history × BMI interaction. <span class="in">`fast`</span> overfits. Slow and</span>
+<span id="cb14-255"><a href="#cb14-255" aria-hidden="true" tabindex="-1"></a>deep is not better than gentle and costs four times the time.</span>
+<span id="cb14-256"><a href="#cb14-256" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb14-257"><a href="#cb14-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-258"><a href="#cb14-258" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip icon=false}</span>
+<span id="cb14-259"><a href="#cb14-259" aria-hidden="true" tabindex="-1"></a><span class="fu">## Task B · Monotone constraints (stretch)</span></span>
+<span id="cb14-260"><a href="#cb14-260" aria-hidden="true" tabindex="-1"></a>Biology says risk should never *decrease* with age in this range. Force it:</span>
+<span id="cb14-261"><a href="#cb14-261" aria-hidden="true" tabindex="-1"></a><span class="in">`set_engine("xgboost", monotone_constraints = ...)`</span> needs a vector with one entry per predictor column</span>
+<span id="cb14-262"><a href="#cb14-262" aria-hidden="true" tabindex="-1"></a>*after the recipe* (1 = increasing, 0 = free). Build it from <span class="in">`dm_rec |&gt; prep() |&gt; bake(new_data = NULL)`</span></span>
+<span id="cb14-263"><a href="#cb14-263" aria-hidden="true" tabindex="-1"></a>column names, resample, and compare. (The warning about the sign being relative to the event level is expected —</span>
+<span id="cb14-264"><a href="#cb14-264" aria-hidden="true" tabindex="-1"></a>read it.)</span>
+<span id="cb14-265"><a href="#cb14-265" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb14-266"><a href="#cb14-266" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-267"><a href="#cb14-267" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb14-268"><a href="#cb14-268" aria-hidden="true" tabindex="-1"></a><span class="fu">## Solution B</span></span>
+<span id="cb14-269"><a href="#cb14-269" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-272"><a href="#cb14-272" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb14-273"><a href="#cb14-273" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: solB</span></span>
+<span id="cb14-274"><a href="#cb14-274" aria-hidden="true" tabindex="-1"></a>pred_names <span class="ot">&lt;-</span> dm_rec <span class="sc">|&gt;</span> <span class="fu">prep</span>() <span class="sc">|&gt;</span> <span class="fu">bake</span>(<span class="at">new_data =</span> <span class="cn">NULL</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span>undx_dm) <span class="sc">|&gt;</span> <span class="fu">names</span>()</span>
+<span id="cb14-275"><a href="#cb14-275" aria-hidden="true" tabindex="-1"></a>mono <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(pred_names <span class="sc">==</span> <span class="st">"age"</span>)      <span class="co"># one entry per predictor column, in recipe order: +1 for age, 0 for the rest</span></span>
+<span id="cb14-276"><a href="#cb14-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-277"><a href="#cb14-277" aria-hidden="true" tabindex="-1"></a><span class="co"># NB: splice the vector in with !!mono. Resampling runs on parallel workers, and they do not have `mono`</span></span>
+<span id="cb14-278"><a href="#cb14-278" aria-hidden="true" tabindex="-1"></a><span class="co"># in scope - set_engine() would otherwise just store the *name* `mono` and each worker fails with</span></span>
+<span id="cb14-279"><a href="#cb14-279" aria-hidden="true" tabindex="-1"></a><span class="co"># "object 'mono' not found". !!mono embeds the actual integer vector in the spec.</span></span>
+<span id="cb14-280"><a href="#cb14-280" aria-hidden="true" tabindex="-1"></a>xgb_mono <span class="ot">&lt;-</span> <span class="fu">boost_tree</span>(<span class="at">trees =</span> <span class="dv">500</span>, <span class="at">learn_rate =</span> <span class="fl">0.03</span>, <span class="at">tree_depth =</span> <span class="dv">3</span>, <span class="at">min_n =</span> <span class="dv">20</span>) <span class="sc">|&gt;</span></span>
+<span id="cb14-281"><a href="#cb14-281" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"xgboost"</span>, <span class="at">monotone_constraints =</span> <span class="sc">!!</span>mono) <span class="sc">|&gt;</span> <span class="fu">set_mode</span>(<span class="st">"classification"</span>)</span>
+<span id="cb14-282"><a href="#cb14-282" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-283"><a href="#cb14-283" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb14-284"><a href="#cb14-284" aria-hidden="true" tabindex="-1"></a>mono_res <span class="ot">&lt;-</span> <span class="fu">fit_resamples</span>(<span class="fu">workflow</span>(dm_rec, xgb_mono), dm_folds, <span class="at">metrics =</span> cls_metrics)</span>
+<span id="cb14-285"><a href="#cb14-285" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_metrics</span>(mono_res) <span class="sc">|&gt;</span> <span class="fu">filter</span>(.metric <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"roc_auc"</span>, <span class="st">"brier_class"</span>))</span>
+<span id="cb14-286"><a href="#cb14-286" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-287"><a href="#cb14-287" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-288"><a href="#cb14-288" aria-hidden="true" tabindex="-1"></a>Performance is essentially unchanged (the data already obey the constraint except at the very oldest ages, where</span>
+<span id="cb14-289"><a href="#cb14-289" aria-hidden="true" tabindex="-1"></a>the simulated risk falls slightly — survivorship), but the model is now *guaranteed* to behave sensibly on</span>
+<span id="cb14-290"><a href="#cb14-290" aria-hidden="true" tabindex="-1"></a>extrapolation, which is worth a lot when a clinician looks at a partial-dependence plot.</span>
+<span id="cb14-291"><a href="#cb14-291" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb14-292"><a href="#cb14-292" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-293"><a href="#cb14-293" aria-hidden="true" tabindex="-1"></a><span class="fu">## What to remember</span></span>
+<span id="cb14-294"><a href="#cb14-294" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-295"><a href="#cb14-295" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Boosting = sequential error-correction; XGBoost = boosting plus regularisation and engineering.</span>
+<span id="cb14-296"><a href="#cb14-296" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Learning rate and number of trees trade off; fix one, let early stopping or CV choose the other.</span>
+<span id="cb14-297"><a href="#cb14-297" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Much more sensitive to settings than a forest — the reason Tutorial 5 exists.</span>
+<span id="cb14-298"><a href="#cb14-298" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span><span class="in">`workflow_set()`</span> + <span class="in">`workflow_map()`</span> is how you compare families without copy-paste and without cheating.</span>
+<span id="cb14-299"><a href="#cb14-299" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>When models tie within one SE, choose on calibration, interpretability, speed and deployability.</span>
+<span id="cb14-300"><a href="#cb14-300" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-301"><a href="#cb14-301" aria-hidden="true" tabindex="-1"></a>**Next:** Tutorial 5 — resampling and tuning (Session 6, 10.50).</span>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Vivek Jason Jayaraj · Centre for Population Health (CePH), Universiti Malaya · Materials for workshop use</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

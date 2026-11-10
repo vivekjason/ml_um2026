@@ -1,0 +1,1865 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Tutorial 6 · Evaluation, calibration and explanation – Predictive Intelligence in R</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-eea96c9f5ba284fd003ee86039991193.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link href="../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+
+<script src="../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+
+
+
+</head>
+
+<body class="floating nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Predictive Intelligence in R</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../agenda.html"> 
+<span class="menu-text">Agenda</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../setup.html"> 
+<span class="menu-text">Setup</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li>
+    <a class="dropdown-item" href="../tutorials/01_pipeline.html">
+ <span class="dropdown-text">T1 · The pipeline: split, recipe, workflow, baseline</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../tutorials/02_random_forests.html">
+ <span class="dropdown-text">T2 · Decision trees and random forests</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../tutorials/03_svm.html">
+ <span class="dropdown-text">T3 · Support vector machines</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../tutorials/04_xgboost.html">
+ <span class="dropdown-text">T4 · Gradient boosting with XGBoost (+ the bake-off)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../tutorials/05_tuning.html">
+ <span class="dropdown-text">T5 · Resampling and tuning</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../tutorials/06_evaluation.html">
+ <span class="dropdown-text">T6 · Evaluation, calibration and explanation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../tutorials/07_neural_networks.html">
+ <span class="dropdown-text">T7 · Neural networks</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-slides" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Slides</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-slides">    
+        <li>
+    <a class="dropdown-item" href="../slides/01_ml_foundations.html">
+ <span class="dropdown-text">01 · Learning how machines learn</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../slides/02_pipeline.html">
+ <span class="dropdown-text">02 · The tidymodels pipeline</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../slides/03_random_forests.html">
+ <span class="dropdown-text">03 · Decision trees and random forests</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../slides/04_svm.html">
+ <span class="dropdown-text">04 · Support vector machines</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../slides/05_xgboost.html">
+ <span class="dropdown-text">05 · Gradient boosting and XGBoost</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../slides/06_resampling_tuning.html">
+ <span class="dropdown-text">06 · Resampling and tuning</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../slides/07_evaluation_explainability.html">
+ <span class="dropdown-text">07 · Evaluation and explainability</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../slides/08_neural_networks.html">
+ <span class="dropdown-text">08 · Neural networks</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../slides/09_wrapup.html">
+ <span class="dropdown-text">09 · Verdict and where next</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/vivekjason"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#start" id="toc-start" class="nav-link active" data-scroll-target="#start">0 · Start</a></li>
+  <li><a href="#a-model-is-a-probability-a-decision-is-a-threshold" id="toc-a-model-is-a-probability-a-decision-is-a-threshold" class="nav-link" data-scroll-target="#a-model-is-a-probability-a-decision-is-a-threshold">1 · A model is a probability; a decision is a threshold</a></li>
+  <li><a href="#the-confusion-matrix-at-the-default-threshold-and-why-it-misleads" id="toc-the-confusion-matrix-at-the-default-threshold-and-why-it-misleads" class="nav-link" data-scroll-target="#the-confusion-matrix-at-the-default-threshold-and-why-it-misleads">2 · The confusion matrix at the default threshold — and why it misleads</a>
+  <ul class="collapse">
+  <li><a href="#ppv-is-not-a-property-of-the-model" id="toc-ppv-is-not-a-property-of-the-model" class="nav-link" data-scroll-target="#ppv-is-not-a-property-of-the-model">PPV is not a property of the model</a></li>
+  </ul></li>
+  <li><a href="#threshold-free-roc-precisionrecall-gain" id="toc-threshold-free-roc-precisionrecall-gain" class="nav-link" data-scroll-target="#threshold-free-roc-precisionrecall-gain">3 · Threshold-free: ROC, precision–recall, gain</a></li>
+  <li><a href="#calibration-do-the-probabilities-mean-what-they-say" id="toc-calibration-do-the-probabilities-mean-what-they-say" class="nav-link" data-scroll-target="#calibration-do-the-probabilities-mean-what-they-say">4 · Calibration: do the probabilities mean what they say?</a>
+  <ul class="collapse">
+  <li><a href="#fix-it-honestly-estimate-on-cv-predictions-validate-within-resamples" id="toc-fix-it-honestly-estimate-on-cv-predictions-validate-within-resamples" class="nav-link" data-scroll-target="#fix-it-honestly-estimate-on-cv-predictions-validate-within-resamples">Fix it honestly: estimate on CV predictions, validate within resamples</a></li>
+  </ul></li>
+  <li><a href="#choosing-a-threshold-on-purpose" id="toc-choosing-a-threshold-on-purpose" class="nav-link" data-scroll-target="#choosing-a-threshold-on-purpose">5 · Choosing a threshold on purpose</a></li>
+  <li><a href="#class-imbalance-the-honest-version" id="toc-class-imbalance-the-honest-version" class="nav-link" data-scroll-target="#class-imbalance-the-honest-version">6 · Class imbalance: the honest version</a></li>
+  <li><a href="#explaining-the-model-global" id="toc-explaining-the-model-global" class="nav-link" data-scroll-target="#explaining-the-model-global">7 · Explaining the model: global</a></li>
+  <li><a href="#explaining-the-model-local-shap" id="toc-explaining-the-model-local-shap" class="nav-link" data-scroll-target="#explaining-the-model-local-shap">8 · Explaining the model: local (SHAP)</a></li>
+  <li><a href="#your-turn-10-min" id="toc-your-turn-10-min" class="nav-link" data-scroll-target="#your-turn-10-min">Your turn (10 min)</a></li>
+  <li><a href="#what-to-remember" id="toc-what-to-remember" class="nav-link" data-scroll-target="#what-to-remember">What to remember</a></li>
+  </ul>
+</nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Tutorial 6 · Evaluation, calibration and explanation</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+<p class="subtitle lead">Session 7 · Day 2, 11.50–13.00 · Slides 07</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What you will do
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Evaluate the tuned XGBoost the way a clinician needs it evaluated: the confusion matrix at <em>this</em> prevalence, ROC against precision–recall, Brier score and <strong>calibration</strong>, a decision threshold chosen for a screening programme, the honest version of “class imbalance”; then explain the model globally (importance, partial dependence) and locally (SHAP) — with code that works unchanged for the neural network this afternoon.</p>
+<p><strong>Time:</strong> 30 min live coding + 10 min <em>Your turn</em>.</p>
+</div>
+</div>
+<section id="start" class="level2">
+<h2 class="anchored" data-anchor-id="start">0 · Start</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># WHERE WE ARE ---------------------------------------------------------------------------------------------</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Pipeline (T1), three families (T2-T4), tuning (T5). From here on the model is fixed: the tuned XGBoost from T5</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># (loaded below from outputs/, with a fallback so this page also stands alone). NEW TODAY: judging it the way a</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># clinician needs - confusion matrix at the real prevalence, ROC vs PR, calibration, choosing a threshold on</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># purpose, class imbalance - and explaining it (importance, partial dependence, SHAP).</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"R/prep_nhms.R"</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(probably)      <span class="co"># calibration, thresholds</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(themis)        <span class="co"># class-imbalance recipe steps</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DALEXtra)      <span class="co"># model-agnostic explanations for tidymodels</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(shapviz)       <span class="co"># SHAP plots</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(future)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(multisession, <span class="at">workers =</span> <span class="fu">max</span>(<span class="dv">1</span>, parallel<span class="sc">::</span><span class="fu">detectCores</span>() <span class="sc">-</span> <span class="dv">1</span>))</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">"outputs"</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># the tuned XGBoost from Tutorial 5 (falls back to a fixed sensible version so this page stands alone)</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">file.exists</span>(<span class="st">"outputs/t05_xgb_last.rds"</span>)) {</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  xgb_last <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"outputs/t05_xgb_last.rds"</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  xgb_spec <span class="ot">&lt;-</span> <span class="fu">boost_tree</span>(<span class="at">trees =</span> <span class="dv">500</span>, <span class="at">learn_rate =</span> <span class="fl">0.03</span>, <span class="at">tree_depth =</span> <span class="dv">3</span>, <span class="at">min_n =</span> <span class="dv">20</span>, <span class="at">sample_size =</span> <span class="fl">0.8</span>) <span class="sc">|&gt;</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">set_engine</span>(<span class="st">"xgboost"</span>) <span class="sc">|&gt;</span> <span class="fu">set_mode</span>(<span class="st">"classification"</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  xgb_last <span class="ot">&lt;-</span> <span class="fu">last_fit</span>(<span class="fu">workflow</span>(dm_rec, xgb_spec), dm_split, <span class="at">metrics =</span> cls_metrics)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>xgb_fit      <span class="ot">&lt;-</span> <span class="fu">extract_workflow</span>(xgb_last)                       <span class="co"># fitted workflow (recipe + model)</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>xgb_final_wf <span class="ot">&lt;-</span> <span class="fu">workflow</span>(dm_rec, <span class="fu">extract_spec_parsnip</span>(xgb_fit))  <span class="co"># same spec, unfitted, for resampling</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>test_preds   <span class="ot">&lt;-</span> <span class="fu">collect_predictions</span>(xgb_last)                    <span class="co"># predictions on the locked test set</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="co"># out-of-fold predictions on the TRAINING set: every DECISION (threshold, calibration) is made on these,</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co"># so the test set stays an honest final exam</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>xgb_cv   <span class="ot">&lt;-</span> <span class="fu">fit_resamples</span>(xgb_final_wf, dm_folds, <span class="at">metrics =</span> cls_metrics, <span class="at">control =</span> <span class="fu">control_resamples</span>(<span class="at">save_pred =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>cv_preds <span class="ot">&lt;-</span> <span class="fu">collect_predictions</span>(xgb_cv)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="a-model-is-a-probability-a-decision-is-a-threshold" class="level2">
+<h2 class="anchored" data-anchor-id="a-model-is-a-probability-a-decision-is-a-threshold">1 · A model is a probability; a decision is a threshold</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>test_preds <span class="sc">|&gt;</span> <span class="fu">select</span>(undx_dm, .pred_Yes, .pred_class) <span class="sc">|&gt;</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["undx_dm"],"name":[1],"type":["fct"],"align":["left"]},{"label":[".pred_Yes"],"name":[2],"type":["dbl"],"align":["right"]},{"label":[".pred_class"],"name":[3],"type":["fct"],"align":["left"]}],"data":[{"1":"No","2":"0.02782968","3":"No"},{"1":"No","2":"0.01774635","3":"No"},{"1":"No","2":"0.03591287","3":"No"},{"1":"No","2":"0.02674987","3":"No"},{"1":"Yes","2":"0.03330678","3":"No"},{"1":"No","2":"0.01414407","3":"No"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Every classifier we built outputs <strong>P(Yes)</strong>; <code>.pred_class</code> is just <code>P(Yes) ≥ 0.5</code>. The 0.5 is a software default that silently assumes a false positive and a false negative cost the same. In screening they never do. So we evaluate the probabilities (discrimination, calibration) <em>and</em> the decision (confusion matrix at the threshold we will actually use) — separately.</p>
+</section>
+<section id="the-confusion-matrix-at-the-default-threshold-and-why-it-misleads" class="level2">
+<h2 class="anchored" data-anchor-id="the-confusion-matrix-at-the-default-threshold-and-why-it-misleads">2 · The confusion matrix at the default threshold — and why it misleads</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>test_preds <span class="sc">|&gt;</span> <span class="fu">conf_mat</span>(undx_dm, .pred_class) <span class="sc">|&gt;</span> <span class="fu">autoplot</span>(<span class="at">type =</span> <span class="st">"heatmap"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="06_evaluation_files/figure-html/confmat-1.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>test_preds <span class="sc">|&gt;</span> <span class="fu">conf_mat</span>(undx_dm, .pred_class) <span class="sc">|&gt;</span> <span class="fu">summary</span>() <span class="sc">|&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"accuracy"</span>, <span class="st">"sens"</span>, <span class="st">"spec"</span>, <span class="st">"ppv"</span>, <span class="st">"npv"</span>, <span class="st">"j_index"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":[".metric"],"name":[1],"type":["chr"],"align":["left"]},{"label":[".estimator"],"name":[2],"type":["chr"],"align":["left"]},{"label":[".estimate"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"accuracy","2":"binary","3":"0.9090909"},{"1":"sens","2":"binary","3":"0.2844828"},{"1":"spec","2":"binary","3":"0.9909605"},{"1":"ppv","2":"binary","3":"0.8048780"},{"1":"npv","2":"binary","3":"0.9135417"},{"1":"j_index","2":"binary","3":"0.2754432"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Accuracy near 0.89 looks fine and is worthless: 88 % of people are <em>No</em>. Sensitivity at 0.5 is poor. Nobody told the model that missing a diabetic costs more than an extra blood test.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Metric</th>
+<th>Also called</th>
+<th>Asks</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>sensitivity</td>
+<td>recall, TPR</td>
+<td>of the people who have it, how many did we flag?</td>
+</tr>
+<tr class="even">
+<td>specificity</td>
+<td>TNR</td>
+<td>of the people who don’t, how many did we leave alone?</td>
+</tr>
+<tr class="odd">
+<td>PPV</td>
+<td>precision</td>
+<td>of the people we flagged, how many have it?</td>
+</tr>
+<tr class="even">
+<td>NPV</td>
+<td>—</td>
+<td>of the people we cleared, how many are truly clear?</td>
+</tr>
+<tr class="odd">
+<td>J (Youden)</td>
+<td>—</td>
+<td>sens + spec − 1</td>
+</tr>
+</tbody>
+</table>
+<section id="ppv-is-not-a-property-of-the-model" class="level3">
+<h3 class="anchored" data-anchor-id="ppv-is-not-a-property-of-the-model">PPV is not a property of the model</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>ppv_at <span class="ot">&lt;-</span> <span class="cf">function</span>(sens, spec, prev) (sens <span class="sc">*</span> prev) <span class="sc">/</span> (sens <span class="sc">*</span> prev <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> spec) <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> prev))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(<span class="at">prevalence =</span> <span class="fu">c</span>(<span class="fl">0.02</span>, <span class="fl">0.05</span>, <span class="fl">0.116</span>, <span class="fl">0.25</span>)) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">ppv =</span> <span class="fu">ppv_at</span>(<span class="at">sens =</span> <span class="fl">0.80</span>, <span class="at">spec =</span> <span class="fl">0.75</span>, <span class="at">prev =</span> prevalence))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["prevalence"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["ppv"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"0.020","2":"0.06130268"},{"1":"0.050","2":"0.14414414"},{"1":"0.116","2":"0.29572976"},{"1":"0.250","2":"0.51612903"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Same sensitivity and specificity, four populations, four PPVs. A model validated in a clinic (25 %) and deployed at a pasar malam (4 %) will see its PPV collapse. <strong>Report the prevalence you validated at</strong> — TRIPOD+AI asks for exactly this.</p>
+</section>
+</section>
+<section id="threshold-free-roc-precisionrecall-gain" class="level2">
+<h2 class="anchored" data-anchor-id="threshold-free-roc-precisionrecall-gain">3 · Threshold-free: ROC, precision–recall, gain</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">roc_auc</span>(test_preds, undx_dm, .pred_Yes); <span class="fu">pr_auc</span>(test_preds, undx_dm, .pred_Yes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":[".metric"],"name":[1],"type":["chr"],"align":["left"]},{"label":[".estimator"],"name":[2],"type":["chr"],"align":["left"]},{"label":[".estimate"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"roc_auc","2":"binary","3":"0.8689947"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":[".metric"],"name":[1],"type":["chr"],"align":["left"]},{"label":[".estimator"],"name":[2],"type":["chr"],"align":["left"]},{"label":[".estimate"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"pr_auc","2":"binary","3":"0.5910143"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>p_roc  <span class="ot">&lt;-</span> <span class="fu">roc_curve</span>(test_preds, undx_dm, .pred_Yes)  <span class="sc">|&gt;</span> <span class="fu">autoplot</span>() <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"ROC"</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>p_pr   <span class="ot">&lt;-</span> <span class="fu">pr_curve</span>(test_preds, undx_dm, .pred_Yes)   <span class="sc">|&gt;</span> <span class="fu">autoplot</span>() <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Precision-recall (baseline = 0.116)"</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>p_gain <span class="ot">&lt;-</span> <span class="fu">gain_curve</span>(test_preds, undx_dm, .pred_Yes) <span class="sc">|&gt;</span> <span class="fu">autoplot</span>() <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Gain: screen the top x%, find y% of cases"</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>p_roc <span class="sc">+</span> p_pr <span class="sc">+</span> p_gain</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="06_evaluation_files/figure-html/curves-1.png" class="img-fluid figure-img" width="1440"></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li><strong>ROC</strong> is prevalence-blind — good for comparing models across populations, flattering on rare outcomes.</li>
+<li><strong>Precision–recall</strong> shows what the positive predictions are <em>worth</em>; its baseline is the prevalence.</li>
+<li><strong>Gain</strong> is the one for a programme manager: “if we can only test 20 % of adults, which 20 %, and what share of cases do we catch?”</li>
+</ul>
+</section>
+<section id="calibration-do-the-probabilities-mean-what-they-say" class="level2">
+<h2 class="anchored" data-anchor-id="calibration-do-the-probabilities-mean-what-they-say">4 · Calibration: do the probabilities mean what they say?</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">brier_class</span>(test_preds, undx_dm, .pred_Yes)    <span class="co"># 0 = perfect; predicting the prevalence for everyone gives ~0.10</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":[".metric"],"name":[1],"type":["chr"],"align":["left"]},{"label":[".estimator"],"name":[2],"type":["chr"],"align":["left"]},{"label":[".estimate"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"brier_class","2":"binary","3":"0.07142273"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cal_plot_breaks</span>(test_preds, <span class="at">truth =</span> undx_dm, <span class="at">estimate =</span> .pred_Yes, <span class="at">num_breaks =</span> <span class="dv">10</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Reliability diagram, test set"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="06_evaluation_files/figure-html/calibration-1.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cal_plot_windowed</span>(test_preds, <span class="at">truth =</span> undx_dm, <span class="at">estimate =</span> .pred_Yes) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Windowed calibration, test set"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="06_evaluation_files/figure-html/calibration-2.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>A point at (0.40, 0.25) means: when the model says 40 %, only 25 % actually have it. A model can have AUC 0.86 and still be badly calibrated — boosted trees and forests routinely are, and SMOTE’d models always are. A probability a clinician will <em>show</em> to a patient must be calibrated; a score that only sorts a queue cares less.</p>
+<section id="fix-it-honestly-estimate-on-cv-predictions-validate-within-resamples" class="level3">
+<h3 class="anchored" data-anchor-id="fix-it-honestly-estimate-on-cv-predictions-validate-within-resamples">Fix it honestly: estimate on CV predictions, validate within resamples</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>cal_val <span class="ot">&lt;-</span> <span class="fu">cal_validate_logistic</span>(xgb_cv, <span class="at">smooth =</span> <span class="cn">FALSE</span>, <span class="at">metrics =</span> <span class="fu">metric_set</span>(brier_class, roc_auc), <span class="at">save_pred =</span> <span class="cn">TRUE</span>)   <span class="co"># smooth = FALSE -&gt; Platt (2 parameters)</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_metrics</span>(cal_val)                      <span class="co"># uncalibrated vs calibrated: Brier down, AUC unchanged</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":[".metric"],"name":[1],"type":["chr"],"align":["left"]},{"label":[".type"],"name":[2],"type":["chr"],"align":["left"]},{"label":[".estimator"],"name":[3],"type":["chr"],"align":["left"]},{"label":["mean"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["n"],"name":[5],"type":["int"],"align":["right"]},{"label":["std_err"],"name":[6],"type":["dbl"],"align":["right"]},{"label":[".config"],"name":[7],"type":["chr"],"align":["left"]}],"data":[{"1":"brier_class","2":"uncalibrated","3":"binary","4":"0.07512581","5":"5","6":"0.001152151","7":"config"},{"1":"roc_auc","2":"uncalibrated","3":"binary","4":"0.85181929","5":"5","6":"0.011669677","7":"config"},{"1":"brier_class","2":"calibrated","3":"binary","4":"0.07575755","5":"5","6":"0.001099659","7":"config"},{"1":"roc_auc","2":"calibrated","3":"binary","4":"0.85181929","5":"5","6":"0.011669677","7":"config"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_predictions</span>(cal_val) <span class="sc">|&gt;</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cal_plot_breaks</span>(<span class="at">truth =</span> undx_dm, <span class="at">estimate =</span> .pred_Yes, <span class="at">.by =</span> .type) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Before vs after logistic recalibration (CV)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="06_evaluation_files/figure-html/recalibrate-1.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>calibrator     <span class="ot">&lt;-</span> <span class="fu">cal_estimate_logistic</span>(cv_preds, <span class="at">truth =</span> undx_dm, <span class="at">smooth =</span> <span class="cn">FALSE</span>)   <span class="co"># fitted on out-of-fold predictions</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>test_preds_cal <span class="ot">&lt;-</span> <span class="fu">cal_apply</span>(test_preds, calibrator)                  <span class="co"># applied to the test set</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(<span class="at">raw =</span> <span class="fu">brier_class</span>(test_preds, undx_dm, .pred_Yes), <span class="at">calibrated =</span> <span class="fu">brier_class</span>(test_preds_cal, undx_dm, .pred_Yes), <span class="at">.id =</span> <span class="st">"probs"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["probs"],"name":[1],"type":["chr"],"align":["left"]},{"label":[".metric"],"name":[2],"type":["chr"],"align":["left"]},{"label":[".estimator"],"name":[3],"type":["chr"],"align":["left"]},{"label":[".estimate"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"raw","2":"brier_class","3":"binary","4":"0.07142273"},{"1":"calibrated","2":"brier_class","3":"binary","4":"0.07116612"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Recalibration moves the probabilities, not the ranking: AUC is untouched, Brier improves, thresholds become meaningful. Platt/logistic (<code>smooth = FALSE</code>: two parameters, robust) for most cases; <code>probably</code>’s default (<code>smooth = TRUE</code>) fits a spline-based GAM and is more flexible; isotonic when you have lots of data and a strange shape.</p>
+</section>
+</section>
+<section id="choosing-a-threshold-on-purpose" class="level2">
+<h2 class="anchored" data-anchor-id="choosing-a-threshold-on-purpose">5 · Choosing a threshold on purpose</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../images/gen/threshold_tradeoff.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></p>
+</figure>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>thr_cv <span class="ot">&lt;-</span> <span class="fu">threshold_perf</span>(cv_preds, undx_dm, .pred_Yes, <span class="at">thresholds =</span> <span class="fu">seq</span>(<span class="fl">0.02</span>, <span class="fl">0.60</span>, <span class="at">by =</span> <span class="fl">0.01</span>))</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>thr_cv <span class="sc">|&gt;</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"sensitivity"</span>, <span class="st">"specificity"</span>, <span class="st">"j_index"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(.threshold, .estimate, <span class="at">colour =</span> .metric)) <span class="sc">+</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span> <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fl">0.5</span>, <span class="at">linetype =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Sensitivity / specificity by threshold (CV predictions)"</span>, <span class="at">x =</span> <span class="st">"threshold on P(Yes)"</span>, <span class="at">y =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="06_evaluation_files/figure-html/threshold-1.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>A community screen wants sensitivity around 0.80 and accepts the extra blood tests. Find the threshold on the <strong>CV</strong> predictions, then report it on the test set:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>thr_chosen <span class="ot">&lt;-</span> thr_cv <span class="sc">|&gt;</span> <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"sensitivity"</span>, .estimate <span class="sc">&gt;=</span> <span class="fl">0.80</span>) <span class="sc">|&gt;</span> <span class="fu">slice_max</span>(.threshold, <span class="at">n =</span> <span class="dv">1</span>) <span class="sc">|&gt;</span> <span class="fu">pull</span>(.threshold)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>thr_chosen</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>test_thr <span class="ot">&lt;-</span> test_preds <span class="sc">|&gt;</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">.pred_screen =</span> <span class="fu">make_two_class_pred</span>(.pred_Yes, <span class="at">levels =</span> <span class="fu">levels</span>(undx_dm), <span class="at">threshold =</span> thr_chosen) <span class="sc">|&gt;</span> <span class="fu">as.factor</span>())</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>test_thr <span class="sc">|&gt;</span> <span class="fu">conf_mat</span>(undx_dm, .pred_screen) <span class="sc">|&gt;</span> <span class="fu">summary</span>() <span class="sc">|&gt;</span> <span class="fu">filter</span>(.metric <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"sens"</span>, <span class="st">"spec"</span>, <span class="st">"ppv"</span>, <span class="st">"npv"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":[".metric"],"name":[1],"type":["chr"],"align":["left"]},{"label":[".estimator"],"name":[2],"type":["chr"],"align":["left"]},{"label":[".estimate"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"sens","2":"binary","3":"0.8534483"},{"1":"spec","2":"binary","3":"0.7242938"},{"1":"ppv","2":"binary","3":"0.2886297"},{"1":"npv","2":"binary","3":"0.9741641"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>test_thr <span class="sc">|&gt;</span> <span class="fu">summarise</span>(<span class="at">flagged_pct =</span> <span class="fu">mean</span>(.pred_screen <span class="sc">==</span> <span class="st">"Yes"</span>),</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">cases_found =</span> <span class="fu">sum</span>(.pred_screen <span class="sc">==</span> <span class="st">"Yes"</span> <span class="sc">&amp;</span> undx_dm <span class="sc">==</span> <span class="st">"Yes"</span>) <span class="sc">/</span> <span class="fu">sum</span>(undx_dm <span class="sc">==</span> <span class="st">"Yes"</span>),</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">number_needed_to_screen =</span> <span class="dv">1</span> <span class="sc">/</span> <span class="fu">mean</span>(undx_dm[.pred_screen <span class="sc">==</span> <span class="st">"Yes"</span>] <span class="sc">==</span> <span class="st">"Yes"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["flagged_pct"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["cases_found"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["number_needed_to_screen"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"0.3426573","2":"0.8534483","3":"3.464646"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>“Test the X % the model flags and you find Y % of the undiagnosed cases; about Z people tested per case found.” That is a sentence a programme manager can act on.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Decision curve analysis (the clinician’s metric)
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">requireNamespace</span>(<span class="st">"dcurves"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  dcurves<span class="sc">::</span><span class="fu">dca</span>(undx_dm <span class="sc">~</span> .pred_Yes, <span class="at">data =</span> test_preds <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">undx_dm =</span> undx_dm <span class="sc">==</span> <span class="st">"Yes"</span>),</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">thresholds =</span> <span class="fu">seq</span>(<span class="fl">0.02</span>, <span class="fl">0.5</span>, <span class="at">by =</span> <span class="fl">0.01</span>), <span class="at">label =</span> <span class="fu">list</span>(<span class="at">.pred_Yes =</span> <span class="st">"XGBoost"</span>)) <span class="sc">|&gt;</span> <span class="fu">plot</span>(<span class="at">smooth =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="06_evaluation_files/figure-html/dca-1.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Net benefit at threshold <em>t</em> = (TP − FP × t/(1−t)) / n: the threshold <em>is</em> the exchange rate between a false and a true positive. A model is useful only where its curve sits above both “test everyone” and “test no one”.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="class-imbalance-the-honest-version" class="level2">
+<h2 class="anchored" data-anchor-id="class-imbalance-the-honest-version">6 · Class imbalance: the honest version</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>lr_spec   <span class="ot">&lt;-</span> <span class="fu">logistic_reg</span>() <span class="sc">|&gt;</span> <span class="fu">set_engine</span>(<span class="st">"glm"</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>rec_smote <span class="ot">&lt;-</span> dm_rec <span class="sc">|&gt;</span> <span class="fu">step_smote</span>(undx_dm, <span class="at">over_ratio =</span> <span class="dv">1</span>)          <span class="co"># only applied to training data (skip = TRUE)</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>rec_down  <span class="ot">&lt;-</span> dm_rec <span class="sc">|&gt;</span> <span class="fu">step_downsample</span>(undx_dm, <span class="at">under_ratio =</span> <span class="dv">1</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>imbalance_res <span class="ot">&lt;-</span> <span class="fu">workflow_set</span>(<span class="at">preproc =</span> <span class="fu">list</span>(<span class="at">base =</span> dm_rec, <span class="at">smote =</span> rec_smote, <span class="at">downsample =</span> rec_down),</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>                              <span class="at">models  =</span> <span class="fu">list</span>(<span class="at">logistic =</span> lr_spec)) <span class="sc">|&gt;</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow_map</span>(<span class="st">"fit_resamples"</span>, <span class="at">resamples =</span> dm_folds, <span class="at">metrics =</span> cls_metrics, <span class="at">seed =</span> <span class="dv">2026</span>)</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_metrics</span>(imbalance_res) <span class="sc">|&gt;</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"roc_auc"</span>, <span class="st">"brier_class"</span>, <span class="st">"sensitivity"</span>, <span class="st">"specificity"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(wflow_id, .metric, mean) <span class="sc">|&gt;</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> .metric, <span class="at">values_from =</span> mean)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["wflow_id"],"name":[1],"type":["chr"],"align":["left"]},{"label":["brier_class"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["roc_auc"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["sensitivity"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["specificity"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"base_logistic","2":"0.07759938","3":"0.8414304","4":"0.2548855","5":"0.9807698"},{"1":"smote_logistic","2":"0.15469144","3":"0.8344752","4":"0.7320711","5":"0.7771538"},{"1":"downsample_logistic","2":"0.17207494","3":"0.8340534","4":"0.7753156","5":"0.7384129"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../images/gen/smote_shifts_probabilities.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:65.0%"></p>
+</figure>
+</div>
+<p>Balancing the training set pushes sensitivity-at-0.5 up — and AUC does not move while the Brier score gets <strong>worse</strong>, because every probability now thinks prevalence is 50 %. You got the same sensitivity in §5 by moving the threshold, without breaking calibration. SMOTE is a last resort; if you use it, recalibrate afterwards.</p>
+</section>
+<section id="explaining-the-model-global" class="level2">
+<h2 class="anchored" data-anchor-id="explaining-the-model-global">7 · Explaining the model: global</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>xgboost<span class="sc">::</span><span class="fu">xgb.importance</span>(<span class="at">model =</span> <span class="fu">extract_fit_engine</span>(xgb_fit)) <span class="sc">|&gt;</span>   <span class="co"># Gain = share of the total loss reduction attributed to each column</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(Gain, <span class="at">n =</span> <span class="dv">15</span>) <span class="sc">|&gt;</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(Gain, <span class="fu">reorder</span>(Feature, Gain))) <span class="sc">+</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">fill =</span> <span class="st">"#0b4f6c"</span>) <span class="sc">+</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"gain (share of total loss reduction)"</span>, <span class="at">y =</span> <span class="cn">NULL</span>, <span class="at">title =</span> <span class="st">"XGBoost gain importance (model-specific)"</span>) <span class="sc">+</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="06_evaluation_files/figure-html/xgb-importance-1.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Model-<strong>agnostic</strong> tools work for anything with a <code>predict()</code> — including this afternoon’s network:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>explainer <span class="ot">&lt;-</span> <span class="fu">explain_tidymodels</span>(</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  xgb_fit,</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data  =</span> dm_train <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span>undx_dm),</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">y     =</span> dm_train<span class="sc">$</span>undx_dm <span class="sc">==</span> <span class="st">"Yes"</span>,</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">predict_function_target_column =</span> <span class="st">"Yes"</span>,     <span class="co"># our event level; DALEX would otherwise take the 2nd column</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">label =</span> <span class="st">"XGBoost (tuned)"</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>vi_perm <span class="ot">&lt;-</span> <span class="fu">model_parts</span>(explainer, <span class="at">loss_function =</span> DALEX<span class="sc">::</span>loss_one_minus_auc, <span class="at">B =</span> <span class="dv">10</span>, <span class="at">N =</span> <span class="dv">1000</span>)</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(vi_perm, <span class="at">max_vars =</span> <span class="dv">15</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Permutation importance: AUC lost when a column is shuffled"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="06_evaluation_files/figure-html/dalex-1.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Correlated predictors share credit (BMI, waist, weight, <code>bmi_cat</code> each look weaker than “adiposity” is).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>pdp <span class="ot">&lt;-</span> <span class="fu">model_profile</span>(explainer, <span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"age"</span>, <span class="st">"bmi"</span>, <span class="st">"waist"</span>), <span class="at">N =</span> <span class="dv">500</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pdp) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Partial dependence: average predicted P(Yes) as one variable moves"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="06_evaluation_files/figure-html/pdp-1.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>pdp_sex <span class="ot">&lt;-</span> <span class="fu">model_profile</span>(explainer, <span class="at">variables =</span> <span class="st">"waist"</span>, <span class="at">groups =</span> <span class="st">"sex"</span>, <span class="at">N =</span> <span class="dv">500</span>)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pdp_sex) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Waist by sex: two different cut-offs"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="06_evaluation_files/figure-html/pdp-2.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Look for the structure the trees found: the BMI step near 27.5, the age plateau, two waist curves for two sexes. The last one is an interaction a logistic model never saw unless someone hand-coded sex-specific cut-offs.</p>
+</section>
+<section id="explaining-the-model-local-shap" class="level2">
+<h2 class="anchored" data-anchor-id="explaining-the-model-local-shap">8 · Explaining the model: local (SHAP)</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A <strong>Shapley value</strong> (game theory, 1953) is a variable’s fair share of the difference between <em>this</em> person’s prediction and the average prediction, averaged over every order in which the variables could be “added”. The shares add up exactly to the prediction. Two ways to get them: <strong>TreeSHAP</strong> reads them <em>exactly</em> off a tree ensemble in well under a second (what we do here); <strong>KernelSHAP</strong> <em>estimates</em> them for any model from predictions alone (Tutorial 7 uses it on the neural network — same plots, slower estimator).</p>
+<p>One mechanical point first. The model never saw <code>sex</code> or <code>ethnic</code>; it saw the <strong>baked</strong> matrix the recipe produced — imputed, dummy-coded, normalised. SHAP values therefore come out per dummy column (<code>sex_Male</code>, <code>ethnic_Chinese</code>, …). <code>shapviz</code> can add the pieces of each factor back together (<code>collapse</code>) so you read one value per <em>original</em> variable, and plot it against the original, un-normalised values (<code>X</code>).</p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. the people to explain, and the matrix the model actually saw for them</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>X_explain <span class="ot">&lt;-</span> dm_train <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span>undx_dm) <span class="sc">|&gt;</span> <span class="fu">slice_sample</span>(<span class="at">n =</span> <span class="dv">500</span>)          <span class="co"># 500 people is plenty for the plots</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>rec_fit   <span class="ot">&lt;-</span> <span class="fu">extract_recipe</span>(xgb_fit)                                        <span class="co"># the recipe as TRAINED inside the workflow</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>X_baked   <span class="ot">&lt;-</span> <span class="fu">bake</span>(rec_fit, <span class="at">new_data =</span> X_explain, <span class="fu">all_predictors</span>(), <span class="at">composition =</span> <span class="st">"matrix"</span>)</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. which dummy columns came from which factor (recipes keeps the book) -&gt; one SHAP value per original variable</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>dummy_step <span class="ot">&lt;-</span> <span class="fu">tidy</span>(rec_fit) <span class="sc">|&gt;</span> <span class="fu">filter</span>(type <span class="sc">==</span> <span class="st">"dummy"</span>) <span class="sc">|&gt;</span> <span class="fu">pull</span>(number)</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>facs       <span class="ot">&lt;-</span> <span class="fu">tidy</span>(rec_fit, <span class="at">number =</span> dummy_step) <span class="sc">|&gt;</span> <span class="fu">pull</span>(terms) <span class="sc">|&gt;</span> <span class="fu">unique</span>()   <span class="co"># the original factor columns</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="co"># each factor -&gt; the dummy columns it produced. bake() cleans the level names (25-29.9 -&gt; X25.29.9), so match on</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="co"># the "&lt;factor&gt;_" prefix of the ACTUAL baked columns rather than on the raw level names.</span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>collapse   <span class="ot">&lt;-</span> <span class="fu">setNames</span>(<span class="fu">lapply</span>(facs, \(f) <span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^"</span>, f, <span class="st">"_"</span>), <span class="fu">colnames</span>(X_baked), <span class="at">value =</span> <span class="cn">TRUE</span>)), facs)</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>collapse   <span class="ot">&lt;-</span> collapse[<span class="fu">lengths</span>(collapse) <span class="sc">&gt;</span> <span class="dv">0</span>]</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. TreeSHAP: exact Shapley values straight from the fitted trees</span></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>sv <span class="ot">&lt;-</span> <span class="fu">shapviz</span>(<span class="fu">extract_fit_engine</span>(xgb_fit), <span class="at">X_pred =</span> X_baked, <span class="at">X =</span> X_explain, <span class="at">collapse =</span> collapse)</span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a><span class="fu">sv_importance</span>(sv, <span class="at">kind =</span> <span class="st">"beeswarm"</span>, <span class="at">max_display =</span> <span class="dv">15</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"SHAP summary: each dot is one person"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="06_evaluation_files/figure-html/shap-1.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sv_dependence</span>(sv, <span class="at">v =</span> <span class="st">"bmi"</span>, <span class="at">color_var =</span> <span class="st">"fam_hx_dm"</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"BMI, coloured by family history"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="06_evaluation_files/figure-html/shap-2.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sv_dependence</span>(sv, <span class="at">v =</span> <span class="st">"waist"</span>, <span class="at">color_var =</span> <span class="st">"sex"</span>)      <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Waist, coloured by sex"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="06_evaluation_files/figure-html/shap-3.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>One patient:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>X_explain[<span class="dv">1</span>, <span class="fu">c</span>(<span class="st">"age"</span>, <span class="st">"sex"</span>, <span class="st">"bmi"</span>, <span class="st">"waist"</span>, <span class="st">"fam_hx_dm"</span>, <span class="st">"ethnic"</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["age"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["sex"],"name":[2],"type":["fct"],"align":["left"]},{"label":["bmi"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["waist"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["fam_hx_dm"],"name":[5],"type":["fct"],"align":["left"]},{"label":["ethnic"],"name":[6],"type":["fct"],"align":["left"]}],"data":[{"1":"67","2":"Male","3":"27.01","4":"89.9","5":"No","6":"Other Bumiputera"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sv_waterfall</span>(sv, <span class="at">row_id =</span> <span class="dv">1</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Why this person scored what they scored"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="06_evaluation_files/figure-html/shap-local-1.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">predict_parts</span>(explainer, <span class="at">new_observation =</span> X_explain[<span class="dv">1</span>, ], <span class="at">type =</span> <span class="st">"break_down"</span>) <span class="sc">|&gt;</span> <span class="fu">plot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="06_evaluation_files/figure-html/shap-local-2.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What explanations do <strong>not</strong> mean
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><strong>Not causal.</strong> SHAP and PDP describe the <em>fitted function</em>. “BMI drives risk up after 27.5” is a statement about the model, not about biology.</li>
+<li><strong>Not unique.</strong> Correlated predictors swap credit between fits; check stability across resamples before you tell a story.</li>
+<li><strong>Not a safety certificate.</strong> Use explanations to <em>audit</em>: agreement with what you know → trust up; disagreement → either you learned something or the model is cheating. Find out which.</li>
+</ol>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(<span class="fu">list</span>(<span class="at">thr =</span> thr_chosen, <span class="at">calibrator =</span> calibrator), <span class="st">"outputs/t06_decisions.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="your-turn-10-min" class="level2">
+<h2 class="anchored" data-anchor-id="your-turn-10-min">Your turn (10 min)</h2>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Task A · Two use cases, two thresholds
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Use case</th>
+<th>Requirement</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Community screen</td>
+<td>sensitivity ≥ 0.85</td>
+<td>a missed case costs years of silent disease; a false alarm costs one blood test</td>
+</tr>
+<tr class="even">
+<td>Confirmatory pre-selection (limited lab budget)</td>
+<td>specificity ≥ 0.90</td>
+<td>we can only afford to test a few; they had better be real</td>
+</tr>
+</tbody>
+</table>
+<p>Find both thresholds on <code>cv_preds</code>; report flagged %, sensitivity, specificity, PPV and number-needed-to-screen on the <strong>test</strong> set. Then write the community-screen result as one sentence for a district health officer.</p>
+<p><strong>A2.</strong> The model was validated at 11.6 % prevalence; the district’s true prevalence is 6 %. Which numbers change, and which way?</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Solution A
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>thr <span class="ot">&lt;-</span> <span class="fu">threshold_perf</span>(cv_preds, undx_dm, .pred_Yes, <span class="at">thresholds =</span> <span class="fu">seq</span>(<span class="fl">0.02</span>, <span class="fl">0.80</span>, <span class="at">by =</span> <span class="fl">0.01</span>))</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>thr_screen  <span class="ot">&lt;-</span> thr <span class="sc">|&gt;</span> <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"sensitivity"</span>, .estimate <span class="sc">&gt;=</span> <span class="fl">0.85</span>) <span class="sc">|&gt;</span> <span class="fu">slice_max</span>(.threshold) <span class="sc">|&gt;</span> <span class="fu">pull</span>(.threshold)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>thr_confirm <span class="ot">&lt;-</span> thr <span class="sc">|&gt;</span> <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"specificity"</span>, .estimate <span class="sc">&gt;=</span> <span class="fl">0.90</span>) <span class="sc">|&gt;</span> <span class="fu">slice_min</span>(.threshold) <span class="sc">|&gt;</span> <span class="fu">pull</span>(.threshold)</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>report_at <span class="ot">&lt;-</span> <span class="cf">function</span>(preds, threshold) {</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>  preds <span class="sc">|&gt;</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">.pred_rule =</span> <span class="fu">make_two_class_pred</span>(.pred_Yes, <span class="at">levels =</span> <span class="fu">levels</span>(undx_dm), <span class="at">threshold =</span> threshold) <span class="sc">|&gt;</span> <span class="fu">as.factor</span>()) <span class="sc">|&gt;</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">threshold =</span> threshold,</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>              <span class="at">flagged_pct =</span> <span class="fu">mean</span>(.pred_rule <span class="sc">==</span> <span class="st">"Yes"</span>),</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>              <span class="at">sens =</span> <span class="fu">sum</span>(.pred_rule <span class="sc">==</span> <span class="st">"Yes"</span> <span class="sc">&amp;</span> undx_dm <span class="sc">==</span> <span class="st">"Yes"</span>) <span class="sc">/</span> <span class="fu">sum</span>(undx_dm <span class="sc">==</span> <span class="st">"Yes"</span>),</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>              <span class="at">spec =</span> <span class="fu">sum</span>(.pred_rule <span class="sc">==</span> <span class="st">"No"</span>  <span class="sc">&amp;</span> undx_dm <span class="sc">==</span> <span class="st">"No"</span>)  <span class="sc">/</span> <span class="fu">sum</span>(undx_dm <span class="sc">==</span> <span class="st">"No"</span>),</span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>              <span class="at">ppv  =</span> <span class="fu">sum</span>(.pred_rule <span class="sc">==</span> <span class="st">"Yes"</span> <span class="sc">&amp;</span> undx_dm <span class="sc">==</span> <span class="st">"Yes"</span>) <span class="sc">/</span> <span class="fu">sum</span>(.pred_rule <span class="sc">==</span> <span class="st">"Yes"</span>),</span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>              <span class="at">nns  =</span> <span class="dv">1</span> <span class="sc">/</span> ppv)</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(<span class="at">screen =</span> <span class="fu">report_at</span>(test_preds, thr_screen), <span class="at">confirm =</span> <span class="fu">report_at</span>(test_preds, thr_confirm), <span class="at">.id =</span> <span class="st">"use_case"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["use_case"],"name":[1],"type":["chr"],"align":["left"]},{"label":["threshold"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["flagged_pct"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["sens"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["spec"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["ppv"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["nns"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"screen","2":"0.07","3":"0.4485514","4":"0.9051724","5":"0.6112994","6":"0.2338530","7":"4.276190"},{"1":"confirm","2":"0.20","3":"0.1388611","4":"0.5517241","5":"0.9152542","6":"0.4604317","7":"2.171875"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ppv_at</span>(<span class="fl">0.85</span>, <span class="fl">0.65</span>, <span class="fl">0.116</span>); <span class="fu">ppv_at</span>(<span class="fl">0.85</span>, <span class="fl">0.65</span>, <span class="fl">0.06</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.2416667</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.1342105</code></pre>
+</div>
+</div>
+<p>A model sentence: <em>“Testing the ~40 % of adults the model flags would find ~85 % of undiagnosed cases; about four people tested per case found.”</em> A2: sensitivity and specificity are (roughly) properties of model + threshold and stay put; <strong>PPV falls</strong> (fewer true cases among the flagged), NPV rises, number-needed-to-screen rises; the flagged percentage also shifts because the score distribution changes with the population.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Task B · Does it work equally well for everyone?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Using <code>collect_predictions(xgb_last)</code> joined back to <code>dm_test</code>, compute AUC and sensitivity at <code>thr_chosen</code> by <code>sex</code> and by <code>ethnic</code>. Any group the model under-serves? What would you do about it?</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Solution B
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-8" class="callout-8-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>by_group <span class="ot">&lt;-</span> test_preds <span class="sc">|&gt;</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(dm_test <span class="sc">|&gt;</span> <span class="fu">select</span>(sex, ethnic)) <span class="sc">|&gt;</span>      <span class="co"># last_fit predictions are in test-set row order</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">.pred_screen =</span> <span class="fu">make_two_class_pred</span>(.pred_Yes, <span class="at">levels =</span> <span class="fu">levels</span>(undx_dm), <span class="at">threshold =</span> thr_chosen) <span class="sc">|&gt;</span> <span class="fu">as.factor</span>())</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>by_group <span class="sc">|&gt;</span> <span class="fu">group_by</span>(sex)    <span class="sc">|&gt;</span> <span class="fu">roc_auc</span>(undx_dm, .pred_Yes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["sex"],"name":[1],"type":["fct"],"align":["left"]},{"label":[".metric"],"name":[2],"type":["chr"],"align":["left"]},{"label":[".estimator"],"name":[3],"type":["chr"],"align":["left"]},{"label":[".estimate"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"Female","2":"roc_auc","3":"binary","4":"0.8646564"},{"1":"Male","2":"roc_auc","3":"binary","4":"0.8761313"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>by_group <span class="sc">|&gt;</span> <span class="fu">group_by</span>(ethnic) <span class="sc">|&gt;</span> <span class="fu">roc_auc</span>(undx_dm, .pred_Yes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["ethnic"],"name":[1],"type":["fct"],"align":["left"]},{"label":[".metric"],"name":[2],"type":["chr"],"align":["left"]},{"label":[".estimator"],"name":[3],"type":["chr"],"align":["left"]},{"label":[".estimate"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"Malay","2":"roc_auc","3":"binary","4":"0.8657286"},{"1":"Chinese","2":"roc_auc","3":"binary","4":"0.8511016"},{"1":"Indian","2":"roc_auc","3":"binary","4":"0.8742188"},{"1":"Other Bumiputera","2":"roc_auc","3":"binary","4":"0.8288410"},{"1":"Others","2":"roc_auc","3":"binary","4":"0.7931034"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>by_group <span class="sc">|&gt;</span> <span class="fu">group_by</span>(sex)    <span class="sc">|&gt;</span> <span class="fu">sensitivity</span>(undx_dm, .pred_screen)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["sex"],"name":[1],"type":["fct"],"align":["left"]},{"label":[".metric"],"name":[2],"type":["chr"],"align":["left"]},{"label":[".estimator"],"name":[3],"type":["chr"],"align":["left"]},{"label":[".estimate"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"Female","2":"sensitivity","3":"binary","4":"0.8771930"},{"1":"Male","2":"sensitivity","3":"binary","4":"0.8305085"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Small groups (Others, Other Bumiputera) have wide uncertainty; look at the SE before reading a difference. If one group is genuinely under-flagged at the shared threshold, options are group-specific thresholds, re-weighting, more data — and, always, saying so in the paper. <code>fairmodels</code> extends DALEX with the standard fairness metrics.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="what-to-remember" class="level2">
+<h2 class="anchored" data-anchor-id="what-to-remember">What to remember</h2>
+<ol type="1">
+<li>Accuracy lies at 12 % prevalence. Report sens/spec/PPV/NPV at the threshold you will use, at the prevalence you face.</li>
+<li>ROC to compare models; PR and gain for what the predictions are worth; Brier and a calibration plot for honesty.</li>
+<li>Choose the threshold from the use case, on CV predictions; report it on the test set, in people.</li>
+<li>SMOTE moves the threshold in disguise and breaks calibration. Move the threshold instead.</li>
+<li>Importance → <em>which</em>; PDP → <em>how</em>; SHAP → <em>why this person</em>. None of it is causal.</li>
+</ol>
+<p><strong>Next (14.00):</strong> Tutorial 7 — neural networks.</p>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb39" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Tutorial 6 · Evaluation, calibration and explanation"</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Session 7 · Day 2, 11.50–13.00 · Slides 07"</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>::: {.callout-note icon=false}</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a><span class="fu">## What you will do</span></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>Evaluate the tuned XGBoost the way a clinician needs it evaluated: the confusion matrix at *this* prevalence,</span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>ROC against precision–recall, Brier score and **calibration**, a decision threshold chosen for a screening</span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a>programme, the honest version of "class imbalance"; then explain the model globally (importance, partial</span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a>dependence) and locally (SHAP) — with code that works unchanged for the neural network this afternoon.</span>
+<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a>**Time:** 30 min live coding + 10 min *Your turn*.</span>
+<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb39-16"><a href="#cb39-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-17"><a href="#cb39-17" aria-hidden="true" tabindex="-1"></a><span class="fu">## 0 · Start</span></span>
+<span id="cb39-18"><a href="#cb39-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-21"><a href="#cb39-21" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-22"><a href="#cb39-22" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
+<span id="cb39-23"><a href="#cb39-23" aria-hidden="true" tabindex="-1"></a><span class="co"># WHERE WE ARE ---------------------------------------------------------------------------------------------</span></span>
+<span id="cb39-24"><a href="#cb39-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Pipeline (T1), three families (T2-T4), tuning (T5). From here on the model is fixed: the tuned XGBoost from T5</span></span>
+<span id="cb39-25"><a href="#cb39-25" aria-hidden="true" tabindex="-1"></a><span class="co"># (loaded below from outputs/, with a fallback so this page also stands alone). NEW TODAY: judging it the way a</span></span>
+<span id="cb39-26"><a href="#cb39-26" aria-hidden="true" tabindex="-1"></a><span class="co"># clinician needs - confusion matrix at the real prevalence, ROC vs PR, calibration, choosing a threshold on</span></span>
+<span id="cb39-27"><a href="#cb39-27" aria-hidden="true" tabindex="-1"></a><span class="co"># purpose, class imbalance - and explaining it (importance, partial dependence, SHAP).</span></span>
+<span id="cb39-28"><a href="#cb39-28" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"R/prep_nhms.R"</span>)</span>
+<span id="cb39-29"><a href="#cb39-29" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(probably)      <span class="co"># calibration, thresholds</span></span>
+<span id="cb39-30"><a href="#cb39-30" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(themis)        <span class="co"># class-imbalance recipe steps</span></span>
+<span id="cb39-31"><a href="#cb39-31" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DALEXtra)      <span class="co"># model-agnostic explanations for tidymodels</span></span>
+<span id="cb39-32"><a href="#cb39-32" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(shapviz)       <span class="co"># SHAP plots</span></span>
+<span id="cb39-33"><a href="#cb39-33" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb39-34"><a href="#cb39-34" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(future)</span>
+<span id="cb39-35"><a href="#cb39-35" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(multisession, <span class="at">workers =</span> <span class="fu">max</span>(<span class="dv">1</span>, parallel<span class="sc">::</span><span class="fu">detectCores</span>() <span class="sc">-</span> <span class="dv">1</span>))</span>
+<span id="cb39-36"><a href="#cb39-36" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">"outputs"</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb39-37"><a href="#cb39-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-38"><a href="#cb39-38" aria-hidden="true" tabindex="-1"></a><span class="co"># the tuned XGBoost from Tutorial 5 (falls back to a fixed sensible version so this page stands alone)</span></span>
+<span id="cb39-39"><a href="#cb39-39" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">file.exists</span>(<span class="st">"outputs/t05_xgb_last.rds"</span>)) {</span>
+<span id="cb39-40"><a href="#cb39-40" aria-hidden="true" tabindex="-1"></a>  xgb_last <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"outputs/t05_xgb_last.rds"</span>)</span>
+<span id="cb39-41"><a href="#cb39-41" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb39-42"><a href="#cb39-42" aria-hidden="true" tabindex="-1"></a>  xgb_spec <span class="ot">&lt;-</span> <span class="fu">boost_tree</span>(<span class="at">trees =</span> <span class="dv">500</span>, <span class="at">learn_rate =</span> <span class="fl">0.03</span>, <span class="at">tree_depth =</span> <span class="dv">3</span>, <span class="at">min_n =</span> <span class="dv">20</span>, <span class="at">sample_size =</span> <span class="fl">0.8</span>) <span class="sc">|&gt;</span></span>
+<span id="cb39-43"><a href="#cb39-43" aria-hidden="true" tabindex="-1"></a>    <span class="fu">set_engine</span>(<span class="st">"xgboost"</span>) <span class="sc">|&gt;</span> <span class="fu">set_mode</span>(<span class="st">"classification"</span>)</span>
+<span id="cb39-44"><a href="#cb39-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb39-45"><a href="#cb39-45" aria-hidden="true" tabindex="-1"></a>  xgb_last <span class="ot">&lt;-</span> <span class="fu">last_fit</span>(<span class="fu">workflow</span>(dm_rec, xgb_spec), dm_split, <span class="at">metrics =</span> cls_metrics)</span>
+<span id="cb39-46"><a href="#cb39-46" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb39-47"><a href="#cb39-47" aria-hidden="true" tabindex="-1"></a>xgb_fit      <span class="ot">&lt;-</span> <span class="fu">extract_workflow</span>(xgb_last)                       <span class="co"># fitted workflow (recipe + model)</span></span>
+<span id="cb39-48"><a href="#cb39-48" aria-hidden="true" tabindex="-1"></a>xgb_final_wf <span class="ot">&lt;-</span> <span class="fu">workflow</span>(dm_rec, <span class="fu">extract_spec_parsnip</span>(xgb_fit))  <span class="co"># same spec, unfitted, for resampling</span></span>
+<span id="cb39-49"><a href="#cb39-49" aria-hidden="true" tabindex="-1"></a>test_preds   <span class="ot">&lt;-</span> <span class="fu">collect_predictions</span>(xgb_last)                    <span class="co"># predictions on the locked test set</span></span>
+<span id="cb39-50"><a href="#cb39-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-51"><a href="#cb39-51" aria-hidden="true" tabindex="-1"></a><span class="co"># out-of-fold predictions on the TRAINING set: every DECISION (threshold, calibration) is made on these,</span></span>
+<span id="cb39-52"><a href="#cb39-52" aria-hidden="true" tabindex="-1"></a><span class="co"># so the test set stays an honest final exam</span></span>
+<span id="cb39-53"><a href="#cb39-53" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb39-54"><a href="#cb39-54" aria-hidden="true" tabindex="-1"></a>xgb_cv   <span class="ot">&lt;-</span> <span class="fu">fit_resamples</span>(xgb_final_wf, dm_folds, <span class="at">metrics =</span> cls_metrics, <span class="at">control =</span> <span class="fu">control_resamples</span>(<span class="at">save_pred =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb39-55"><a href="#cb39-55" aria-hidden="true" tabindex="-1"></a>cv_preds <span class="ot">&lt;-</span> <span class="fu">collect_predictions</span>(xgb_cv)</span>
+<span id="cb39-56"><a href="#cb39-56" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-57"><a href="#cb39-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-58"><a href="#cb39-58" aria-hidden="true" tabindex="-1"></a><span class="fu">## 1 · A model is a probability; a decision is a threshold</span></span>
+<span id="cb39-59"><a href="#cb39-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-62"><a href="#cb39-62" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-63"><a href="#cb39-63" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: probs</span></span>
+<span id="cb39-64"><a href="#cb39-64" aria-hidden="true" tabindex="-1"></a>test_preds <span class="sc">|&gt;</span> <span class="fu">select</span>(undx_dm, .pred_Yes, .pred_class) <span class="sc">|&gt;</span> <span class="fu">head</span>()</span>
+<span id="cb39-65"><a href="#cb39-65" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-66"><a href="#cb39-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-67"><a href="#cb39-67" aria-hidden="true" tabindex="-1"></a>Every classifier we built outputs **P(Yes)**; <span class="in">`.pred_class`</span> is just <span class="in">`P(Yes) ≥ 0.5`</span>. The 0.5 is a software default</span>
+<span id="cb39-68"><a href="#cb39-68" aria-hidden="true" tabindex="-1"></a>that silently assumes a false positive and a false negative cost the same. In screening they never do. So we</span>
+<span id="cb39-69"><a href="#cb39-69" aria-hidden="true" tabindex="-1"></a>evaluate the probabilities (discrimination, calibration) *and* the decision (confusion matrix at the threshold</span>
+<span id="cb39-70"><a href="#cb39-70" aria-hidden="true" tabindex="-1"></a>we will actually use) — separately.</span>
+<span id="cb39-71"><a href="#cb39-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-72"><a href="#cb39-72" aria-hidden="true" tabindex="-1"></a><span class="fu">## 2 · The confusion matrix at the default threshold — and why it misleads</span></span>
+<span id="cb39-73"><a href="#cb39-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-76"><a href="#cb39-76" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-77"><a href="#cb39-77" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: confmat</span></span>
+<span id="cb39-78"><a href="#cb39-78" aria-hidden="true" tabindex="-1"></a>test_preds <span class="sc">|&gt;</span> <span class="fu">conf_mat</span>(undx_dm, .pred_class) <span class="sc">|&gt;</span> <span class="fu">autoplot</span>(<span class="at">type =</span> <span class="st">"heatmap"</span>)</span>
+<span id="cb39-79"><a href="#cb39-79" aria-hidden="true" tabindex="-1"></a>test_preds <span class="sc">|&gt;</span> <span class="fu">conf_mat</span>(undx_dm, .pred_class) <span class="sc">|&gt;</span> <span class="fu">summary</span>() <span class="sc">|&gt;</span></span>
+<span id="cb39-80"><a href="#cb39-80" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"accuracy"</span>, <span class="st">"sens"</span>, <span class="st">"spec"</span>, <span class="st">"ppv"</span>, <span class="st">"npv"</span>, <span class="st">"j_index"</span>))</span>
+<span id="cb39-81"><a href="#cb39-81" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-82"><a href="#cb39-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-83"><a href="#cb39-83" aria-hidden="true" tabindex="-1"></a>Accuracy near 0.89 looks fine and is worthless: 88 % of people are *No*. Sensitivity at 0.5 is poor. Nobody told</span>
+<span id="cb39-84"><a href="#cb39-84" aria-hidden="true" tabindex="-1"></a>the model that missing a diabetic costs more than an extra blood test.</span>
+<span id="cb39-85"><a href="#cb39-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-86"><a href="#cb39-86" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Metric <span class="pp">|</span> Also called <span class="pp">|</span> Asks <span class="pp">|</span></span>
+<span id="cb39-87"><a href="#cb39-87" aria-hidden="true" tabindex="-1"></a><span class="pp">|---|---|---|</span></span>
+<span id="cb39-88"><a href="#cb39-88" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> sensitivity <span class="pp">|</span> recall, TPR <span class="pp">|</span> of the people who have it, how many did we flag? <span class="pp">|</span></span>
+<span id="cb39-89"><a href="#cb39-89" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> specificity <span class="pp">|</span> TNR <span class="pp">|</span> of the people who don't, how many did we leave alone? <span class="pp">|</span></span>
+<span id="cb39-90"><a href="#cb39-90" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> PPV <span class="pp">|</span> precision <span class="pp">|</span> of the people we flagged, how many have it? <span class="pp">|</span></span>
+<span id="cb39-91"><a href="#cb39-91" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> NPV <span class="pp">|</span> — <span class="pp">|</span> of the people we cleared, how many are truly clear? <span class="pp">|</span></span>
+<span id="cb39-92"><a href="#cb39-92" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> J (Youden) <span class="pp">|</span> — <span class="pp">|</span> sens + spec − 1 <span class="pp">|</span></span>
+<span id="cb39-93"><a href="#cb39-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-94"><a href="#cb39-94" aria-hidden="true" tabindex="-1"></a><span class="fu">### PPV is not a property of the model</span></span>
+<span id="cb39-95"><a href="#cb39-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-98"><a href="#cb39-98" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-99"><a href="#cb39-99" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: ppv</span></span>
+<span id="cb39-100"><a href="#cb39-100" aria-hidden="true" tabindex="-1"></a>ppv_at <span class="ot">&lt;-</span> <span class="cf">function</span>(sens, spec, prev) (sens <span class="sc">*</span> prev) <span class="sc">/</span> (sens <span class="sc">*</span> prev <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> spec) <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> prev))</span>
+<span id="cb39-101"><a href="#cb39-101" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(<span class="at">prevalence =</span> <span class="fu">c</span>(<span class="fl">0.02</span>, <span class="fl">0.05</span>, <span class="fl">0.116</span>, <span class="fl">0.25</span>)) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">ppv =</span> <span class="fu">ppv_at</span>(<span class="at">sens =</span> <span class="fl">0.80</span>, <span class="at">spec =</span> <span class="fl">0.75</span>, <span class="at">prev =</span> prevalence))</span>
+<span id="cb39-102"><a href="#cb39-102" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-103"><a href="#cb39-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-104"><a href="#cb39-104" aria-hidden="true" tabindex="-1"></a>Same sensitivity and specificity, four populations, four PPVs. A model validated in a clinic (25 %) and deployed</span>
+<span id="cb39-105"><a href="#cb39-105" aria-hidden="true" tabindex="-1"></a>at a pasar malam (4 %) will see its PPV collapse. **Report the prevalence you validated at** — TRIPOD+AI asks for</span>
+<span id="cb39-106"><a href="#cb39-106" aria-hidden="true" tabindex="-1"></a>exactly this.</span>
+<span id="cb39-107"><a href="#cb39-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-108"><a href="#cb39-108" aria-hidden="true" tabindex="-1"></a><span class="fu">## 3 · Threshold-free: ROC, precision–recall, gain</span></span>
+<span id="cb39-109"><a href="#cb39-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-112"><a href="#cb39-112" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-113"><a href="#cb39-113" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: curves</span></span>
+<span id="cb39-114"><a href="#cb39-114" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 12</span></span>
+<span id="cb39-115"><a href="#cb39-115" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 4</span></span>
+<span id="cb39-116"><a href="#cb39-116" aria-hidden="true" tabindex="-1"></a><span class="fu">roc_auc</span>(test_preds, undx_dm, .pred_Yes); <span class="fu">pr_auc</span>(test_preds, undx_dm, .pred_Yes)</span>
+<span id="cb39-117"><a href="#cb39-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-118"><a href="#cb39-118" aria-hidden="true" tabindex="-1"></a>p_roc  <span class="ot">&lt;-</span> <span class="fu">roc_curve</span>(test_preds, undx_dm, .pred_Yes)  <span class="sc">|&gt;</span> <span class="fu">autoplot</span>() <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"ROC"</span>)</span>
+<span id="cb39-119"><a href="#cb39-119" aria-hidden="true" tabindex="-1"></a>p_pr   <span class="ot">&lt;-</span> <span class="fu">pr_curve</span>(test_preds, undx_dm, .pred_Yes)   <span class="sc">|&gt;</span> <span class="fu">autoplot</span>() <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Precision-recall (baseline = 0.116)"</span>)</span>
+<span id="cb39-120"><a href="#cb39-120" aria-hidden="true" tabindex="-1"></a>p_gain <span class="ot">&lt;-</span> <span class="fu">gain_curve</span>(test_preds, undx_dm, .pred_Yes) <span class="sc">|&gt;</span> <span class="fu">autoplot</span>() <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Gain: screen the top x%, find y% of cases"</span>)</span>
+<span id="cb39-121"><a href="#cb39-121" aria-hidden="true" tabindex="-1"></a>p_roc <span class="sc">+</span> p_pr <span class="sc">+</span> p_gain</span>
+<span id="cb39-122"><a href="#cb39-122" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-123"><a href="#cb39-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-124"><a href="#cb39-124" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**ROC** is prevalence-blind — good for comparing models across populations, flattering on rare outcomes.</span>
+<span id="cb39-125"><a href="#cb39-125" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Precision–recall** shows what the positive predictions are *worth*; its baseline is the prevalence.</span>
+<span id="cb39-126"><a href="#cb39-126" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Gain** is the one for a programme manager: "if we can only test 20 % of adults, which 20 %, and what share of</span>
+<span id="cb39-127"><a href="#cb39-127" aria-hidden="true" tabindex="-1"></a>  cases do we catch?"</span>
+<span id="cb39-128"><a href="#cb39-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-129"><a href="#cb39-129" aria-hidden="true" tabindex="-1"></a><span class="fu">## 4 · Calibration: do the probabilities mean what they say?</span></span>
+<span id="cb39-130"><a href="#cb39-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-133"><a href="#cb39-133" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-134"><a href="#cb39-134" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: calibration</span></span>
+<span id="cb39-135"><a href="#cb39-135" aria-hidden="true" tabindex="-1"></a><span class="fu">brier_class</span>(test_preds, undx_dm, .pred_Yes)    <span class="co"># 0 = perfect; predicting the prevalence for everyone gives ~0.10</span></span>
+<span id="cb39-136"><a href="#cb39-136" aria-hidden="true" tabindex="-1"></a><span class="fu">cal_plot_breaks</span>(test_preds, <span class="at">truth =</span> undx_dm, <span class="at">estimate =</span> .pred_Yes, <span class="at">num_breaks =</span> <span class="dv">10</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Reliability diagram, test set"</span>)</span>
+<span id="cb39-137"><a href="#cb39-137" aria-hidden="true" tabindex="-1"></a><span class="fu">cal_plot_windowed</span>(test_preds, <span class="at">truth =</span> undx_dm, <span class="at">estimate =</span> .pred_Yes) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Windowed calibration, test set"</span>)</span>
+<span id="cb39-138"><a href="#cb39-138" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-139"><a href="#cb39-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-140"><a href="#cb39-140" aria-hidden="true" tabindex="-1"></a>A point at (0.40, 0.25) means: when the model says 40 %, only 25 % actually have it. A model can have AUC 0.86 and</span>
+<span id="cb39-141"><a href="#cb39-141" aria-hidden="true" tabindex="-1"></a>still be badly calibrated — boosted trees and forests routinely are, and SMOTE'd models always are. A probability</span>
+<span id="cb39-142"><a href="#cb39-142" aria-hidden="true" tabindex="-1"></a>a clinician will *show* to a patient must be calibrated; a score that only sorts a queue cares less.</span>
+<span id="cb39-143"><a href="#cb39-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-144"><a href="#cb39-144" aria-hidden="true" tabindex="-1"></a><span class="fu">### Fix it honestly: estimate on CV predictions, validate within resamples</span></span>
+<span id="cb39-145"><a href="#cb39-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-148"><a href="#cb39-148" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-149"><a href="#cb39-149" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: recalibrate</span></span>
+<span id="cb39-150"><a href="#cb39-150" aria-hidden="true" tabindex="-1"></a>cal_val <span class="ot">&lt;-</span> <span class="fu">cal_validate_logistic</span>(xgb_cv, <span class="at">smooth =</span> <span class="cn">FALSE</span>, <span class="at">metrics =</span> <span class="fu">metric_set</span>(brier_class, roc_auc), <span class="at">save_pred =</span> <span class="cn">TRUE</span>)   <span class="co"># smooth = FALSE -&gt; Platt (2 parameters)</span></span>
+<span id="cb39-151"><a href="#cb39-151" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_metrics</span>(cal_val)                      <span class="co"># uncalibrated vs calibrated: Brier down, AUC unchanged</span></span>
+<span id="cb39-152"><a href="#cb39-152" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_predictions</span>(cal_val) <span class="sc">|&gt;</span></span>
+<span id="cb39-153"><a href="#cb39-153" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cal_plot_breaks</span>(<span class="at">truth =</span> undx_dm, <span class="at">estimate =</span> .pred_Yes, <span class="at">.by =</span> .type) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Before vs after logistic recalibration (CV)"</span>)</span>
+<span id="cb39-154"><a href="#cb39-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-155"><a href="#cb39-155" aria-hidden="true" tabindex="-1"></a>calibrator     <span class="ot">&lt;-</span> <span class="fu">cal_estimate_logistic</span>(cv_preds, <span class="at">truth =</span> undx_dm, <span class="at">smooth =</span> <span class="cn">FALSE</span>)   <span class="co"># fitted on out-of-fold predictions</span></span>
+<span id="cb39-156"><a href="#cb39-156" aria-hidden="true" tabindex="-1"></a>test_preds_cal <span class="ot">&lt;-</span> <span class="fu">cal_apply</span>(test_preds, calibrator)                  <span class="co"># applied to the test set</span></span>
+<span id="cb39-157"><a href="#cb39-157" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(<span class="at">raw =</span> <span class="fu">brier_class</span>(test_preds, undx_dm, .pred_Yes), <span class="at">calibrated =</span> <span class="fu">brier_class</span>(test_preds_cal, undx_dm, .pred_Yes), <span class="at">.id =</span> <span class="st">"probs"</span>)</span>
+<span id="cb39-158"><a href="#cb39-158" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-159"><a href="#cb39-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-160"><a href="#cb39-160" aria-hidden="true" tabindex="-1"></a>Recalibration moves the probabilities, not the ranking: AUC is untouched, Brier improves, thresholds become</span>
+<span id="cb39-161"><a href="#cb39-161" aria-hidden="true" tabindex="-1"></a>meaningful. Platt/logistic (<span class="in">`smooth = FALSE`</span>: two parameters, robust) for most cases; <span class="in">`probably`</span>'s default</span>
+<span id="cb39-162"><a href="#cb39-162" aria-hidden="true" tabindex="-1"></a>(<span class="in">`smooth = TRUE`</span>) fits a spline-based GAM and is more flexible; isotonic when you have lots of data and a strange</span>
+<span id="cb39-163"><a href="#cb39-163" aria-hidden="true" tabindex="-1"></a>shape.</span>
+<span id="cb39-164"><a href="#cb39-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-165"><a href="#cb39-165" aria-hidden="true" tabindex="-1"></a><span class="fu">## 5 · Choosing a threshold on purpose</span></span>
+<span id="cb39-166"><a href="#cb39-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-167"><a href="#cb39-167" aria-hidden="true" tabindex="-1"></a><span class="al">![](../images/gen/threshold_tradeoff.png)</span>{fig-align="center" width="70%"}</span>
+<span id="cb39-168"><a href="#cb39-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-171"><a href="#cb39-171" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-172"><a href="#cb39-172" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: threshold</span></span>
+<span id="cb39-173"><a href="#cb39-173" aria-hidden="true" tabindex="-1"></a>thr_cv <span class="ot">&lt;-</span> <span class="fu">threshold_perf</span>(cv_preds, undx_dm, .pred_Yes, <span class="at">thresholds =</span> <span class="fu">seq</span>(<span class="fl">0.02</span>, <span class="fl">0.60</span>, <span class="at">by =</span> <span class="fl">0.01</span>))</span>
+<span id="cb39-174"><a href="#cb39-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-175"><a href="#cb39-175" aria-hidden="true" tabindex="-1"></a>thr_cv <span class="sc">|&gt;</span></span>
+<span id="cb39-176"><a href="#cb39-176" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"sensitivity"</span>, <span class="st">"specificity"</span>, <span class="st">"j_index"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb39-177"><a href="#cb39-177" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(.threshold, .estimate, <span class="at">colour =</span> .metric)) <span class="sc">+</span></span>
+<span id="cb39-178"><a href="#cb39-178" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span> <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fl">0.5</span>, <span class="at">linetype =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb39-179"><a href="#cb39-179" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Sensitivity / specificity by threshold (CV predictions)"</span>, <span class="at">x =</span> <span class="st">"threshold on P(Yes)"</span>, <span class="at">y =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb39-180"><a href="#cb39-180" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb39-181"><a href="#cb39-181" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-182"><a href="#cb39-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-183"><a href="#cb39-183" aria-hidden="true" tabindex="-1"></a>A community screen wants sensitivity around 0.80 and accepts the extra blood tests. Find the threshold on the</span>
+<span id="cb39-184"><a href="#cb39-184" aria-hidden="true" tabindex="-1"></a>**CV** predictions, then report it on the test set:</span>
+<span id="cb39-185"><a href="#cb39-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-188"><a href="#cb39-188" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-189"><a href="#cb39-189" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: apply-threshold</span></span>
+<span id="cb39-190"><a href="#cb39-190" aria-hidden="true" tabindex="-1"></a>thr_chosen <span class="ot">&lt;-</span> thr_cv <span class="sc">|&gt;</span> <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"sensitivity"</span>, .estimate <span class="sc">&gt;=</span> <span class="fl">0.80</span>) <span class="sc">|&gt;</span> <span class="fu">slice_max</span>(.threshold, <span class="at">n =</span> <span class="dv">1</span>) <span class="sc">|&gt;</span> <span class="fu">pull</span>(.threshold)</span>
+<span id="cb39-191"><a href="#cb39-191" aria-hidden="true" tabindex="-1"></a>thr_chosen</span>
+<span id="cb39-192"><a href="#cb39-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-193"><a href="#cb39-193" aria-hidden="true" tabindex="-1"></a>test_thr <span class="ot">&lt;-</span> test_preds <span class="sc">|&gt;</span></span>
+<span id="cb39-194"><a href="#cb39-194" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">.pred_screen =</span> <span class="fu">make_two_class_pred</span>(.pred_Yes, <span class="at">levels =</span> <span class="fu">levels</span>(undx_dm), <span class="at">threshold =</span> thr_chosen) <span class="sc">|&gt;</span> <span class="fu">as.factor</span>())</span>
+<span id="cb39-195"><a href="#cb39-195" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-196"><a href="#cb39-196" aria-hidden="true" tabindex="-1"></a>test_thr <span class="sc">|&gt;</span> <span class="fu">conf_mat</span>(undx_dm, .pred_screen) <span class="sc">|&gt;</span> <span class="fu">summary</span>() <span class="sc">|&gt;</span> <span class="fu">filter</span>(.metric <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"sens"</span>, <span class="st">"spec"</span>, <span class="st">"ppv"</span>, <span class="st">"npv"</span>))</span>
+<span id="cb39-197"><a href="#cb39-197" aria-hidden="true" tabindex="-1"></a>test_thr <span class="sc">|&gt;</span> <span class="fu">summarise</span>(<span class="at">flagged_pct =</span> <span class="fu">mean</span>(.pred_screen <span class="sc">==</span> <span class="st">"Yes"</span>),</span>
+<span id="cb39-198"><a href="#cb39-198" aria-hidden="true" tabindex="-1"></a>                      <span class="at">cases_found =</span> <span class="fu">sum</span>(.pred_screen <span class="sc">==</span> <span class="st">"Yes"</span> <span class="sc">&amp;</span> undx_dm <span class="sc">==</span> <span class="st">"Yes"</span>) <span class="sc">/</span> <span class="fu">sum</span>(undx_dm <span class="sc">==</span> <span class="st">"Yes"</span>),</span>
+<span id="cb39-199"><a href="#cb39-199" aria-hidden="true" tabindex="-1"></a>                      <span class="at">number_needed_to_screen =</span> <span class="dv">1</span> <span class="sc">/</span> <span class="fu">mean</span>(undx_dm[.pred_screen <span class="sc">==</span> <span class="st">"Yes"</span>] <span class="sc">==</span> <span class="st">"Yes"</span>))</span>
+<span id="cb39-200"><a href="#cb39-200" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-201"><a href="#cb39-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-202"><a href="#cb39-202" aria-hidden="true" tabindex="-1"></a>"Test the X % the model flags and you find Y % of the undiagnosed cases; about Z people tested per case found."</span>
+<span id="cb39-203"><a href="#cb39-203" aria-hidden="true" tabindex="-1"></a>That is a sentence a programme manager can act on.</span>
+<span id="cb39-204"><a href="#cb39-204" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-205"><a href="#cb39-205" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb39-206"><a href="#cb39-206" aria-hidden="true" tabindex="-1"></a><span class="fu">## Decision curve analysis (the clinician's metric)</span></span>
+<span id="cb39-209"><a href="#cb39-209" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-210"><a href="#cb39-210" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: dca</span></span>
+<span id="cb39-211"><a href="#cb39-211" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">requireNamespace</span>(<span class="st">"dcurves"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb39-212"><a href="#cb39-212" aria-hidden="true" tabindex="-1"></a>  dcurves<span class="sc">::</span><span class="fu">dca</span>(undx_dm <span class="sc">~</span> .pred_Yes, <span class="at">data =</span> test_preds <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">undx_dm =</span> undx_dm <span class="sc">==</span> <span class="st">"Yes"</span>),</span>
+<span id="cb39-213"><a href="#cb39-213" aria-hidden="true" tabindex="-1"></a>               <span class="at">thresholds =</span> <span class="fu">seq</span>(<span class="fl">0.02</span>, <span class="fl">0.5</span>, <span class="at">by =</span> <span class="fl">0.01</span>), <span class="at">label =</span> <span class="fu">list</span>(<span class="at">.pred_Yes =</span> <span class="st">"XGBoost"</span>)) <span class="sc">|&gt;</span> <span class="fu">plot</span>(<span class="at">smooth =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb39-214"><a href="#cb39-214" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb39-215"><a href="#cb39-215" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-216"><a href="#cb39-216" aria-hidden="true" tabindex="-1"></a>Net benefit at threshold *t* = (TP − FP × t/(1−t)) / n: the threshold *is* the exchange rate between a false and a</span>
+<span id="cb39-217"><a href="#cb39-217" aria-hidden="true" tabindex="-1"></a>true positive. A model is useful only where its curve sits above both "test everyone" and "test no one".</span>
+<span id="cb39-218"><a href="#cb39-218" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb39-219"><a href="#cb39-219" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-220"><a href="#cb39-220" aria-hidden="true" tabindex="-1"></a><span class="fu">## 6 · Class imbalance: the honest version</span></span>
+<span id="cb39-221"><a href="#cb39-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-224"><a href="#cb39-224" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-225"><a href="#cb39-225" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: imbalance</span></span>
+<span id="cb39-226"><a href="#cb39-226" aria-hidden="true" tabindex="-1"></a>lr_spec   <span class="ot">&lt;-</span> <span class="fu">logistic_reg</span>() <span class="sc">|&gt;</span> <span class="fu">set_engine</span>(<span class="st">"glm"</span>)</span>
+<span id="cb39-227"><a href="#cb39-227" aria-hidden="true" tabindex="-1"></a>rec_smote <span class="ot">&lt;-</span> dm_rec <span class="sc">|&gt;</span> <span class="fu">step_smote</span>(undx_dm, <span class="at">over_ratio =</span> <span class="dv">1</span>)          <span class="co"># only applied to training data (skip = TRUE)</span></span>
+<span id="cb39-228"><a href="#cb39-228" aria-hidden="true" tabindex="-1"></a>rec_down  <span class="ot">&lt;-</span> dm_rec <span class="sc">|&gt;</span> <span class="fu">step_downsample</span>(undx_dm, <span class="at">under_ratio =</span> <span class="dv">1</span>)</span>
+<span id="cb39-229"><a href="#cb39-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-230"><a href="#cb39-230" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb39-231"><a href="#cb39-231" aria-hidden="true" tabindex="-1"></a>imbalance_res <span class="ot">&lt;-</span> <span class="fu">workflow_set</span>(<span class="at">preproc =</span> <span class="fu">list</span>(<span class="at">base =</span> dm_rec, <span class="at">smote =</span> rec_smote, <span class="at">downsample =</span> rec_down),</span>
+<span id="cb39-232"><a href="#cb39-232" aria-hidden="true" tabindex="-1"></a>                              <span class="at">models  =</span> <span class="fu">list</span>(<span class="at">logistic =</span> lr_spec)) <span class="sc">|&gt;</span></span>
+<span id="cb39-233"><a href="#cb39-233" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow_map</span>(<span class="st">"fit_resamples"</span>, <span class="at">resamples =</span> dm_folds, <span class="at">metrics =</span> cls_metrics, <span class="at">seed =</span> <span class="dv">2026</span>)</span>
+<span id="cb39-234"><a href="#cb39-234" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-235"><a href="#cb39-235" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_metrics</span>(imbalance_res) <span class="sc">|&gt;</span></span>
+<span id="cb39-236"><a href="#cb39-236" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"roc_auc"</span>, <span class="st">"brier_class"</span>, <span class="st">"sensitivity"</span>, <span class="st">"specificity"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb39-237"><a href="#cb39-237" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(wflow_id, .metric, mean) <span class="sc">|&gt;</span></span>
+<span id="cb39-238"><a href="#cb39-238" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> .metric, <span class="at">values_from =</span> mean)</span>
+<span id="cb39-239"><a href="#cb39-239" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-240"><a href="#cb39-240" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-241"><a href="#cb39-241" aria-hidden="true" tabindex="-1"></a><span class="al">![](../images/gen/smote_shifts_probabilities.png)</span>{fig-align="center" width="65%"}</span>
+<span id="cb39-242"><a href="#cb39-242" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-243"><a href="#cb39-243" aria-hidden="true" tabindex="-1"></a>Balancing the training set pushes sensitivity-at-0.5 up — and AUC does not move while the Brier score gets</span>
+<span id="cb39-244"><a href="#cb39-244" aria-hidden="true" tabindex="-1"></a>**worse**, because every probability now thinks prevalence is 50 %. You got the same sensitivity in §5 by moving</span>
+<span id="cb39-245"><a href="#cb39-245" aria-hidden="true" tabindex="-1"></a>the threshold, without breaking calibration. SMOTE is a last resort; if you use it, recalibrate afterwards.</span>
+<span id="cb39-246"><a href="#cb39-246" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-247"><a href="#cb39-247" aria-hidden="true" tabindex="-1"></a><span class="fu">## 7 · Explaining the model: global</span></span>
+<span id="cb39-248"><a href="#cb39-248" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-251"><a href="#cb39-251" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-252"><a href="#cb39-252" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: xgb-importance</span></span>
+<span id="cb39-253"><a href="#cb39-253" aria-hidden="true" tabindex="-1"></a>xgboost<span class="sc">::</span><span class="fu">xgb.importance</span>(<span class="at">model =</span> <span class="fu">extract_fit_engine</span>(xgb_fit)) <span class="sc">|&gt;</span>   <span class="co"># Gain = share of the total loss reduction attributed to each column</span></span>
+<span id="cb39-254"><a href="#cb39-254" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span></span>
+<span id="cb39-255"><a href="#cb39-255" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(Gain, <span class="at">n =</span> <span class="dv">15</span>) <span class="sc">|&gt;</span></span>
+<span id="cb39-256"><a href="#cb39-256" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(Gain, <span class="fu">reorder</span>(Feature, Gain))) <span class="sc">+</span></span>
+<span id="cb39-257"><a href="#cb39-257" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">fill =</span> <span class="st">"#0b4f6c"</span>) <span class="sc">+</span></span>
+<span id="cb39-258"><a href="#cb39-258" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"gain (share of total loss reduction)"</span>, <span class="at">y =</span> <span class="cn">NULL</span>, <span class="at">title =</span> <span class="st">"XGBoost gain importance (model-specific)"</span>) <span class="sc">+</span></span>
+<span id="cb39-259"><a href="#cb39-259" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb39-260"><a href="#cb39-260" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-261"><a href="#cb39-261" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-262"><a href="#cb39-262" aria-hidden="true" tabindex="-1"></a>Model-**agnostic** tools work for anything with a <span class="in">`predict()`</span> — including this afternoon's network:</span>
+<span id="cb39-263"><a href="#cb39-263" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-266"><a href="#cb39-266" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-267"><a href="#cb39-267" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: dalex</span></span>
+<span id="cb39-268"><a href="#cb39-268" aria-hidden="true" tabindex="-1"></a>explainer <span class="ot">&lt;-</span> <span class="fu">explain_tidymodels</span>(</span>
+<span id="cb39-269"><a href="#cb39-269" aria-hidden="true" tabindex="-1"></a>  xgb_fit,</span>
+<span id="cb39-270"><a href="#cb39-270" aria-hidden="true" tabindex="-1"></a>  <span class="at">data  =</span> dm_train <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span>undx_dm),</span>
+<span id="cb39-271"><a href="#cb39-271" aria-hidden="true" tabindex="-1"></a>  <span class="at">y     =</span> dm_train<span class="sc">$</span>undx_dm <span class="sc">==</span> <span class="st">"Yes"</span>,</span>
+<span id="cb39-272"><a href="#cb39-272" aria-hidden="true" tabindex="-1"></a>  <span class="at">predict_function_target_column =</span> <span class="st">"Yes"</span>,     <span class="co"># our event level; DALEX would otherwise take the 2nd column</span></span>
+<span id="cb39-273"><a href="#cb39-273" aria-hidden="true" tabindex="-1"></a>  <span class="at">label =</span> <span class="st">"XGBoost (tuned)"</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span></span>
+<span id="cb39-274"><a href="#cb39-274" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb39-275"><a href="#cb39-275" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-276"><a href="#cb39-276" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb39-277"><a href="#cb39-277" aria-hidden="true" tabindex="-1"></a>vi_perm <span class="ot">&lt;-</span> <span class="fu">model_parts</span>(explainer, <span class="at">loss_function =</span> DALEX<span class="sc">::</span>loss_one_minus_auc, <span class="at">B =</span> <span class="dv">10</span>, <span class="at">N =</span> <span class="dv">1000</span>)</span>
+<span id="cb39-278"><a href="#cb39-278" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(vi_perm, <span class="at">max_vars =</span> <span class="dv">15</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Permutation importance: AUC lost when a column is shuffled"</span>)</span>
+<span id="cb39-279"><a href="#cb39-279" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-280"><a href="#cb39-280" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-281"><a href="#cb39-281" aria-hidden="true" tabindex="-1"></a>Correlated predictors share credit (BMI, waist, weight, <span class="in">`bmi_cat`</span> each look weaker than "adiposity" is).</span>
+<span id="cb39-282"><a href="#cb39-282" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-285"><a href="#cb39-285" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-286"><a href="#cb39-286" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: pdp</span></span>
+<span id="cb39-287"><a href="#cb39-287" aria-hidden="true" tabindex="-1"></a>pdp <span class="ot">&lt;-</span> <span class="fu">model_profile</span>(explainer, <span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"age"</span>, <span class="st">"bmi"</span>, <span class="st">"waist"</span>), <span class="at">N =</span> <span class="dv">500</span>)</span>
+<span id="cb39-288"><a href="#cb39-288" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pdp) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Partial dependence: average predicted P(Yes) as one variable moves"</span>)</span>
+<span id="cb39-289"><a href="#cb39-289" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-290"><a href="#cb39-290" aria-hidden="true" tabindex="-1"></a>pdp_sex <span class="ot">&lt;-</span> <span class="fu">model_profile</span>(explainer, <span class="at">variables =</span> <span class="st">"waist"</span>, <span class="at">groups =</span> <span class="st">"sex"</span>, <span class="at">N =</span> <span class="dv">500</span>)</span>
+<span id="cb39-291"><a href="#cb39-291" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pdp_sex) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Waist by sex: two different cut-offs"</span>)</span>
+<span id="cb39-292"><a href="#cb39-292" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-293"><a href="#cb39-293" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-294"><a href="#cb39-294" aria-hidden="true" tabindex="-1"></a>Look for the structure the trees found: the BMI step near 27.5, the age plateau, two waist curves for two sexes.</span>
+<span id="cb39-295"><a href="#cb39-295" aria-hidden="true" tabindex="-1"></a>The last one is an interaction a logistic model never saw unless someone hand-coded sex-specific cut-offs.</span>
+<span id="cb39-296"><a href="#cb39-296" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-297"><a href="#cb39-297" aria-hidden="true" tabindex="-1"></a><span class="fu">## 8 · Explaining the model: local (SHAP)</span></span>
+<span id="cb39-298"><a href="#cb39-298" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-299"><a href="#cb39-299" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb39-300"><a href="#cb39-300" aria-hidden="true" tabindex="-1"></a>A **Shapley value** (game theory, 1953) is a variable's fair share of the difference between *this* person's</span>
+<span id="cb39-301"><a href="#cb39-301" aria-hidden="true" tabindex="-1"></a>prediction and the average prediction, averaged over every order in which the variables could be "added". The</span>
+<span id="cb39-302"><a href="#cb39-302" aria-hidden="true" tabindex="-1"></a>shares add up exactly to the prediction. Two ways to get them: **TreeSHAP** reads them *exactly* off a tree</span>
+<span id="cb39-303"><a href="#cb39-303" aria-hidden="true" tabindex="-1"></a>ensemble in well under a second (what we do here); **KernelSHAP** *estimates* them for any model from</span>
+<span id="cb39-304"><a href="#cb39-304" aria-hidden="true" tabindex="-1"></a>predictions alone (Tutorial 7 uses it on the neural network — same plots, slower estimator).</span>
+<span id="cb39-305"><a href="#cb39-305" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-306"><a href="#cb39-306" aria-hidden="true" tabindex="-1"></a>One mechanical point first. The model never saw <span class="in">`sex`</span> or <span class="in">`ethnic`</span>; it saw the **baked** matrix the recipe</span>
+<span id="cb39-307"><a href="#cb39-307" aria-hidden="true" tabindex="-1"></a>produced — imputed, dummy-coded, normalised. SHAP values therefore come out per dummy column (<span class="in">`sex_Male`</span>,</span>
+<span id="cb39-308"><a href="#cb39-308" aria-hidden="true" tabindex="-1"></a><span class="in">`ethnic_Chinese`</span>, …). <span class="in">`shapviz`</span> can add the pieces of each factor back together (<span class="in">`collapse`</span>) so you read one</span>
+<span id="cb39-309"><a href="#cb39-309" aria-hidden="true" tabindex="-1"></a>value per *original* variable, and plot it against the original, un-normalised values (<span class="in">`X`</span>).</span>
+<span id="cb39-310"><a href="#cb39-310" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb39-311"><a href="#cb39-311" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-314"><a href="#cb39-314" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-315"><a href="#cb39-315" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: shap</span></span>
+<span id="cb39-316"><a href="#cb39-316" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. the people to explain, and the matrix the model actually saw for them</span></span>
+<span id="cb39-317"><a href="#cb39-317" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb39-318"><a href="#cb39-318" aria-hidden="true" tabindex="-1"></a>X_explain <span class="ot">&lt;-</span> dm_train <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span>undx_dm) <span class="sc">|&gt;</span> <span class="fu">slice_sample</span>(<span class="at">n =</span> <span class="dv">500</span>)          <span class="co"># 500 people is plenty for the plots</span></span>
+<span id="cb39-319"><a href="#cb39-319" aria-hidden="true" tabindex="-1"></a>rec_fit   <span class="ot">&lt;-</span> <span class="fu">extract_recipe</span>(xgb_fit)                                        <span class="co"># the recipe as TRAINED inside the workflow</span></span>
+<span id="cb39-320"><a href="#cb39-320" aria-hidden="true" tabindex="-1"></a>X_baked   <span class="ot">&lt;-</span> <span class="fu">bake</span>(rec_fit, <span class="at">new_data =</span> X_explain, <span class="fu">all_predictors</span>(), <span class="at">composition =</span> <span class="st">"matrix"</span>)</span>
+<span id="cb39-321"><a href="#cb39-321" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-322"><a href="#cb39-322" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. which dummy columns came from which factor (recipes keeps the book) -&gt; one SHAP value per original variable</span></span>
+<span id="cb39-323"><a href="#cb39-323" aria-hidden="true" tabindex="-1"></a>dummy_step <span class="ot">&lt;-</span> <span class="fu">tidy</span>(rec_fit) <span class="sc">|&gt;</span> <span class="fu">filter</span>(type <span class="sc">==</span> <span class="st">"dummy"</span>) <span class="sc">|&gt;</span> <span class="fu">pull</span>(number)</span>
+<span id="cb39-324"><a href="#cb39-324" aria-hidden="true" tabindex="-1"></a>facs       <span class="ot">&lt;-</span> <span class="fu">tidy</span>(rec_fit, <span class="at">number =</span> dummy_step) <span class="sc">|&gt;</span> <span class="fu">pull</span>(terms) <span class="sc">|&gt;</span> <span class="fu">unique</span>()   <span class="co"># the original factor columns</span></span>
+<span id="cb39-325"><a href="#cb39-325" aria-hidden="true" tabindex="-1"></a><span class="co"># each factor -&gt; the dummy columns it produced. bake() cleans the level names (25-29.9 -&gt; X25.29.9), so match on</span></span>
+<span id="cb39-326"><a href="#cb39-326" aria-hidden="true" tabindex="-1"></a><span class="co"># the "&lt;factor&gt;_" prefix of the ACTUAL baked columns rather than on the raw level names.</span></span>
+<span id="cb39-327"><a href="#cb39-327" aria-hidden="true" tabindex="-1"></a>collapse   <span class="ot">&lt;-</span> <span class="fu">setNames</span>(<span class="fu">lapply</span>(facs, \(f) <span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^"</span>, f, <span class="st">"_"</span>), <span class="fu">colnames</span>(X_baked), <span class="at">value =</span> <span class="cn">TRUE</span>)), facs)</span>
+<span id="cb39-328"><a href="#cb39-328" aria-hidden="true" tabindex="-1"></a>collapse   <span class="ot">&lt;-</span> collapse[<span class="fu">lengths</span>(collapse) <span class="sc">&gt;</span> <span class="dv">0</span>]</span>
+<span id="cb39-329"><a href="#cb39-329" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-330"><a href="#cb39-330" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. TreeSHAP: exact Shapley values straight from the fitted trees</span></span>
+<span id="cb39-331"><a href="#cb39-331" aria-hidden="true" tabindex="-1"></a>sv <span class="ot">&lt;-</span> <span class="fu">shapviz</span>(<span class="fu">extract_fit_engine</span>(xgb_fit), <span class="at">X_pred =</span> X_baked, <span class="at">X =</span> X_explain, <span class="at">collapse =</span> collapse)</span>
+<span id="cb39-332"><a href="#cb39-332" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-333"><a href="#cb39-333" aria-hidden="true" tabindex="-1"></a><span class="fu">sv_importance</span>(sv, <span class="at">kind =</span> <span class="st">"beeswarm"</span>, <span class="at">max_display =</span> <span class="dv">15</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"SHAP summary: each dot is one person"</span>)</span>
+<span id="cb39-334"><a href="#cb39-334" aria-hidden="true" tabindex="-1"></a><span class="fu">sv_dependence</span>(sv, <span class="at">v =</span> <span class="st">"bmi"</span>, <span class="at">color_var =</span> <span class="st">"fam_hx_dm"</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"BMI, coloured by family history"</span>)</span>
+<span id="cb39-335"><a href="#cb39-335" aria-hidden="true" tabindex="-1"></a><span class="fu">sv_dependence</span>(sv, <span class="at">v =</span> <span class="st">"waist"</span>, <span class="at">color_var =</span> <span class="st">"sex"</span>)      <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Waist, coloured by sex"</span>)</span>
+<span id="cb39-336"><a href="#cb39-336" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-337"><a href="#cb39-337" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-338"><a href="#cb39-338" aria-hidden="true" tabindex="-1"></a>One patient:</span>
+<span id="cb39-339"><a href="#cb39-339" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-342"><a href="#cb39-342" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-343"><a href="#cb39-343" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: shap-local</span></span>
+<span id="cb39-344"><a href="#cb39-344" aria-hidden="true" tabindex="-1"></a>X_explain[<span class="dv">1</span>, <span class="fu">c</span>(<span class="st">"age"</span>, <span class="st">"sex"</span>, <span class="st">"bmi"</span>, <span class="st">"waist"</span>, <span class="st">"fam_hx_dm"</span>, <span class="st">"ethnic"</span>)]</span>
+<span id="cb39-345"><a href="#cb39-345" aria-hidden="true" tabindex="-1"></a><span class="fu">sv_waterfall</span>(sv, <span class="at">row_id =</span> <span class="dv">1</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Why this person scored what they scored"</span>)</span>
+<span id="cb39-346"><a href="#cb39-346" aria-hidden="true" tabindex="-1"></a><span class="fu">predict_parts</span>(explainer, <span class="at">new_observation =</span> X_explain[<span class="dv">1</span>, ], <span class="at">type =</span> <span class="st">"break_down"</span>) <span class="sc">|&gt;</span> <span class="fu">plot</span>()</span>
+<span id="cb39-347"><a href="#cb39-347" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-348"><a href="#cb39-348" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-349"><a href="#cb39-349" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning}</span>
+<span id="cb39-350"><a href="#cb39-350" aria-hidden="true" tabindex="-1"></a><span class="fu">## What explanations do **not** mean</span></span>
+<span id="cb39-351"><a href="#cb39-351" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**Not causal.** SHAP and PDP describe the *fitted function*. "BMI drives risk up after 27.5" is a statement about</span>
+<span id="cb39-352"><a href="#cb39-352" aria-hidden="true" tabindex="-1"></a>   the model, not about biology.</span>
+<span id="cb39-353"><a href="#cb39-353" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**Not unique.** Correlated predictors swap credit between fits; check stability across resamples before you</span>
+<span id="cb39-354"><a href="#cb39-354" aria-hidden="true" tabindex="-1"></a>   tell a story.</span>
+<span id="cb39-355"><a href="#cb39-355" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>**Not a safety certificate.** Use explanations to *audit*: agreement with what you know → trust up;</span>
+<span id="cb39-356"><a href="#cb39-356" aria-hidden="true" tabindex="-1"></a>   disagreement → either you learned something or the model is cheating. Find out which.</span>
+<span id="cb39-357"><a href="#cb39-357" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb39-358"><a href="#cb39-358" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-361"><a href="#cb39-361" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-362"><a href="#cb39-362" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: save</span></span>
+<span id="cb39-363"><a href="#cb39-363" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(<span class="fu">list</span>(<span class="at">thr =</span> thr_chosen, <span class="at">calibrator =</span> calibrator), <span class="st">"outputs/t06_decisions.rds"</span>)</span>
+<span id="cb39-364"><a href="#cb39-364" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-365"><a href="#cb39-365" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-366"><a href="#cb39-366" aria-hidden="true" tabindex="-1"></a><span class="fu">## Your turn (10 min)</span></span>
+<span id="cb39-367"><a href="#cb39-367" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-368"><a href="#cb39-368" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip icon=false}</span>
+<span id="cb39-369"><a href="#cb39-369" aria-hidden="true" tabindex="-1"></a><span class="fu">## Task A · Two use cases, two thresholds</span></span>
+<span id="cb39-370"><a href="#cb39-370" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Use case <span class="pp">|</span> Requirement <span class="pp">|</span> Why <span class="pp">|</span></span>
+<span id="cb39-371"><a href="#cb39-371" aria-hidden="true" tabindex="-1"></a><span class="pp">|---|---|---|</span></span>
+<span id="cb39-372"><a href="#cb39-372" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Community screen <span class="pp">|</span> sensitivity ≥ 0.85 <span class="pp">|</span> a missed case costs years of silent disease; a false alarm costs one blood test <span class="pp">|</span></span>
+<span id="cb39-373"><a href="#cb39-373" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Confirmatory pre-selection (limited lab budget) <span class="pp">|</span> specificity ≥ 0.90 <span class="pp">|</span> we can only afford to test a few; they had better be real <span class="pp">|</span></span>
+<span id="cb39-374"><a href="#cb39-374" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-375"><a href="#cb39-375" aria-hidden="true" tabindex="-1"></a>Find both thresholds on <span class="in">`cv_preds`</span>; report flagged %, sensitivity, specificity, PPV and number-needed-to-screen on</span>
+<span id="cb39-376"><a href="#cb39-376" aria-hidden="true" tabindex="-1"></a>the **test** set. Then write the community-screen result as one sentence for a district health officer.</span>
+<span id="cb39-377"><a href="#cb39-377" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-378"><a href="#cb39-378" aria-hidden="true" tabindex="-1"></a>**A2.** The model was validated at 11.6 % prevalence; the district's true prevalence is 6 %. Which numbers</span>
+<span id="cb39-379"><a href="#cb39-379" aria-hidden="true" tabindex="-1"></a>change, and which way?</span>
+<span id="cb39-380"><a href="#cb39-380" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb39-381"><a href="#cb39-381" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-382"><a href="#cb39-382" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb39-383"><a href="#cb39-383" aria-hidden="true" tabindex="-1"></a><span class="fu">## Solution A</span></span>
+<span id="cb39-384"><a href="#cb39-384" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-387"><a href="#cb39-387" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-388"><a href="#cb39-388" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: solA</span></span>
+<span id="cb39-389"><a href="#cb39-389" aria-hidden="true" tabindex="-1"></a>thr <span class="ot">&lt;-</span> <span class="fu">threshold_perf</span>(cv_preds, undx_dm, .pred_Yes, <span class="at">thresholds =</span> <span class="fu">seq</span>(<span class="fl">0.02</span>, <span class="fl">0.80</span>, <span class="at">by =</span> <span class="fl">0.01</span>))</span>
+<span id="cb39-390"><a href="#cb39-390" aria-hidden="true" tabindex="-1"></a>thr_screen  <span class="ot">&lt;-</span> thr <span class="sc">|&gt;</span> <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"sensitivity"</span>, .estimate <span class="sc">&gt;=</span> <span class="fl">0.85</span>) <span class="sc">|&gt;</span> <span class="fu">slice_max</span>(.threshold) <span class="sc">|&gt;</span> <span class="fu">pull</span>(.threshold)</span>
+<span id="cb39-391"><a href="#cb39-391" aria-hidden="true" tabindex="-1"></a>thr_confirm <span class="ot">&lt;-</span> thr <span class="sc">|&gt;</span> <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"specificity"</span>, .estimate <span class="sc">&gt;=</span> <span class="fl">0.90</span>) <span class="sc">|&gt;</span> <span class="fu">slice_min</span>(.threshold) <span class="sc">|&gt;</span> <span class="fu">pull</span>(.threshold)</span>
+<span id="cb39-392"><a href="#cb39-392" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-393"><a href="#cb39-393" aria-hidden="true" tabindex="-1"></a>report_at <span class="ot">&lt;-</span> <span class="cf">function</span>(preds, threshold) {</span>
+<span id="cb39-394"><a href="#cb39-394" aria-hidden="true" tabindex="-1"></a>  preds <span class="sc">|&gt;</span></span>
+<span id="cb39-395"><a href="#cb39-395" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">.pred_rule =</span> <span class="fu">make_two_class_pred</span>(.pred_Yes, <span class="at">levels =</span> <span class="fu">levels</span>(undx_dm), <span class="at">threshold =</span> threshold) <span class="sc">|&gt;</span> <span class="fu">as.factor</span>()) <span class="sc">|&gt;</span></span>
+<span id="cb39-396"><a href="#cb39-396" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">threshold =</span> threshold,</span>
+<span id="cb39-397"><a href="#cb39-397" aria-hidden="true" tabindex="-1"></a>              <span class="at">flagged_pct =</span> <span class="fu">mean</span>(.pred_rule <span class="sc">==</span> <span class="st">"Yes"</span>),</span>
+<span id="cb39-398"><a href="#cb39-398" aria-hidden="true" tabindex="-1"></a>              <span class="at">sens =</span> <span class="fu">sum</span>(.pred_rule <span class="sc">==</span> <span class="st">"Yes"</span> <span class="sc">&amp;</span> undx_dm <span class="sc">==</span> <span class="st">"Yes"</span>) <span class="sc">/</span> <span class="fu">sum</span>(undx_dm <span class="sc">==</span> <span class="st">"Yes"</span>),</span>
+<span id="cb39-399"><a href="#cb39-399" aria-hidden="true" tabindex="-1"></a>              <span class="at">spec =</span> <span class="fu">sum</span>(.pred_rule <span class="sc">==</span> <span class="st">"No"</span>  <span class="sc">&amp;</span> undx_dm <span class="sc">==</span> <span class="st">"No"</span>)  <span class="sc">/</span> <span class="fu">sum</span>(undx_dm <span class="sc">==</span> <span class="st">"No"</span>),</span>
+<span id="cb39-400"><a href="#cb39-400" aria-hidden="true" tabindex="-1"></a>              <span class="at">ppv  =</span> <span class="fu">sum</span>(.pred_rule <span class="sc">==</span> <span class="st">"Yes"</span> <span class="sc">&amp;</span> undx_dm <span class="sc">==</span> <span class="st">"Yes"</span>) <span class="sc">/</span> <span class="fu">sum</span>(.pred_rule <span class="sc">==</span> <span class="st">"Yes"</span>),</span>
+<span id="cb39-401"><a href="#cb39-401" aria-hidden="true" tabindex="-1"></a>              <span class="at">nns  =</span> <span class="dv">1</span> <span class="sc">/</span> ppv)</span>
+<span id="cb39-402"><a href="#cb39-402" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb39-403"><a href="#cb39-403" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(<span class="at">screen =</span> <span class="fu">report_at</span>(test_preds, thr_screen), <span class="at">confirm =</span> <span class="fu">report_at</span>(test_preds, thr_confirm), <span class="at">.id =</span> <span class="st">"use_case"</span>)</span>
+<span id="cb39-404"><a href="#cb39-404" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-405"><a href="#cb39-405" aria-hidden="true" tabindex="-1"></a><span class="fu">ppv_at</span>(<span class="fl">0.85</span>, <span class="fl">0.65</span>, <span class="fl">0.116</span>); <span class="fu">ppv_at</span>(<span class="fl">0.85</span>, <span class="fl">0.65</span>, <span class="fl">0.06</span>)</span>
+<span id="cb39-406"><a href="#cb39-406" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-407"><a href="#cb39-407" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-408"><a href="#cb39-408" aria-hidden="true" tabindex="-1"></a>A model sentence: *"Testing the ~40 % of adults the model flags would find ~85 % of undiagnosed cases; about four</span>
+<span id="cb39-409"><a href="#cb39-409" aria-hidden="true" tabindex="-1"></a>people tested per case found."* A2: sensitivity and specificity are (roughly) properties of model + threshold and</span>
+<span id="cb39-410"><a href="#cb39-410" aria-hidden="true" tabindex="-1"></a>stay put; **PPV falls** (fewer true cases among the flagged), NPV rises, number-needed-to-screen rises; the flagged</span>
+<span id="cb39-411"><a href="#cb39-411" aria-hidden="true" tabindex="-1"></a>percentage also shifts because the score distribution changes with the population.</span>
+<span id="cb39-412"><a href="#cb39-412" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb39-413"><a href="#cb39-413" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-414"><a href="#cb39-414" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip icon=false}</span>
+<span id="cb39-415"><a href="#cb39-415" aria-hidden="true" tabindex="-1"></a><span class="fu">## Task B · Does it work equally well for everyone?</span></span>
+<span id="cb39-416"><a href="#cb39-416" aria-hidden="true" tabindex="-1"></a>Using <span class="in">`collect_predictions(xgb_last)`</span> joined back to <span class="in">`dm_test`</span>, compute AUC and sensitivity at <span class="in">`thr_chosen`</span> by</span>
+<span id="cb39-417"><a href="#cb39-417" aria-hidden="true" tabindex="-1"></a><span class="in">`sex`</span> and by <span class="in">`ethnic`</span>. Any group the model under-serves? What would you do about it?</span>
+<span id="cb39-418"><a href="#cb39-418" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb39-419"><a href="#cb39-419" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-420"><a href="#cb39-420" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb39-421"><a href="#cb39-421" aria-hidden="true" tabindex="-1"></a><span class="fu">## Solution B</span></span>
+<span id="cb39-422"><a href="#cb39-422" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-425"><a href="#cb39-425" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb39-426"><a href="#cb39-426" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: solB</span></span>
+<span id="cb39-427"><a href="#cb39-427" aria-hidden="true" tabindex="-1"></a>by_group <span class="ot">&lt;-</span> test_preds <span class="sc">|&gt;</span></span>
+<span id="cb39-428"><a href="#cb39-428" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(dm_test <span class="sc">|&gt;</span> <span class="fu">select</span>(sex, ethnic)) <span class="sc">|&gt;</span>      <span class="co"># last_fit predictions are in test-set row order</span></span>
+<span id="cb39-429"><a href="#cb39-429" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">.pred_screen =</span> <span class="fu">make_two_class_pred</span>(.pred_Yes, <span class="at">levels =</span> <span class="fu">levels</span>(undx_dm), <span class="at">threshold =</span> thr_chosen) <span class="sc">|&gt;</span> <span class="fu">as.factor</span>())</span>
+<span id="cb39-430"><a href="#cb39-430" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-431"><a href="#cb39-431" aria-hidden="true" tabindex="-1"></a>by_group <span class="sc">|&gt;</span> <span class="fu">group_by</span>(sex)    <span class="sc">|&gt;</span> <span class="fu">roc_auc</span>(undx_dm, .pred_Yes)</span>
+<span id="cb39-432"><a href="#cb39-432" aria-hidden="true" tabindex="-1"></a>by_group <span class="sc">|&gt;</span> <span class="fu">group_by</span>(ethnic) <span class="sc">|&gt;</span> <span class="fu">roc_auc</span>(undx_dm, .pred_Yes)</span>
+<span id="cb39-433"><a href="#cb39-433" aria-hidden="true" tabindex="-1"></a>by_group <span class="sc">|&gt;</span> <span class="fu">group_by</span>(sex)    <span class="sc">|&gt;</span> <span class="fu">sensitivity</span>(undx_dm, .pred_screen)</span>
+<span id="cb39-434"><a href="#cb39-434" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb39-435"><a href="#cb39-435" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-436"><a href="#cb39-436" aria-hidden="true" tabindex="-1"></a>Small groups (Others, Other Bumiputera) have wide uncertainty; look at the SE before reading a difference. If one</span>
+<span id="cb39-437"><a href="#cb39-437" aria-hidden="true" tabindex="-1"></a>group is genuinely under-flagged at the shared threshold, options are group-specific thresholds, re-weighting, more</span>
+<span id="cb39-438"><a href="#cb39-438" aria-hidden="true" tabindex="-1"></a>data — and, always, saying so in the paper. <span class="in">`fairmodels`</span> extends DALEX with the standard fairness metrics.</span>
+<span id="cb39-439"><a href="#cb39-439" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb39-440"><a href="#cb39-440" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-441"><a href="#cb39-441" aria-hidden="true" tabindex="-1"></a><span class="fu">## What to remember</span></span>
+<span id="cb39-442"><a href="#cb39-442" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-443"><a href="#cb39-443" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Accuracy lies at 12 % prevalence. Report sens/spec/PPV/NPV at the threshold you will use, at the prevalence you face.</span>
+<span id="cb39-444"><a href="#cb39-444" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>ROC to compare models; PR and gain for what the predictions are worth; Brier and a calibration plot for honesty.</span>
+<span id="cb39-445"><a href="#cb39-445" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Choose the threshold from the use case, on CV predictions; report it on the test set, in people.</span>
+<span id="cb39-446"><a href="#cb39-446" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>SMOTE moves the threshold in disguise and breaks calibration. Move the threshold instead.</span>
+<span id="cb39-447"><a href="#cb39-447" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Importance → *which*; PDP → *how*; SHAP → *why this person*. None of it is causal.</span>
+<span id="cb39-448"><a href="#cb39-448" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-449"><a href="#cb39-449" aria-hidden="true" tabindex="-1"></a>**Next (14.00):** Tutorial 7 — neural networks.</span>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Vivek Jason Jayaraj · Centre for Population Health (CePH), Universiti Malaya · Materials for workshop use</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
