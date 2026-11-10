@@ -5,7 +5,7 @@
 /.quarto/
 /outputs/
 /data-raw/_truth_for_validation.csv
-*_files/
+# NOTE: do NOT ignore *_files/ - Quarto's rendered figures live in docs/**/*_files/ and must be committed
 
 # NOTE: docs/ and _freeze/ ARE committed - GitHub Pages serves the site from /docs,
 # and _freeze/ lets `quarto render` reuse the executed tutorial results.
