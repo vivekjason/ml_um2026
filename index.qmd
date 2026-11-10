@@ -1,0 +1,56 @@
+---
+title: "Predictive Intelligence in R"
+subtitle: "CePH R Workshop Series 5 · Department of Social and Preventive Medicine, Universiti Malaya · 11–12 November 2026"
+---
+
+::: {.callout-note appearance="simple"}
+**Facilitator:** Dr Vivek Jason Jayaraj · **Venue:** SPM Conference Room, Level 1, Block J, Faculty of Medicine, UM · **Time:** 9.00 am – 5.00 pm both days
+
+**Before you arrive:** complete the [setup](setup.qmd) (15 minutes, needs internet). Bring a laptop and charger.
+:::
+
+## What this workshop is
+
+Two hands-on days that take you from "I can fit a logistic regression" to a complete, honest predictive-modelling
+workflow in R with `tidymodels`: a leak-free pipeline, four model families — **random forests, support vector
+machines, XGBoost and neural networks** — resampling and tuning, clinically meaningful evaluation and calibration,
+and model explanation. Every session has a **self-guided tutorial** that contains everything typed in the room,
+the outputs, the exercises and their solutions, so you can redo it at home.
+
+Everything runs on one dataset — a 5,000-row synthetic NHMS-style survey — and one question — *who has
+undiagnosed type 2 diabetes?* — so that each new idea is a small change to code you already wrote.
+
+| Session | Tutorial | Slides |
+|---|---|---|
+| S1 · Learning how the machine learns | — | [01](slides/01_ml_foundations.qmd) |
+| S2 · The pipeline: split, recipe, workflow, baseline, **leakage** | [Tutorial 1](tutorials/01_pipeline.qmd) | [02](slides/02_pipeline.qmd) |
+| S3 · Decision trees and random forests | [Tutorial 2](tutorials/02_random_forests.qmd) | [03](slides/03_random_forests.qmd) |
+| S4 · Support vector machines | [Tutorial 3](tutorials/03_svm.qmd) | [04](slides/04_svm.qmd) |
+| S5 · Gradient boosting with XGBoost; the bake-off | [Tutorial 4](tutorials/04_xgboost.qmd) | [05](slides/05_xgboost.qmd) |
+| S6 · Resampling and tuning | [Tutorial 5](tutorials/05_tuning.qmd) | [06](slides/06_resampling_tuning.qmd) |
+| S7 · Evaluation, calibration and explanation | [Tutorial 6](tutorials/06_evaluation.qmd) | [07](slides/07_evaluation_explainability.qmd) |
+| S8 · Neural networks (theory primer, from scratch, tidymodels, torch) | [Tutorial 7](tutorials/07_neural_networks.qmd) | [08](slides/08_neural_networks.qmd) |
+| Verdict and where next | take-home challenge (end of Tutorial 7) | [09](slides/09_wrapup.qmd) |
+
+Full timings: [Agenda](agenda.qmd). Data: `data/nhms_synthetic.csv` · [data dictionary](data/data_dictionary.md).
+Shared helper every tutorial starts from: `R/prep_nhms.R`.
+
+## Prerequisites
+
+You should be comfortable reading and writing a `dplyr` pipeline and a `ggplot`. If not, the Refresher Course
+(4–5 November) covers exactly that. No prior machine-learning experience is assumed; no mathematics beyond "a
+weighted sum" and "a probability" is required — the neural-network session builds the rest from there.
+
+## The 2023 edition
+
+This workshop grew out of the 2023 SBDR series
+([*An Introduction to Machine Learning in R*](https://www.vivekjason.com/machine_learning_sbdr2023/)). The
+tidymodels pipeline, the StatQuest-derived illustrations and three of the four model families carry over. New in
+2026: a synthetic dataset with real (and known) structure, the target-leakage thread, `workflow_set()` bake-offs,
+racing, calibration and threshold selection with `probably`, model-agnostic SHAP, a full neural-network session,
+one self-guided tutorial per session, and TRIPOD+AI.
+
+## Licence and use
+
+Materials are for workshop use by CePH participants. Illustrations adapted from StatQuest (J. Starmer) and other
+sources are credited on the slides. The dataset is synthetic and may be reused freely for teaching.

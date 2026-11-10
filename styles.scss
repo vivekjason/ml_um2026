@@ -1,0 +1,9 @@
+/*-- scss:defaults --*/
+$primary: #0b4f6c;
+$font-size-root: 16px;
+
+/*-- scss:rules --*/
+.callout-note { border-left-color: #0b4f6c; }
+.leak { background: #fff3cd; border-left: 4px solid #d97706; padding: .5rem 1rem; border-radius: 4px; }
+.timing { color: #6b7280; font-size: .9em; }
+table.agenda td:first-child { white-space: nowrap; font-variant-numeric: tabular-nums; }

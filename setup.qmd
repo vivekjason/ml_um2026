@@ -1,0 +1,79 @@
+---
+title: "Setup — do this before 11 November"
+---
+
+Fifteen minutes with a good internet connection. The setup clinic (8.30–9.00 on Day 1) is for problems, not for
+starting from scratch — there is not enough Wi-Fi in the room for 25 people to install tidymodels at once.
+
+## 1 · Install or update the software
+
+| | Minimum | Download |
+|---|---|---|
+| **R** | 4.3 (4.4 / 4.5 recommended) | <https://cran.r-project.org/> |
+| **RStudio** | 2024.04 or newer | <https://posit.co/download/rstudio-desktop/> |
+| **Quarto** | 1.4 or newer (bundled with recent RStudio) | <https://quarto.org/docs/get-started/> |
+| **Rtools** (Windows only) | matching your R version | <https://cran.r-project.org/bin/windows/Rtools/> |
+| **Xcode command-line tools** (macOS only) | — | run `xcode-select --install` in Terminal |
+
+Check inside R: `R.version.string` should say 4.3 or higher.
+
+## 2 · Get the workshop folder
+
+Download and unzip the workshop folder (link in your registration email), or clone it from GitHub.
+Open **`ml_um2026.Rproj`** in RStudio — this sets the working directory so every path in the scripts works.
+
+## 3 · Install the packages
+
+In RStudio, open `setup/install_packages.R` and click **Source** (top right of the editor). Expected time: 10–15 minutes.
+
+Near the end it will offer to install the **torch** backend (~250 MB download). Say yes if you can — it is needed only
+for the optional multi-layer network demo on Day 2 afternoon; everything else works without it.
+
+## 4 · One RStudio setting
+
+The tutorials use paths relative to the project folder (`data/...`, `R/prep_nhms.R`). Rendering handles this
+automatically; running chunks interactively does not unless you tell RStudio once:
+**Tools › Global Options › R Markdown › Basic › "Evaluate chunks in directory" → Project**, then OK.
+(Alternative: run the short `demos/*.R` teaching scripts instead of the `.qmd` chunks — plain scripts always use the project root.)
+
+## 5 · Check
+
+Open `setup/check_setup.R` and click **Source**. You should see a column of `PASS`. If any line says `FAIL`:
+
+- a package failed → run `install.packages("<name>")` on its own and read the error; on Windows it is usually Rtools missing, on macOS usually the command-line tools
+- `data/nhms_synthetic.csv found` fails → you did not open the `.Rproj` file; do that and re-run
+- `fit + predict: ... (xgboost)` fails → `install.packages("xgboost")` again; if it still fails, note the message and bring it to the clinic
+- `OPTIONAL torch` fails or is skipped → fine; ignore
+
+Copy the whole output into an email to the organisers if you want it checked before the day.
+
+## 6 · Optional reading (30 minutes, worth it)
+
+- *Tidy Modeling with R*, chapters 1–3 and 5–8: <https://www.tmwr.org/>
+- Collins GS et al. *TRIPOD+AI statement.* BMJ 2024;385:e078378 — skim the checklist
+
+## What is in the folder
+
+```
+ml_um2026/
+├── ml_um2026.Rproj          <- open this first
+├── index.qmd, agenda.qmd, setup.qmd
+├── tutorials/               01_pipeline … 07_neural_networks (.qmd) — one per session; the thing to open in the room
+├── slides/                  01 … 09 (.qmd, revealjs)
+├── demos/                   short live-coding scripts, one per session (the spine of each tutorial)
+├── R/prep_nhms.R            shared cleaning + split + folds + recipe
+├── data/                    nhms_synthetic.csv · data_dictionary.md
+├── setup/                   install_packages.R · check_setup.R
+├── images/                  figures
+├── docs/                    the rendered website, if you received it (open docs/index.html)
+└── outputs/                 created at run time (fitted models, results)
+
+(The GitHub repository also carries instructor/ and data-raw/ — facilitator notes, the test harness and the data
+generator. They are not in the participant zip: the generator reveals what the simulator planted.)
+```
+
+## Rendering the site yourself (optional)
+
+`quarto render` in the project folder builds every tutorial and deck into `docs/`. The tutorials run all their
+code (tuning, SHAP), so the first render takes 20–40 minutes; later renders only re-run files that changed
+(`freeze: auto`). Open `docs/index.html`.

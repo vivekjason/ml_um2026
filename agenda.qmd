@@ -1,0 +1,67 @@
+---
+title: "Agenda"
+subtitle: "Predictive Intelligence · CePH R Workshop Series 5 · 11–12 November 2026 · 9.00 am – 5.00 pm"
+---
+
+::: {.callout-note}
+## How the two days are built
+Eight sessions. Each one is **a short lecture → live coding → "your turn"**, and each has its own self-guided
+**tutorial** (menu above) that contains everything we typed, the outputs, the exercises and their solutions — so you
+can redo the session at home, or catch up if you fall behind in the room.
+
+Four model families carry the workshop: **random forests, support vector machines, XGBoost and neural networks**.
+Logistic regression appears only as the baseline you already know. Day 1 builds the pipeline and the first two
+families; Day 2 adds the third, teaches you to validate, tune, evaluate and explain, and ends with neural networks.
+:::
+
+**Dataset for both days:** `data/nhms_synthetic.csv` — 5,000 simulated Malaysian adults, NHMS-style variables.
+**The question for both days:** *who has undiagnosed type 2 diabetes?* (A take-home challenge on undiagnosed
+hypertension closes Tutorial 7.)
+
+## Day 1 — Wednesday 11 November · *Build*
+
+| Time | Session | What happens | Materials |
+|------|---------|--------------|-----------|
+| 08.30–09.00 | Setup clinic | Helpers check `setup/check_setup.R` passes on every laptop | `setup/` |
+| 09.00–09.20 | Welcome | Who is in the room · objectives · how the days work · the data | Slides 01 (first section) |
+| 09.20–10.30 | **S1 · Learning how the machine learns** | Prediction vs explanation · the supervised-learning contract · lifecycle · bias–variance · the tidymodels map | Slides 01 |
+| 10.30–10.50 | *Tea* | | |
+| 10.50–12.00 | **S2 · The pipeline** | Lecture (20 min): codes → meaning, splitting, recipes, workflows, **target leakage** · Live coding (50 min): Tutorial 1 §1–7 | Slides 02 · Tutorial 1 |
+| 12.00–13.00 | S2 · Your turn | Tutorial 1 exercises in pairs (45 min) · debrief (15 min) | Tutorial 1 |
+| 13.00–14.00 | *Lunch* | | |
+| 14.00–15.30 | **S3 · Decision trees and random forests** | Lecture (35 min): splits, impurity, overfitting, bagging, random subspaces, OOB · Live coding (30 min): Tutorial 2 · Your turn (25 min) | Slides 03 · Tutorial 2 |
+| 15.30–15.50 | *Tea* | | |
+| 15.50–17.00 | **S4 · Support vector machines** | Lecture (25 min): margins, soft margins, kernels · Live coding (25 min): Tutorial 3 · Your turn (15 min) · Day 1 wrap (5 min) | Slides 04 · Tutorial 3 |
+
+## Day 2 — Thursday 12 November · *Trust, then go deeper*
+
+| Time | Session | What happens | Materials |
+|------|---------|--------------|-----------|
+| 09.00–09.15 | Recap | Three things from Day 1 · questions from the tutorials | — |
+| 09.15–10.30 | **S5 · Gradient boosting and XGBoost** | Lecture (30 min): boosting, gradient descent, XGBoost's engineering, the seven knobs · Live coding (30 min): Tutorial 4 · Your turn (15 min): **the bake-off** — logistic vs RF vs SVM vs XGBoost on the same folds | Slides 05 · Tutorial 4 |
+| 10.30–10.50 | *Tea* | | |
+| 10.50–11.50 | **S6 · Resampling and tuning** | Lecture (25 min): why one split lies, k-fold, grids, racing, one-SE rule · Live coding (25 min): Tutorial 5 · Your turn (10 min) | Slides 06 · Tutorial 5 |
+| 11.50–13.00 | **S7 · Evaluation, calibration and explanation** | Lecture (30 min): confusion matrix at *this* prevalence, ROC vs PR, Brier, calibration, thresholds, imbalance, importance/PDP/SHAP, TRIPOD+AI · Live coding (30 min): Tutorial 6 · Your turn (10 min) | Slides 07 · Tutorial 6 |
+| 13.00–14.00 | *Lunch* | | |
+| 14.00–15.30 | **S8 · Neural networks (part 1)** | Lecture (55 min): from logistic regression to the perceptron, hidden layers, activations, loss, gradient descent, **backpropagation worked by hand**, regularisation, architectures, when networks win · Live coding (35 min): Tutorial 7 part B — a network from scratch in base R | Slides 08 · Tutorial 7 |
+| 15.30–15.50 | *Tea* | | |
+| 15.50–16.40 | **S8 · Neural networks (part 2)** | Live coding (25 min): `mlp()` with nnet, tuning, brulee/torch, SHAP on the network · Your turn (25 min) | Tutorial 7 |
+| 16.40–17.00 | **Verdict and where next** | Four families on one test set · the reveal (what the simulator planted) · deployment, monitoring, reporting · the take-home challenge · feedback | Slides 09 |
+
+::: {.callout-tip}
+## If you are running late
+Every "Your turn" block is self-contained in its tutorial and can be finished at home. Protect the live coding and,
+on Day 2, protect the neural-network theory block — it is the content people came for and the hardest to self-teach.
+:::
+
+## Learning outcomes
+
+By the end of the two days participants can:
+
+1. Distinguish a predictive from an explanatory model and choose the right validation design for a prediction question.
+2. Build a leak-free `tidymodels` pipeline: stratified split, recipe, workflow, resampling.
+3. Fit, compare and tune **random forests, support vector machines, gradient-boosted trees and multilayer perceptrons**, and explain in plain language how each one learns.
+4. Evaluate a classifier the way a clinician needs it evaluated — sensitivity, specificity and PPV at the real prevalence, ROC and PR curves, calibration, Brier score — and choose a defensible decision threshold.
+5. Explain a model globally (importance, partial dependence) and locally (SHAP), and state what those explanations do and do not mean.
+6. Describe what a neural network computes, how backpropagation trains it, and when it is the wrong tool.
+7. Report a model in line with TRIPOD+AI.

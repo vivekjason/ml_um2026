@@ -1,0 +1,275 @@
+---
+title: "The pipeline: split, recipe, workflow"
+subtitle: "02 · Predictive Intelligence in R · Day 1, 10.50–13.00 · Tutorial 1"
+author: "Vivek Jason Jayaraj · Centre for Population Health, Universiti Malaya"
+date: 2026-11-11
+format:
+  revealjs:
+    theme: [default, theme.scss]
+    slide-number: c/t
+    progress: true
+    footer: "Predictive Intelligence in R · CePH Series 5 · Nov 2026"
+    highlight-style: github
+    width: 1280
+    height: 720
+    margin: 0.07
+    code-overflow: wrap
+    code-line-numbers: false
+    transition: fade
+    transition-speed: fast
+    title-slide-attributes:
+      data-background-gradient: "linear-gradient(135deg, #0b2545 0%, #0f4c6e 55%, #13838f 100%)"
+execute:
+  eval: false
+  echo: true
+---
+
+## This hour
+
+:::: {.columns}
+::: {.column width="50%"}
+**Slides (short)**
+
+1. Codes → meaning
+2. Splitting
+3. Recipes: plan, prep, bake
+4. Workflows
+5. Target leakage
+:::
+::: {.column width="50%"}
+**Live coding (`tutorials/01_pipeline.qmd` §1–9)** — type along
+
+- Look before you model
+- The naive model (AUC 0.98 — too good)
+- The honest model (AUC ~0.85)
+- Swap the engine in one line
+:::
+::::
+
+# 1 · Codes → meaning {.section-slide .center background-color="#0b2545" background-gradient="linear-gradient(135deg, #0b2545 0%, #0f4c6e 55%, #13838f 100%)"}
+
+## R does not know what your numbers mean
+
+```{r}
+summary(nhms_raw$sys)        # Min. -9.0   <- nobody has a systolic BP of -9
+table(nhms_raw$ethnic)       # 1 2 3 4 5   <- R will happily treat "Indian" as 1.5 x "Chinese"
+```
+
+Three things to fix **before** anything else:
+
+1. **Sentinel codes** (`-9`, `999`, `-6`) → `NA`:  `mutate(across(c(sys, dys, rbs, rchol), \(x) na_if(x, -9)))`
+2. **Categorical codes** → labelled factors:  `factor(ethnic, levels = 1:5, labels = c("Malay", ...))`
+3. **The outcome** → a factor with the **event level first**:
+   `factor(undx_dm, levels = c(1, 0), labels = c("Yes", "No"))`
+
+::: {.leak}
+Leave the `-9`s in and nothing crashes — that is the problem. The imputation step finds no `NA` to impute, the scaler learns a standard deviation inflated by impossible values, and every model downstream quietly absorbs the error. Silent data-cleaning misses are the most common defect in survey-based ML.
+:::
+
+## The event-level rule
+
+```{r}
+levels(nhms$undx_dm)
+#> [1] "Yes" "No"
+```
+
+- `yardstick` metrics assume **the first level is the event of interest** (`event_level = "first"`).
+- Probability columns are named after the levels: `.pred_Yes`, `.pred_No`. Use `.pred_Yes` for ROC/PR/Brier.
+- If your data arrives as `0/1` with `1 = yes`, the default factor order puts `"0"` first and your sensitivity and specificity silently swap.
+
+::: {.good}
+Check `levels(outcome)[1]` every single time. Put it in your script template.
+:::
+
+# 2 · Splitting {.section-slide .center background-color="#0b2545" background-gradient="linear-gradient(135deg, #0b2545 0%, #0f4c6e 55%, #13838f 100%)"}
+
+## Lock away a test set
+
+```{r}
+set.seed(2026)
+dm_split <- initial_split(dm_data, prop = 0.80, strata = undx_dm)
+dm_train <- training(dm_split)   # 4,000 rows: everything happens here
+dm_test  <- testing(dm_split)    # 1,000 rows: a final exam, sat ONCE, at the end of Day 2
+```
+
+- `prop`: 75–80 % training is the convention; with 5,000 rows, 80/20 leaves ~115 cases in the test set — barely enough for a stable AUC. Smaller data → use resampling for everything and treat the test set as a formality.
+- `strata`: keeps the outcome prevalence equal in both halves. **Always**, for outcomes under ~30 %.
+- `set.seed()`: so you and your co-author get the same split.
+- Time-ordered data (forecasting)? Split by **time**, not at random: `initial_time_split()`.
+- Clustered data (patients within clinics)? Split by **cluster**: `group_initial_split()`.
+
+::: {.notes}
+Ask: "if you split patients at random but the same patient has 3 visits, what happens?" → leakage across split; group_initial_split.
+:::
+
+## The test set is a one-shot exam
+
+Every time you look at the test set and change something, it stops being a test set.
+
+- Model choice, hyperparameters, threshold, imputation strategy, which variables to keep → decided on **resamples of the training set** (Day 2).
+- The test set answers one question, once: *"how well does the final pipeline do on data it never influenced?"*
+- "We tried 12 models and report the best test AUC" is the single most common way papers overstate performance.
+
+# 3 · Recipes {.section-slide .center background-color="#0b2545" background-gradient="linear-gradient(135deg, #0b2545 0%, #0f4c6e 55%, #13838f 100%)"}
+
+## A recipe is a plan, not a result
+
+```{r}
+dm_rec <- recipe(undx_dm ~ ., data = dm_train) |>
+  step_impute_median(all_numeric_predictors()) |>   # learn medians
+  step_impute_mode(all_nominal_predictors()) |>     # learn modes
+  step_dummy(all_nominal_predictors()) |>           # learn factor levels -> 0/1 columns
+  step_zv(all_predictors()) |>                      # learn which columns are constant
+  step_normalize(all_numeric_predictors())          # learn means and SDs
+```
+
+| Verb | What it does | Who calls it |
+|---|---|---|
+| `recipe()` + `step_*()` | declares the plan; nothing computed | you |
+| `prep()` | **estimates** the plan from the training data (medians, levels, means, SDs) | the workflow, on the analysis set of each fold |
+| `bake()` | **applies** the estimated plan to any data (training, test, next year's patients) | the workflow, at predict time |
+
+::: {.key}
+The test set is baked with **training** medians and SDs. The recipe is how tidymodels makes it structurally impossible to leak the test set into pre-processing.
+:::
+
+## Steps you will actually use
+
+| Need | Step | Notes |
+|---|---|---|
+| Missing numeric | `step_impute_median()`, `_mean()`, `_knn()`, `_bag()`, `_linear()` | median: fast, robust. knn/bag: better, slower. |
+| Missing categorical | `step_impute_mode()`, or `step_unknown()` (a "missing" level) | unknown level keeps information |
+| Remember that it *was* missing | `step_indicate_na()` | **before** imputation; informative missingness is a predictor |
+| Factor → numbers | `step_dummy()` (k−1 columns) / `one_hot = TRUE` (k columns) | trees don't need it; xgboost needs numeric; glm wants k−1 |
+| Rare levels | `step_other(threshold = 0.05)` | before `step_dummy` |
+| Unseen levels at predict time | `step_novel()` | insurance for deployment |
+| Constant / near-constant columns | `step_zv()`, `step_nzv()` | after dummies |
+| Exact duplicates / linear combinations | `step_lincomb()` | catches `pa` ≡ `pa_3cat`; otherwise GLMs go rank-deficient |
+| Scale | `step_normalize()` (z), `step_range()` (0–1) | essential for SVM, neural nets, glmnet; harmless for trees |
+| Skew | `step_YeoJohnson()`, `step_log()` | helps linear models, irrelevant to trees |
+| Interactions, splines | `step_interact()`, `step_ns()` | give a GLM what trees find for free |
+| Dimension reduction | `step_pca()`, `step_corr()` | correlated predictor blocks |
+| Class imbalance | `themis::step_smote()`, `step_downsample()` | Day 2 — mostly don't |
+
+## Step order matters
+
+1. `step_indicate_na()` — before anything removes the NAs
+2. `step_impute_*()` — before dummies (mode on factors) and before scaling (medians on raw units)
+3. `step_other()`, `step_novel()` — before `step_dummy()`
+4. `step_dummy()`
+5. `step_interact()`, `step_ns()` — on the dummy columns
+6. `step_zv()` / `step_nzv()` — after dummies (a rare level can produce an all-zero column)
+7. `step_normalize()` — last, so everything the model sees is on one scale
+8. `step_smote()` / `step_downsample()` — last of all, only on training (`skip = TRUE` is the default)
+
+Selectors: `all_numeric_predictors()`, `all_nominal_predictors()`, `all_outcomes()`, `starts_with("sex_")`, or bare column names.
+
+## Which engines need what
+
+| Engine | Dummies? | Scaling? | Handles NA itself? |
+|---|---|---|---|
+| `glm` / `glmnet` | yes (k−1) | glmnet: yes | no |
+| `rpart`, `ranger` | no (factors fine) | no | rpart: surrogate splits; ranger: no |
+| `xgboost` | **yes, numeric only** | no | yes (learns a default direction) |
+| `kernlab` (SVM) | yes | **yes** | no |
+| `nnet`, `brulee` | yes | **yes** | no |
+
+One recipe with impute + dummy + zv + normalize works for all of them. That is why `dm_rec` looks the way it does.
+
+# 4 · Workflows {.section-slide .center background-color="#0b2545" background-gradient="linear-gradient(135deg, #0b2545 0%, #0f4c6e 55%, #13838f 100%)"}
+
+## Workflow = recipe + model, one object
+
+```{r}
+lr_spec <- logistic_reg() |> set_engine("glm") |> set_mode("classification")
+
+lr_wf  <- workflow(dm_rec, lr_spec)       # or workflow() |> add_recipe(dm_rec) |> add_model(lr_spec)
+lr_fit <- fit(lr_wf, data = dm_train)     # preps the recipe on dm_train, bakes, fits glm
+
+augment(lr_fit, new_data = dm_test)       # dm_test + .pred_class + .pred_Yes + .pred_No
+predict(lr_fit, dm_test, type = "prob")   # just the probabilities
+tidy(lr_fit, exponentiate = TRUE)         # the odds ratios you know
+```
+
+- The fitted workflow **carries its pre-processing**. Save it, load it next year, give it raw data: it imputes with the 2026 medians and scales with the 2026 SDs. That is deployment-safe.
+- Swap the model: `lr_wf |> update_model(rand_forest() |> set_engine("ranger") |> set_mode("classification"))`.
+- Swap the recipe: `update_recipe()`.
+
+# 5 · Target leakage {.section-slide .center background-color="#5f1216" background-gradient="linear-gradient(135deg, #5f1216 0%, #a3262b 55%, #c1292e 100%)"}
+
+## Leakage: when the answer is in the inputs
+
+::: {.leak}
+**Target leakage** = a predictor that would not be available — or would not have that value — at the moment the prediction is meant to be made, because it is caused by, measured with, or defined by the outcome.
+:::
+
+In NHMS, *undiagnosed diabetes* **is defined as** "no known diagnosis **and** screening blood sugar ≥ threshold".
+So `rbs` → `undx_dm` is not prediction. It is reading the label off the back of the card.
+
+| Leak | Looks like | Why it is a leak |
+|---|---|---|
+| `rbs` → undiagnosed DM | AUC 0.98 | the measurement **defines** the outcome |
+| "received metformin" → diabetes | AUC 0.99 | treatment happens **after** diagnosis |
+| "days in ICU" → in-hospital death | strong | known only at the **end** |
+| patient ID / clinic code | mysteriously useful | encodes site, time, or case-mix |
+| imputed with the full data, then split | +0.01–0.03 AUC | test rows shaped the imputation |
+| same patient in train and test | +0.02–0.10 | memorises the person, not the pattern |
+
+## The five-question leakage audit
+
+Before you fit anything, for every predictor:
+
+1. **When** is this value recorded relative to the outcome?
+2. **Would I have it** at the moment I want to use the model (community, clinic, admission)?
+3. **Is it part of the definition** of the outcome, or of its confirmation?
+4. **Does it change because of** the outcome or its treatment?
+5. **Does it encode** who/where/when rather than a biological or behavioural fact?
+
+A "yes" to 3, 4 or 5, or a "no" to 2, means it comes out — however much AUC it costs.
+
+While you are there: **recodes of the same thing** (`pa` is just `pa_3cat == "Low"`) — keep one. Two copies add nothing and break linear models.
+
+::: {.good}
+Our honest set for the diabetes question: everything a health volunteer could collect **without a blood test or a BP cuff**. Out: `rbs`, `rchol`, `sys`, `dys`, `id`, the other two outcomes.
+:::
+
+## What we will see in the demo
+
+```{r}
+# naive: everything in
+augment(naive_fit, naive_test) |> roc_auc(undx_dm, .pred_Yes)   #> 0.98   <- alarm
+tidy(naive_fit) |> arrange(desc(abs(statistic)))                  #> rbs on top
+
+# honest: drop the measurements that define the outcome
+dm_data <- nhms |> select(-id, -undx_hpt, -undx_chol, -rbs, -sys, -dys, -rchol)
+augment(lr_fit, dm_test) |> roc_auc(undx_dm, .pred_Yes)          #> ~0.85  <- believable, useful
+```
+
+::: {.say}
+Rule of thumb for screening models built from survey-type data: an AUC above ~0.90 is a reason to audit, not to publish.
+:::
+
+## Metrics we will carry through both days
+
+```{r}
+cls_metrics <- metric_set(roc_auc, pr_auc, brier_class, accuracy, sensitivity, specificity)
+cls_metrics(preds, truth = undx_dm, estimate = .pred_class, .pred_Yes)
+```
+
+- `roc_auc` — discrimination, threshold-free (the comparison metric)
+- `pr_auc` — discrimination weighted toward the rare class
+- `brier_class` — probability accuracy = calibration + discrimination (lower is better)
+- `accuracy` — present so you can watch it mislead you at 11.6 % prevalence
+- `sensitivity`, `specificity` — at the default 0.5 threshold, for now (Day 2 fixes the threshold)
+
+## → Tutorial 1
+
+**Live coding** (`tutorials/01_pipeline.qmd` §1–9): type along, 50 min.
+
+**Your turn** (same page, 12.00–12.45, pairs):
+
+- The leakage audit table
+- Two recipes (median/mode vs kNN-imputation + missing-indicator), resampled on the same folds
+- Stretch: rare levels, a hand-made sex × waist interaction, lasso
+
+**Debrief 12.45**: the three questions at the bottom of the exercise.

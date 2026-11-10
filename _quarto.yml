@@ -1,0 +1,89 @@
+project:
+  type: website
+  output-dir: docs                      # GitHub Pages: Settings > Pages > "Deploy from a branch" > main, /docs
+  execute-dir: project                  # code in tutorials/ runs from the project root, so "data/..." and "R/..." paths work
+  render:
+    - index.qmd
+    - agenda.qmd
+    - setup.qmd
+    - "tutorials/*.qmd"
+    - "slides/*.qmd"
+    - data/data_dictionary.md
+    - "!machine_learning_sbdr2023/"     # the 2023 project lives alongside for reference; never rendered
+    - "!data-raw/"
+    - "!instructor/"
+    - "!demos/"
+
+website:
+  title: "Predictive Intelligence in R"
+  description: "CePH R Workshop Series 5 · Universiti Malaya · 11–12 November 2026"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: agenda.qmd
+        text: Agenda
+      - href: setup.qmd
+        text: Setup
+      - text: Tutorials
+        menu:
+          - text: "T1 · The pipeline: split, recipe, workflow, baseline"
+            href: tutorials/01_pipeline.qmd
+          - text: "T2 · Decision trees and random forests"
+            href: tutorials/02_random_forests.qmd
+          - text: "T3 · Support vector machines"
+            href: tutorials/03_svm.qmd
+          - text: "T4 · Gradient boosting with XGBoost (+ the bake-off)"
+            href: tutorials/04_xgboost.qmd
+          - text: "T5 · Resampling and tuning"
+            href: tutorials/05_tuning.qmd
+          - text: "T6 · Evaluation, calibration and explanation"
+            href: tutorials/06_evaluation.qmd
+          - text: "T7 · Neural networks"
+            href: tutorials/07_neural_networks.qmd
+      - text: Slides
+        menu:
+          - text: "01 · Learning how machines learn"
+            href: slides/01_ml_foundations.qmd
+          - text: "02 · The tidymodels pipeline"
+            href: slides/02_pipeline.qmd
+          - text: "03 · Decision trees and random forests"
+            href: slides/03_random_forests.qmd
+          - text: "04 · Support vector machines"
+            href: slides/04_svm.qmd
+          - text: "05 · Gradient boosting and XGBoost"
+            href: slides/05_xgboost.qmd
+          - text: "06 · Resampling and tuning"
+            href: slides/06_resampling_tuning.qmd
+          - text: "07 · Evaluation and explainability"
+            href: slides/07_evaluation_explainability.qmd
+          - text: "08 · Neural networks"
+            href: slides/08_neural_networks.qmd
+          - text: "09 · Verdict and where next"
+            href: slides/09_wrapup.qmd
+    right:
+      - icon: github
+        href: https://github.com/vivekjason
+  page-footer: "Vivek Jason Jayaraj · Centre for Population Health (CePH), Universiti Malaya · Materials for workshop use"
+
+format:
+  html:
+    theme: [cosmo, styles.scss]
+    toc: true
+    toc-depth: 3
+    toc-location: left
+    code-copy: true
+    code-overflow: wrap
+    code-tools: true
+    df-print: paged
+    fig-width: 8
+    fig-height: 5
+    fig-dpi: 120
+
+execute:
+  freeze: auto          # tutorials are heavy; render once, re-render only when the source changes
+  warning: false
+  message: false
+  cache: false
+
+editor: source
