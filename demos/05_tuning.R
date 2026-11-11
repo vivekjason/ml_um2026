@@ -1,5 +1,5 @@
 # =============================================================================
-# DEMO 5 · Resampling and tuning  (Session 6 · ~25 min live)
+# DEMO 5 · Resampling and tuning  (Session 6 · ~20 min live)
 # ONE idea: so far we PICKED the hyperparameters by hand. Mark them tune(), let the computer
 # try a grid of values on the folds, and keep the best. The PATTERN is identical for every
 # family - only WHICH knobs you tune changes.
@@ -7,6 +7,10 @@
 # =============================================================================
 
 source("R/prep_nhms.R")
+
+# These are DELIBERATELY small 2x2 grids so all four tunes finish in ~2 minutes live.
+# For real work you widen the grid (levels = 5+) and let racing drop the losers early (Tutorial 5).
+# To speed any of these up: library(future); plan(multisession)  before the tune_grid() call.
 
 # The pattern (watch it repeat four times):
 #   1. spec with tune() on the knobs     2. a small grid of values
@@ -16,35 +20,34 @@ source("R/prep_nhms.R")
 xgb_spec <- boost_tree(trees = 500, learn_rate = tune(), tree_depth = tune()) |>
   set_engine("xgboost") |> set_mode("classification")
 xgb_grid <- grid_regular(learn_rate(range = c(-2, -0.5)),   # 0.01 .. ~0.3 (dials uses the log10 scale)
-                         tree_depth(range = c(2L, 6L)), levels = 3)   # 3 x 3 = 9 combinations
+                         tree_depth(range = c(2L, 6L)), levels = 2)
 set.seed(2026)
 xgb_tuned <- tune_grid(workflow(dm_rec, xgb_spec), dm_folds, grid = xgb_grid, metrics = cls_metrics)
-show_best(xgb_tuned, metric = "roc_auc", n = 3)
+show_best(xgb_tuned, metric = "roc_auc", n = 4)
 
 # ---- 2 | Random forest: tune mtry (columns per split) and min_n (leaf size) -----------------
 rf_spec <- rand_forest(trees = 500, mtry = tune(), min_n = tune()) |>
   set_engine("ranger") |> set_mode("classification")
-rf_grid <- grid_regular(mtry(range = c(2L, 8L)), min_n(range = c(5L, 40L)), levels = 3)
+rf_grid <- grid_regular(mtry(range = c(2L, 8L)), min_n(range = c(5L, 40L)), levels = 2)
 set.seed(2026)
 rf_tuned <- tune_grid(workflow(dm_rec, rf_spec), dm_folds, grid = rf_grid, metrics = cls_metrics)
-show_best(rf_tuned, metric = "roc_auc", n = 3)
+show_best(rf_tuned, metric = "roc_auc", n = 4)
 
-# ---- 3 | SVM (RBF): tune cost and rbf_sigma -------------------------------------------------
-# SVM is the SLOW family - this grid is deliberately tiny (2 x 2 = 4). Start it, then talk.
+# ---- 3 | SVM (RBF): tune cost and rbf_sigma (the slow family - small, cheap grid) -----------
 svm_spec <- svm_rbf(cost = tune(), rbf_sigma = tune()) |>
   set_engine("kernlab") |> set_mode("classification")
-svm_grid <- grid_regular(cost(range = c(-3, 3)), rbf_sigma(range = c(-4, -1)), levels = 2)
+svm_grid <- grid_regular(cost(range = c(-3, 0)), rbf_sigma(range = c(-4, -2)), levels = 2)   # low cost = fast
 set.seed(2026)
 svm_tuned <- tune_grid(workflow(dm_rec, svm_spec), dm_folds, grid = svm_grid, metrics = cls_metrics)
-show_best(svm_tuned, metric = "roc_auc", n = 3)
+show_best(svm_tuned, metric = "roc_auc", n = 4)
 
 # ---- 4 | Neural network (nnet): tune hidden_units (width) and penalty (weight decay) --------
 nn_spec <- mlp(hidden_units = tune(), penalty = tune(), epochs = 200) |>
   set_engine("nnet", MaxNWts = 5000) |> set_mode("classification")
-nn_grid <- grid_regular(hidden_units(range = c(2L, 12L)), penalty(range = c(-4, -0.5)), levels = 3)
+nn_grid <- grid_regular(hidden_units(range = c(2L, 8L)), penalty(range = c(-4, -1)), levels = 2)
 set.seed(2026)
 nn_tuned <- tune_grid(workflow(dm_rec, nn_spec), dm_folds, grid = nn_grid, metrics = cls_metrics)
-show_best(nn_tuned, metric = "roc_auc", n = 3)
+show_best(nn_tuned, metric = "roc_auc", n = 4)
 
 # ---- Lock in a winner (example: the tuned XGBoost) -----------------------------------------
 best_xgb  <- select_best(xgb_tuned, metric = "roc_auc")
