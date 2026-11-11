@@ -86,6 +86,116 @@ trees. Do not tune both freely.
 Cousins: **LightGBM** (leaf-wise growth, very fast; `bonsai`), **CatBoost** (ordered boosting, native categoricals).
 Same ideas, different engineering.
 
+# Inside one tree, by hand {.section-slide .center background-color="#0b2545" background-gradient="linear-gradient(135deg, #0b2545 0%, #0f4c6e 55%, #13838f 100%)"}
+
+## The toy problem: a drug that only works in the middle
+
+:::: {.columns}
+::: {.column width="55%"}
+Four patients. The drug helps at **medium** doses, not at the extremes — so no straight line separates Yes from No.
+
+| Dosage | Effective? | obs | residual = obs − 0.5 |
+|---|---|---|---|
+| low    | No  | 0 | **−0.5** |
+| med-lo | Yes | 1 | **+0.5** |
+| med-hi | Yes | 1 | **+0.5** |
+| high   | No  | 0 | **−0.5** |
+:::
+::: {.column width="45%"}
+::: {.key}
+Everyone starts with the **same** guess: probability **0.5** (log-odds 0). The **residual** is how wrong we are: *observed − predicted*.
+:::
+:::
+::::
+
+::: {.say}
+This is the StatQuest "XGBoost Part 2: Classification" example. We'll build the first tree with real numbers.
+:::
+
+## Similarity score: how "pure" is a group of residuals?
+
+$$\text{Similarity}=\frac{\left(\sum \text{residual}\right)^2}{\sum p(1-p)+\lambda}\qquad(\lambda=0\text{ for now})$$
+
+The denominator $\sum p(1-p)$ is the **Cover** — how much information the group carries. At $p=0.5$ each person adds $0.25$.
+
+**Root (all four residuals):**
+$$\text{Sim}=\frac{(-0.5+0.5+0.5-0.5)^2}{4(0.25)+0}=\frac{0}{1}=\mathbf{0}$$
+
+Residuals that **cancel** → similarity 0 (a useless group). Residuals that are **large and agree** → high similarity. The tree's job is to split the pile into agreeing groups.
+
+## Gain: is a split worth making?
+
+Split the lowest dose (the first **No**) off from the other three:
+
+| | residuals | $\sum p(1-p)$ | Similarity |
+|---|---|---|---|
+| Left leaf  | −0.5 | 0.25 | $(-0.5)^2/0.25=\mathbf{1.00}$ |
+| Right leaf | +0.5, +0.5, −0.5 | 0.75 | $(0.5)^2/0.75=\mathbf{0.33}$ |
+
+$$\text{Gain}=\text{Sim}_{\text{left}}+\text{Sim}_{\text{right}}-\text{Sim}_{\text{root}}=1.00+0.33-0=\mathbf{1.33}$$
+
+XGBoost tries **every** threshold and keeps the biggest Gain — this is what replaces Gini.
+
+::: {.say}
+Cover check: `min_child_weight` (default 1) is the smallest Cover a leaf may have. At p≈0.5 that's ~4 people — so on a toy this small you'd lower it; on real data it just means "no micro-leaves."
+:::
+
+## λ (lambda): the regularisation dial
+
+Put **λ = 1** into every denominator and redo the same split:
+
+| | Similarity (λ=0) | Similarity (λ=1) |
+|---|---|---|
+| Left leaf  | $0.25/0.25=1.00$ | $0.25/1.25=\mathbf{0.20}$ |
+| Right leaf | $0.25/0.75=0.33$ | $0.25/1.75=\mathbf{0.14}$ |
+| **Gain**   | **1.33** | **0.34** |
+
+::: {.key}
+λ shrinks every similarity → **shrinks the Gain** → fewer splits look worthwhile, and (next slide) the steps get smaller. **λ = "don't trust small groups."**
+:::
+
+## γ (gamma): prune the weak splits
+
+Rule: **keep a split only if Gain > γ.** (Equivalently, prune if $\text{Gain}-\gamma<0$.)
+
+With our Gain = **1.33** (and λ=0):
+
+| γ | Gain − γ | Decision |
+|---|---|---|
+| 0.0 | +1.33 | keep |
+| 1.0 | +0.33 | keep |
+| **1.5** | **−0.17** | **prune** — collapse the split back to a leaf |
+
+γ is your "**minimum worthwhile improvement**." Bigger γ → simpler tree. In `tidymodels` it's `loss_reduction`.
+
+## Output value, then η (eta): take the step
+
+The leaf's **output** uses the same numerator, but **not squared**:
+$$\text{Output}=\frac{\sum \text{residual}}{\sum p(1-p)+\lambda}\;\Rightarrow\; \text{Left}=\frac{-0.5}{0.25}=\mathbf{-2.0},\quad \text{Right}=\frac{0.5}{0.75}=\mathbf{+0.67}$$
+
+Update each person, shrunk by the learning rate **η = 0.3**: $\;\log(\text{odds})_{\text{new}}=\log(\text{odds})_{\text{old}}+\eta\cdot\text{Output}$, then $p=\dfrac{1}{1+e^{-\log(\text{odds})}}$.
+
+| Leaf | new log-odds | new probability |
+|---|---|---|
+| Left (the No)  | $0+0.3(-2.0)=-0.6$ | $1/(1+e^{0.6})=\mathbf{0.35}$ — pushed toward No |
+| Right (mostly Yes) | $0+0.3(0.67)=+0.20$ | $1/(1+e^{-0.2})=\mathbf{0.55}$ — nudged toward Yes |
+
+Now recompute residuals from these new probabilities, grow the next tree, repeat hundreds of times.
+
+## The five dials, from the worked example
+
+| Dial | `tidymodels` | What it did above | Turn it **up** → |
+|---|---|---|---|
+| **λ** lambda | `penalty` | shrank similarity 1.00 → 0.20 | fewer/weaker splits, smaller steps |
+| **γ** gamma | `loss_reduction` | pruned the split once Gain < γ | simpler tree |
+| **η** eta | `learn_rate` | scaled the step by 0.3 | faster, but overshoots |
+| depth | `tree_depth` | how many splits deep we go | more interactions, more overfit |
+| cover | `min_n` | min Cover $\sum p(1-p)$ per leaf | bigger leaves, less overfit |
+
+::: {.key}
+Every "knob" is just a number in these two formulas. That's all XGBoost is — Gini replaced by **Gain on a regularised loss**, repeated in small steps.
+:::
+
 ## Regularisation in one slide (needed again at 14.00)
 
 - **L2 (ridge, λ, "penalty")**: shrink all weights toward zero; none become exactly zero. Smoother, more stable.

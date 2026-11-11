@@ -188,10 +188,6 @@
       margin-right: 0; 
     }
   </style>
-  <link href="../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
-
-  <script src="../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
-
 </head>
 <body class="quarto-light">
   <div class="reveal">
@@ -345,6 +341,252 @@ Vivek Jason Jayaraj · Centre for Population Health, Universiti Malaya
 </tbody>
 </table>
 <p>Cousins: <strong>LightGBM</strong> (leaf-wise growth, very fast; <code>bonsai</code>), <strong>CatBoost</strong> (ordered boosting, native categoricals). Same ideas, different engineering.</p>
+</section></section>
+<section>
+<section id="inside-one-tree-by-hand" class="title-slide slide level1 section-slide center" data-background-color="#0b2545" data-background-gradient="linear-gradient(135deg, #0b2545 0%, #0f4c6e 55%, #13838f 100%)">
+<h1>Inside one tree, by hand</h1>
+
+</section>
+<section id="the-toy-problem-a-drug-that-only-works-in-the-middle" class="slide level2">
+<h2>The toy problem: a drug that only works in the middle</h2>
+<div class="columns">
+<div class="column" style="width:55%;">
+<p>Four patients. The drug helps at <strong>medium</strong> doses, not at the extremes — so no straight line separates Yes from No.</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Dosage</th>
+<th>Effective?</th>
+<th>obs</th>
+<th>residual = obs − 0.5</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>low</td>
+<td>No</td>
+<td>0</td>
+<td><strong>−0.5</strong></td>
+</tr>
+<tr class="even">
+<td>med-lo</td>
+<td>Yes</td>
+<td>1</td>
+<td><strong>+0.5</strong></td>
+</tr>
+<tr class="odd">
+<td>med-hi</td>
+<td>Yes</td>
+<td>1</td>
+<td><strong>+0.5</strong></td>
+</tr>
+<tr class="even">
+<td>high</td>
+<td>No</td>
+<td>0</td>
+<td><strong>−0.5</strong></td>
+</tr>
+</tbody>
+</table>
+</div><div class="column" style="width:45%;">
+<div class="key">
+<p>Everyone starts with the <strong>same</strong> guess: probability <strong>0.5</strong> (log-odds 0). The <strong>residual</strong> is how wrong we are: <em>observed − predicted</em>.</p>
+</div>
+</div></div>
+<div class="say">
+<p>This is the StatQuest “XGBoost Part 2: Classification” example. We’ll build the first tree with real numbers.</p>
+</div>
+</section>
+<section id="similarity-score-how-pure-is-a-group-of-residuals" class="slide level2">
+<h2>Similarity score: how “pure” is a group of residuals?</h2>
+<p><span class="math display">\[\text{Similarity}=\frac{\left(\sum \text{residual}\right)^2}{\sum p(1-p)+\lambda}\qquad(\lambda=0\text{ for now})\]</span></p>
+<p>The denominator <span class="math inline">\(\sum p(1-p)\)</span> is the <strong>Cover</strong> — how much information the group carries. At <span class="math inline">\(p=0.5\)</span> each person adds <span class="math inline">\(0.25\)</span>.</p>
+<p><strong>Root (all four residuals):</strong> <span class="math display">\[\text{Sim}=\frac{(-0.5+0.5+0.5-0.5)^2}{4(0.25)+0}=\frac{0}{1}=\mathbf{0}\]</span></p>
+<p>Residuals that <strong>cancel</strong> → similarity 0 (a useless group). Residuals that are <strong>large and agree</strong> → high similarity. The tree’s job is to split the pile into agreeing groups.</p>
+</section>
+<section id="gain-is-a-split-worth-making" class="slide level2">
+<h2>Gain: is a split worth making?</h2>
+<p>Split the lowest dose (the first <strong>No</strong>) off from the other three:</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th></th>
+<th>residuals</th>
+<th><span class="math inline">\(\sum p(1-p)\)</span></th>
+<th>Similarity</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Left leaf</td>
+<td>−0.5</td>
+<td>0.25</td>
+<td><span class="math inline">\((-0.5)^2/0.25=\mathbf{1.00}\)</span></td>
+</tr>
+<tr class="even">
+<td>Right leaf</td>
+<td>+0.5, +0.5, −0.5</td>
+<td>0.75</td>
+<td><span class="math inline">\((0.5)^2/0.75=\mathbf{0.33}\)</span></td>
+</tr>
+</tbody>
+</table>
+<p><span class="math display">\[\text{Gain}=\text{Sim}_{\text{left}}+\text{Sim}_{\text{right}}-\text{Sim}_{\text{root}}=1.00+0.33-0=\mathbf{1.33}\]</span></p>
+<p>XGBoost tries <strong>every</strong> threshold and keeps the biggest Gain — this is what replaces Gini.</p>
+<div class="say">
+<p>Cover check: <code>min_child_weight</code> (default 1) is the smallest Cover a leaf may have. At p≈0.5 that’s ~4 people — so on a toy this small you’d lower it; on real data it just means “no micro-leaves.”</p>
+</div>
+</section>
+<section id="λ-lambda-the-regularisation-dial" class="slide level2">
+<h2>λ (lambda): the regularisation dial</h2>
+<p>Put <strong>λ = 1</strong> into every denominator and redo the same split:</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th></th>
+<th>Similarity (λ=0)</th>
+<th>Similarity (λ=1)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Left leaf</td>
+<td><span class="math inline">\(0.25/0.25=1.00\)</span></td>
+<td><span class="math inline">\(0.25/1.25=\mathbf{0.20}\)</span></td>
+</tr>
+<tr class="even">
+<td>Right leaf</td>
+<td><span class="math inline">\(0.25/0.75=0.33\)</span></td>
+<td><span class="math inline">\(0.25/1.75=\mathbf{0.14}\)</span></td>
+</tr>
+<tr class="odd">
+<td><strong>Gain</strong></td>
+<td><strong>1.33</strong></td>
+<td><strong>0.34</strong></td>
+</tr>
+</tbody>
+</table>
+<div class="key">
+<p>λ shrinks every similarity → <strong>shrinks the Gain</strong> → fewer splits look worthwhile, and (next slide) the steps get smaller. <strong>λ = “don’t trust small groups.”</strong></p>
+</div>
+</section>
+<section id="γ-gamma-prune-the-weak-splits" class="slide level2">
+<h2>γ (gamma): prune the weak splits</h2>
+<p>Rule: <strong>keep a split only if Gain &gt; γ.</strong> (Equivalently, prune if <span class="math inline">\(\text{Gain}-\gamma&lt;0\)</span>.)</p>
+<p>With our Gain = <strong>1.33</strong> (and λ=0):</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>γ</th>
+<th>Gain − γ</th>
+<th>Decision</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0.0</td>
+<td>+1.33</td>
+<td>keep</td>
+</tr>
+<tr class="even">
+<td>1.0</td>
+<td>+0.33</td>
+<td>keep</td>
+</tr>
+<tr class="odd">
+<td><strong>1.5</strong></td>
+<td><strong>−0.17</strong></td>
+<td><strong>prune</strong> — collapse the split back to a leaf</td>
+</tr>
+</tbody>
+</table>
+<p>γ is your “<strong>minimum worthwhile improvement</strong>.” Bigger γ → simpler tree. In <code>tidymodels</code> it’s <code>loss_reduction</code>.</p>
+</section>
+<section id="output-value-then-η-eta-take-the-step" class="slide level2">
+<h2>Output value, then η (eta): take the step</h2>
+<p>The leaf’s <strong>output</strong> uses the same numerator, but <strong>not squared</strong>: <span class="math display">\[\text{Output}=\frac{\sum \text{residual}}{\sum p(1-p)+\lambda}\;\Rightarrow\; \text{Left}=\frac{-0.5}{0.25}=\mathbf{-2.0},\quad \text{Right}=\frac{0.5}{0.75}=\mathbf{+0.67}\]</span></p>
+<p>Update each person, shrunk by the learning rate <strong>η = 0.3</strong>: <span class="math inline">\(\;\log(\text{odds})_{\text{new}}=\log(\text{odds})_{\text{old}}+\eta\cdot\text{Output}\)</span>, then <span class="math inline">\(p=\dfrac{1}{1+e^{-\log(\text{odds})}}\)</span>.</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Leaf</th>
+<th>new log-odds</th>
+<th>new probability</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Left (the No)</td>
+<td><span class="math inline">\(0+0.3(-2.0)=-0.6\)</span></td>
+<td><span class="math inline">\(1/(1+e^{0.6})=\mathbf{0.35}\)</span> — pushed toward No</td>
+</tr>
+<tr class="even">
+<td>Right (mostly Yes)</td>
+<td><span class="math inline">\(0+0.3(0.67)=+0.20\)</span></td>
+<td><span class="math inline">\(1/(1+e^{-0.2})=\mathbf{0.55}\)</span> — nudged toward Yes</td>
+</tr>
+</tbody>
+</table>
+<p>Now recompute residuals from these new probabilities, grow the next tree, repeat hundreds of times.</p>
+</section>
+<section id="the-five-dials-from-the-worked-example" class="slide level2">
+<h2>The five dials, from the worked example</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dial</th>
+<th><code>tidymodels</code></th>
+<th>What it did above</th>
+<th>Turn it <strong>up</strong> →</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>λ</strong> lambda</td>
+<td><code>penalty</code></td>
+<td>shrank similarity 1.00 → 0.20</td>
+<td>fewer/weaker splits, smaller steps</td>
+</tr>
+<tr class="even">
+<td><strong>γ</strong> gamma</td>
+<td><code>loss_reduction</code></td>
+<td>pruned the split once Gain &lt; γ</td>
+<td>simpler tree</td>
+</tr>
+<tr class="odd">
+<td><strong>η</strong> eta</td>
+<td><code>learn_rate</code></td>
+<td>scaled the step by 0.3</td>
+<td>faster, but overshoots</td>
+</tr>
+<tr class="even">
+<td>depth</td>
+<td><code>tree_depth</code></td>
+<td>how many splits deep we go</td>
+<td>more interactions, more overfit</td>
+</tr>
+<tr class="odd">
+<td>cover</td>
+<td><code>min_n</code></td>
+<td>min Cover <span class="math inline">\(\sum p(1-p)\)</span> per leaf</td>
+<td>bigger leaves, less overfit</td>
+</tr>
+</tbody>
+</table>
+<div class="key">
+<p>Every “knob” is just a number in these two formulas. That’s all XGBoost is — Gini replaced by <strong>Gain on a regularised loss</strong>, repeated in small steps.</p>
+</div>
 </section>
 <section id="regularisation-in-one-slide-needed-again-at-14.00" class="slide level2">
 <h2>Regularisation in one slide (needed again at 14.00)</h2>
@@ -770,6 +1012,82 @@ Vivek Jason Jayaraj · Centre for Population Health, Universiti Malaya
         ]
       });
     </script>
+    
+
+    <script>
+
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+
+      // slide changes (different for each slide format).
+
+      (function () {
+
+        // dispatch for htmlwidgets
+
+        function fireSlideEnter() {
+
+          const event = window.document.createEvent("Event");
+
+          event.initEvent("slideenter", true, true);
+
+          window.document.dispatchEvent(event);
+
+        }
+
+    
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+
+          fireSlideEnter();
+
+    
+
+          // dispatch for shiny
+
+          if (window.jQuery) {
+
+            if (previousSlide) {
+
+              window.jQuery(previousSlide).trigger("hidden");
+
+            }
+
+            if (currentSlide) {
+
+              window.jQuery(currentSlide).trigger("shown");
+
+            }
+
+          }
+
+        }
+
+    
+
+        // hookup for slidy
+
+        if (window.w3c_slidy) {
+
+          window.w3c_slidy.add_observer(function (slide_num) {
+
+            // slide_num starts at position 1
+
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+
+          });
+
+        }
+
+    
+
+      })();
+
+    </script>
+
+    
+
     <script id="quarto-html-after-body" type="application/javascript">
       window.document.addEventListener("DOMContentLoaded", function (event) {
         const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")

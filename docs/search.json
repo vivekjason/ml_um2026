@@ -1540,6 +1540,55 @@
     "text": "XGBoost: gradient boosting, engineered\n\n\n\n\n\n\n\nWhat\nWhy it matters\n\n\n\n\nRegularised objective — λ on leaf weights, γ to prune splits whose gain is too small\nless overfitting than plain GBM; the knobs loss_reduction (γ) and penalty (λ)\n\n\nSimilarity score / gain instead of Gini\nsplits chosen by how much they improve the regularised loss\n\n\nApproximate split finding (weighted quantile sketch)\nfast on large n\n\n\nSparsity-aware splits\nlearns a default direction for missing values — no imputation needed\n\n\nRow and column subsampling\nforest-style decorrelation inside boosting (sample_size, mtry)\n\n\nParallel, cache-aware\nuses all your cores\n\n\n\nCousins: LightGBM (leaf-wise growth, very fast; bonsai), CatBoost (ordered boosting, native categoricals). Same ideas, different engineering."
   },
   {
+    "objectID": "slides/05_xgboost.html#the-toy-problem-a-drug-that-only-works-in-the-middle",
+    "href": "slides/05_xgboost.html#the-toy-problem-a-drug-that-only-works-in-the-middle",
+    "title": "Gradient boosting and XGBoost",
+    "section": "The toy problem: a drug that only works in the middle",
+    "text": "The toy problem: a drug that only works in the middle\n\n\nFour patients. The drug helps at medium doses, not at the extremes — so no straight line separates Yes from No.\n\n\n\nDosage\nEffective?\nobs\nresidual = obs − 0.5\n\n\n\n\nlow\nNo\n0\n−0.5\n\n\nmed-lo\nYes\n1\n+0.5\n\n\nmed-hi\nYes\n1\n+0.5\n\n\nhigh\nNo\n0\n−0.5\n\n\n\n\n\nEveryone starts with the same guess: probability 0.5 (log-odds 0). The residual is how wrong we are: observed − predicted.\n\n\n\nThis is the StatQuest “XGBoost Part 2: Classification” example. We’ll build the first tree with real numbers."
+  },
+  {
+    "objectID": "slides/05_xgboost.html#similarity-score-how-pure-is-a-group-of-residuals",
+    "href": "slides/05_xgboost.html#similarity-score-how-pure-is-a-group-of-residuals",
+    "title": "Gradient boosting and XGBoost",
+    "section": "Similarity score: how “pure” is a group of residuals?",
+    "text": "Similarity score: how “pure” is a group of residuals?\n\\[\\text{Similarity}=\\frac{\\left(\\sum \\text{residual}\\right)^2}{\\sum p(1-p)+\\lambda}\\qquad(\\lambda=0\\text{ for now})\\]\nThe denominator \\(\\sum p(1-p)\\) is the Cover — how much information the group carries. At \\(p=0.5\\) each person adds \\(0.25\\).\nRoot (all four residuals): \\[\\text{Sim}=\\frac{(-0.5+0.5+0.5-0.5)^2}{4(0.25)+0}=\\frac{0}{1}=\\mathbf{0}\\]\nResiduals that cancel → similarity 0 (a useless group). Residuals that are large and agree → high similarity. The tree’s job is to split the pile into agreeing groups."
+  },
+  {
+    "objectID": "slides/05_xgboost.html#gain-is-a-split-worth-making",
+    "href": "slides/05_xgboost.html#gain-is-a-split-worth-making",
+    "title": "Gradient boosting and XGBoost",
+    "section": "Gain: is a split worth making?",
+    "text": "Gain: is a split worth making?\nSplit the lowest dose (the first No) off from the other three:\n\n\n\n\nresiduals\n\\(\\sum p(1-p)\\)\nSimilarity\n\n\n\n\nLeft leaf\n−0.5\n0.25\n\\((-0.5)^2/0.25=\\mathbf{1.00}\\)\n\n\nRight leaf\n+0.5, +0.5, −0.5\n0.75\n\\((0.5)^2/0.75=\\mathbf{0.33}\\)\n\n\n\n\\[\\text{Gain}=\\text{Sim}_{\\text{left}}+\\text{Sim}_{\\text{right}}-\\text{Sim}_{\\text{root}}=1.00+0.33-0=\\mathbf{1.33}\\]\nXGBoost tries every threshold and keeps the biggest Gain — this is what replaces Gini.\n\nCover check: min_child_weight (default 1) is the smallest Cover a leaf may have. At p≈0.5 that’s ~4 people — so on a toy this small you’d lower it; on real data it just means “no micro-leaves.”"
+  },
+  {
+    "objectID": "slides/05_xgboost.html#λ-lambda-the-regularisation-dial",
+    "href": "slides/05_xgboost.html#λ-lambda-the-regularisation-dial",
+    "title": "Gradient boosting and XGBoost",
+    "section": "λ (lambda): the regularisation dial",
+    "text": "λ (lambda): the regularisation dial\nPut λ = 1 into every denominator and redo the same split:\n\n\n\n\nSimilarity (λ=0)\nSimilarity (λ=1)\n\n\n\n\nLeft leaf\n\\(0.25/0.25=1.00\\)\n\\(0.25/1.25=\\mathbf{0.20}\\)\n\n\nRight leaf\n\\(0.25/0.75=0.33\\)\n\\(0.25/1.75=\\mathbf{0.14}\\)\n\n\nGain\n1.33\n0.34\n\n\n\n\nλ shrinks every similarity → shrinks the Gain → fewer splits look worthwhile, and (next slide) the steps get smaller. λ = “don’t trust small groups.”"
+  },
+  {
+    "objectID": "slides/05_xgboost.html#γ-gamma-prune-the-weak-splits",
+    "href": "slides/05_xgboost.html#γ-gamma-prune-the-weak-splits",
+    "title": "Gradient boosting and XGBoost",
+    "section": "γ (gamma): prune the weak splits",
+    "text": "γ (gamma): prune the weak splits\nRule: keep a split only if Gain &gt; γ. (Equivalently, prune if \\(\\text{Gain}-\\gamma&lt;0\\).)\nWith our Gain = 1.33 (and λ=0):\n\n\n\nγ\nGain − γ\nDecision\n\n\n\n\n0.0\n+1.33\nkeep\n\n\n1.0\n+0.33\nkeep\n\n\n1.5\n−0.17\nprune — collapse the split back to a leaf\n\n\n\nγ is your “minimum worthwhile improvement.” Bigger γ → simpler tree. In tidymodels it’s loss_reduction."
+  },
+  {
+    "objectID": "slides/05_xgboost.html#output-value-then-η-eta-take-the-step",
+    "href": "slides/05_xgboost.html#output-value-then-η-eta-take-the-step",
+    "title": "Gradient boosting and XGBoost",
+    "section": "Output value, then η (eta): take the step",
+    "text": "Output value, then η (eta): take the step\nThe leaf’s output uses the same numerator, but not squared: \\[\\text{Output}=\\frac{\\sum \\text{residual}}{\\sum p(1-p)+\\lambda}\\;\\Rightarrow\\; \\text{Left}=\\frac{-0.5}{0.25}=\\mathbf{-2.0},\\quad \\text{Right}=\\frac{0.5}{0.75}=\\mathbf{+0.67}\\]\nUpdate each person, shrunk by the learning rate η = 0.3: \\(\\;\\log(\\text{odds})_{\\text{new}}=\\log(\\text{odds})_{\\text{old}}+\\eta\\cdot\\text{Output}\\), then \\(p=\\dfrac{1}{1+e^{-\\log(\\text{odds})}}\\).\n\n\n\n\n\n\n\n\nLeaf\nnew log-odds\nnew probability\n\n\n\n\nLeft (the No)\n\\(0+0.3(-2.0)=-0.6\\)\n\\(1/(1+e^{0.6})=\\mathbf{0.35}\\) — pushed toward No\n\n\nRight (mostly Yes)\n\\(0+0.3(0.67)=+0.20\\)\n\\(1/(1+e^{-0.2})=\\mathbf{0.55}\\) — nudged toward Yes\n\n\n\nNow recompute residuals from these new probabilities, grow the next tree, repeat hundreds of times."
+  },
+  {
+    "objectID": "slides/05_xgboost.html#the-five-dials-from-the-worked-example",
+    "href": "slides/05_xgboost.html#the-five-dials-from-the-worked-example",
+    "title": "Gradient boosting and XGBoost",
+    "section": "The five dials, from the worked example",
+    "text": "The five dials, from the worked example\n\n\n\n\n\n\n\n\n\nDial\ntidymodels\nWhat it did above\nTurn it up →\n\n\n\n\nλ lambda\npenalty\nshrank similarity 1.00 → 0.20\nfewer/weaker splits, smaller steps\n\n\nγ gamma\nloss_reduction\npruned the split once Gain &lt; γ\nsimpler tree\n\n\nη eta\nlearn_rate\nscaled the step by 0.3\nfaster, but overshoots\n\n\ndepth\ntree_depth\nhow many splits deep we go\nmore interactions, more overfit\n\n\ncover\nmin_n\nmin Cover \\(\\sum p(1-p)\\) per leaf\nbigger leaves, less overfit\n\n\n\n\nEvery “knob” is just a number in these two formulas. That’s all XGBoost is — Gini replaced by Gain on a regularised loss, repeated in small steps."
+  },
+  {
     "objectID": "slides/05_xgboost.html#regularisation-in-one-slide-needed-again-at-14.00",
     "href": "slides/05_xgboost.html#regularisation-in-one-slide-needed-again-at-14.00",
     "title": "Gradient boosting and XGBoost",
